@@ -1,0 +1,141 @@
+2024-01-16 17:05:24,031 INFO - Current Time: 16/01/2024 17:05:24
+2024-01-16 17:05:24,053 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:05:24,054 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:05:24,056 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:05:24,057 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:05:24,060 DEBUG - Setting Timers: Completed
+2024-01-16 17:05:24,061 INFO - Starting Timers
+2024-01-16 17:05:24,101 INFO - Starting Server: Completed
+2024-01-16 17:05:24,102 INFO - ----Server Commands----
+2024-01-16 17:06:24,102 INFO - Warning One Triggered
+2024-01-16 17:06:24,110 DEBUG - Warning Message: Server will shutdown for a backup in an hour.
+2024-01-16 17:06:24,111 INFO - ----Server Commands----
+2024-01-16 17:07:24,102 INFO - Warning Two Triggered
+2024-01-16 17:07:24,118 DEBUG - Warning Message: Server will shutdown for a backup in 30 minutes.
+2024-01-16 17:07:24,123 INFO - ----Server Commands----
+2024-01-16 17:08:24,102 INFO - Warning Three Triggered
+2024-01-16 17:08:24,103 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-01-16 17:08:24,104 INFO - ----Server Commands----
+2024-01-16 17:09:24,087 INFO - Backup Triggered
+2024-01-16 17:09:24,091 INFO - Stopping Server
+2024-01-16 17:09:24,093 INFO - Waiting for 30 Seconds
+2024-01-16 17:09:58,759 INFO - Wait Server Triggered
+2024-01-16 17:09:59,384 INFO - Creating Backup
+2024-01-16 17:10:00,829 INFO - Archiving Logs
+2024-01-16 17:10:00,832 INFO - Removing Old Backups and Logs
+2024-01-16 17:10:00,834 INFO - Restarting Process
+2024-01-16 17:10:00,834 INFO - Current Time: 16/01/2024 17:10:00
+2024-01-16 17:10:00,835 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:10:00,835 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:10:00,836 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:10:00,836 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:10:00,836 DEBUG - Setting Timers: Completed
+2024-01-16 17:10:00,837 INFO - Starting Timers
+2024-01-16 17:10:00,841 INFO - Starting Server: Completed
+2024-01-16 17:10:00,846 INFO - ----Server Commands----
+2024-01-16 17:11:00,850 INFO - Warning One Triggered
+2024-01-16 17:11:00,854 DEBUG - Warning Message: Server will shutdown for a backup in an hour.
+2024-01-16 17:11:00,856 INFO - ----Server Commands----
+2024-01-16 17:12:00,857 INFO - Warning Two Triggered
+2024-01-16 17:12:00,860 DEBUG - Warning Message: Server will shutdown for a backup in 30 minutes.
+2024-01-16 17:12:00,861 INFO - ----Server Commands----
+2024-01-16 17:13:00,850 INFO - Warning Three Triggered
+2024-01-16 17:13:00,854 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-01-16 17:13:00,854 INFO - ----Server Commands----
+2024-01-16 17:14:00,861 INFO - Backup Triggered
+2024-01-16 17:14:00,865 INFO - Stopping Server
+2024-01-16 17:14:00,866 INFO - Waiting for 30 Seconds
+2024-01-16 17:14:30,893 INFO - Wait Server Triggered
+2024-01-16 17:14:30,937 INFO - Creating Backup
+2024-01-16 17:14:31,066 INFO - Archiving Logs
+2024-01-16 17:14:31,067 INFO - Removing Old Backups and Logs
+2024-01-16 17:14:31,069 INFO - Restarting Process
+2024-01-16 17:14:31,069 INFO - Current Time: 16/01/2024 17:14:31
+2024-01-16 17:14:31,069 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:14:31,070 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:14:31,070 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:14:31,070 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:14:31,071 DEBUG - Setting Timers: Completed
+2024-01-16 17:14:31,071 INFO - Starting Timers
+2024-01-16 17:14:31,075 INFO - Starting Server: Completed
+2024-01-16 17:14:31,075 INFO - ----Server Commands----
+2024-01-16 17:15:31,082 INFO - Warning One Triggered
+2024-01-16 17:15:31,084 DEBUG - Warning Message: Server will shutdown for a backup in an hour.
+2024-01-16 17:15:31,086 INFO - ----Server Commands----
+2024-01-16 17:16:31,114 INFO - Warning Two Triggered
+2024-01-16 17:16:31,123 DEBUG - Warning Message: Server will shutdown for a backup in 30 minutes.
+2024-01-16 17:16:31,128 INFO - ----Server Commands----
+2024-01-16 17:17:31,093 INFO - Warning Three Triggered
+2024-01-16 17:17:31,099 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-01-16 17:17:31,100 INFO - ----Server Commands----
+2024-01-16 17:18:31,105 INFO - Backup Triggered
+2024-01-16 17:18:31,123 INFO - Stopping Server
+2024-01-16 17:18:31,125 INFO - Waiting for 30 Seconds
+2024-01-16 17:19:01,173 INFO - Wait Server Triggered
+2024-01-16 17:19:01,183 INFO - Creating Backup
+2024-01-16 17:19:01,280 INFO - Archiving Logs
+2024-01-16 17:19:01,282 INFO - Removing Old Backups and Logs
+2024-01-16 17:19:01,283 INFO - Restarting Process
+2024-01-16 17:19:01,284 INFO - Current Time: 16/01/2024 17:19:01
+2024-01-16 17:19:01,284 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:19:01,285 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:19:01,285 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:19:01,285 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:19:01,286 DEBUG - Setting Timers: Completed
+2024-01-16 17:19:01,286 INFO - Starting Timers
+2024-01-16 17:19:01,290 INFO - Starting Server: Completed
+2024-01-16 17:19:01,294 INFO - ----Server Commands----
+2024-01-16 17:20:01,297 INFO - Warning One Triggered
+2024-01-16 17:20:01,299 DEBUG - Warning Message: Server will shutdown for a backup in an hour.
+2024-01-16 17:20:01,322 INFO - ----Server Commands----
+2024-01-16 17:21:01,289 INFO - Warning Two Triggered
+2024-01-16 17:21:01,293 DEBUG - Warning Message: Server will shutdown for a backup in 30 minutes.
+2024-01-16 17:21:01,294 INFO - ----Server Commands----
+2024-01-16 17:22:01,288 INFO - Warning Three Triggered
+2024-01-16 17:22:01,293 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-01-16 17:22:01,297 INFO - ----Server Commands----
+2024-01-16 17:23:01,295 INFO - Backup Triggered
+2024-01-16 17:23:01,304 INFO - Stopping Server
+2024-01-16 17:23:01,305 INFO - Waiting for 30 Seconds
+2024-01-16 17:23:31,335 INFO - Wait Server Triggered
+2024-01-16 17:23:31,345 INFO - Creating Backup
+2024-01-16 17:23:31,451 INFO - Archiving Logs
+2024-01-16 17:23:31,453 INFO - Removing Old Backups and Logs
+2024-01-16 17:23:31,455 INFO - Restarting Process
+2024-01-16 17:23:31,455 INFO - Current Time: 16/01/2024 17:23:31
+2024-01-16 17:23:31,456 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:23:31,456 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:23:31,457 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:23:31,457 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:23:31,457 DEBUG - Setting Timers: Completed
+2024-01-16 17:23:31,458 INFO - Starting Timers
+2024-01-16 17:23:31,463 INFO - Starting Server: Completed
+2024-01-16 17:23:31,467 INFO - ----Server Commands----
+2024-01-16 17:24:31,479 INFO - Warning One Triggered
+2024-01-16 17:24:31,482 DEBUG - Warning Message: Server will shutdown for a backup in an hour.
+2024-01-16 17:24:31,483 INFO - ----Server Commands----
+2024-01-16 17:25:31,487 INFO - Warning Two Triggered
+2024-01-16 17:25:31,492 DEBUG - Warning Message: Server will shutdown for a backup in 30 minutes.
+2024-01-16 17:25:31,495 INFO - ----Server Commands----
+2024-01-16 17:26:31,468 INFO - Warning Three Triggered
+2024-01-16 17:26:31,472 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-01-16 17:26:31,473 INFO - ----Server Commands----
+2024-01-16 17:27:31,485 INFO - Backup Triggered
+2024-01-16 17:27:31,490 INFO - Stopping Server
+2024-01-16 17:27:31,490 INFO - Waiting for 30 Seconds
+2024-01-16 17:28:01,499 INFO - Wait Server Triggered
+2024-01-16 17:28:01,503 INFO - Creating Backup
+2024-01-16 17:28:01,597 INFO - Archiving Logs
+2024-01-16 17:28:01,599 INFO - Removing Old Backups and Logs
+2024-01-16 17:28:01,600 INFO - Restarting Process
+2024-01-16 17:28:01,601 INFO - Current Time: 16/01/2024 17:28:01
+2024-01-16 17:28:01,601 DEBUG - Time before backup: 00:04:00
+2024-01-16 17:28:01,602 DEBUG - Time before first warning: 00:01:00
+2024-01-16 17:28:01,602 DEBUG - Time before second warning: 00:02:00
+2024-01-16 17:28:01,603 DEBUG - Time before third warning: 00:03:00
+2024-01-16 17:28:01,603 DEBUG - Setting Timers: Completed
+2024-01-16 17:28:01,604 INFO - Starting Timers
+2024-01-16 17:28:01,608 INFO - Starting Server: Completed
+2024-01-16 17:28:01,608 INFO - ----Server Commands----
+2024-01-16 17:28:28,785 DEBUG - Command Sent to Server: stop
+2024-01-16 17:28:34,278 DEBUG - Command Sent to Server: Exit App

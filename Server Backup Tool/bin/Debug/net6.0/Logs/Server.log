@@ -1,0 +1,21 @@
+2024-01-16 17:28:01,622 INFO - C:\Users\TobyH\Downloads\1.7.10 Test Server>title Minecraft Server Console 
+2024-01-16 17:28:01,624 INFO - C:\Users\TobyH\Downloads\1.7.10 Test Server>java -server -Xmx1G -jar minecraft_server.1.7.10.jar nogui 
+2024-01-16 17:28:04,615 INFO - [17:28:04] [Server thread/INFO]: Starting minecraft server version 1.7.10
+2024-01-16 17:28:04,624 INFO - [17:28:04] [Server thread/INFO]: Loading properties
+2024-01-16 17:28:04,630 INFO - [17:28:04] [Server thread/INFO]: Default game type: SURVIVAL
+2024-01-16 17:28:04,630 INFO - [17:28:04] [Server thread/INFO]: Generating keypair
+2024-01-16 17:28:04,709 INFO - [17:28:04] [Server thread/INFO]: Starting Minecraft server on *:25565
+2024-01-16 17:28:05,091 INFO - [17:28:05] [Server thread/INFO]: Preparing level "world"
+2024-01-16 17:28:05,137 INFO - [17:28:05] [Server thread/INFO]: Preparing start region for level 0
+2024-01-16 17:28:05,512 INFO - [17:28:05] [Server thread/INFO]: Done (0.420s)! For help, type "help" or "?"
+2024-01-16 17:28:28,817 INFO - [17:28:28] [Server thread/INFO]: Stopping the server
+2024-01-16 17:28:28,865 INFO - [17:28:28] [Server thread/INFO]: Stopping server
+2024-01-16 17:28:28,866 INFO - [17:28:28] [Server thread/INFO]: Saving players
+2024-01-16 17:28:28,867 INFO - [17:28:28] [Server thread/INFO]: Saving worlds
+2024-01-16 17:28:28,867 INFO - [17:28:28] [Server thread/INFO]: Saving chunks for level 'world'/Overworld
+2024-01-16 17:28:28,896 INFO - [17:28:28] [Server thread/INFO]: Saving chunks for level 'world'/Nether
+2024-01-16 17:28:28,897 INFO - [17:28:28] [Server thread/INFO]: Saving chunks for level 'world'/The End
+2024-01-16 17:28:28,984 INFO - [17:28:28] [Server Shutdown Thread/INFO]: Stopping server
+2024-01-16 17:28:28,984 INFO - [17:28:28] [Server Shutdown Thread/INFO]: Saving players
+2024-01-16 17:28:28,985 INFO - [17:28:28] [Server Shutdown Thread/INFO]: Saving worlds
+2024-01-16 17:28:29,349 INFO - C:\Users\TobyH\Downloads\1.7.10 Test Server>PAUSE
