@@ -30,6 +30,7 @@ namespace Server_Backup_Tool
                 S.StartInfo.WorkingDirectory = Server_Information.FilePath;
                 S.Start();
                 S.BeginOutputReadLine();
+                Server_Information.IsRunning = true;
                 return "Completed";
             }
 
@@ -57,6 +58,8 @@ namespace Server_Backup_Tool
         {
             S.StandardInput.WriteLine("stop");
             S.StandardInput.Flush();
+
+            Server_Information.IsRunning = false;
 
             return "Stopped";
         }

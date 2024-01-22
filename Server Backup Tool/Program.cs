@@ -21,7 +21,36 @@ namespace Server_Backup_Tool
                 {
                     if (Command == "Exit App")
                     {
+                        Console.WriteLine("Exit Command Triggered");
+                        Log.Info("Exit Command Triggered");
                         break;
+                    }
+
+                    else if (Command == "Start Server")
+                    {
+                        if (!Server_Information.IsRunning)
+                        {
+                            Console.WriteLine("Starting Server");
+                            Log.Info("Starting Server");
+
+                            Server.StartServer();
+
+                            Console.WriteLine("\n----Server Commands----");
+                            Log.Info("----Server Commands----");
+                        }
+                    }
+
+                    else if (Command == "stop")
+                    {
+                        if (Server_Information.IsRunning)
+                        {
+                            Log.Debug($"Command Sent to Server: {Command}");
+
+                            Console.WriteLine("\nStopping Server");
+                            Log.Info("Stopping Server");
+
+                            Server.StopServer();
+                        }
                     }
 
                     else
@@ -61,7 +90,7 @@ namespace Server_Backup_Tool
             string Result = Timers.SetTimers(BackupTimer, WarningOne, WarningTwo, WarningThree);
 
             Console.WriteLine($"Setting Timers: {Result}");
-            Log.Debug($"Setting Timers: {Result}");
+            Log.Info($"Setting Timers: {Result}");
 
             Console.WriteLine($"Starting Timers");
             Log.Info("Starting Timers");
