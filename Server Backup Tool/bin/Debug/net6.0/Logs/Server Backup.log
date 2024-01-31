@@ -139,3 +139,108 @@
 2024-01-16 17:28:01,608 INFO - ----Server Commands----
 2024-01-16 17:28:28,785 DEBUG - Command Sent to Server: stop
 2024-01-16 17:28:34,278 DEBUG - Command Sent to Server: Exit App
+2024-01-22 21:34:35,924 INFO - Current Time: 22/01/2024 21:34:35
+2024-01-22 21:34:35,939 DEBUG - Time before backup: 04:25:25
+2024-01-22 21:34:35,940 DEBUG - Time before first warning: 03:25:25
+2024-01-22 21:34:35,940 DEBUG - Time before second warning: 03:55:25
+2024-01-22 21:34:35,940 DEBUG - Time before third warning: 04:20:25
+2024-01-22 21:34:35,941 INFO - Setting Timers: Completed
+2024-01-22 21:34:35,941 INFO - Starting Timers
+2024-01-22 21:34:35,976 INFO - Starting Server: Completed
+2024-01-22 21:34:35,977 INFO - ----Server Commands----
+2024-01-22 21:35:13,987 DEBUG - Command Sent to Server: stop
+2024-01-22 21:36:36,231 INFO - Current Time: 22/01/2024 21:36:36
+2024-01-22 21:36:36,243 DEBUG - Time before backup: 04:23:24
+2024-01-22 21:36:36,243 DEBUG - Time before first warning: 03:23:24
+2024-01-22 21:36:36,243 DEBUG - Time before second warning: 03:53:24
+2024-01-22 21:36:36,244 DEBUG - Time before third warning: 04:18:24
+2024-01-22 21:36:36,245 INFO - Setting Timers: Completed
+2024-01-22 21:36:36,245 INFO - Starting Timers
+2024-01-22 21:36:36,275 INFO - Starting Server: Completed
+2024-01-22 21:36:36,276 INFO - ----Server Commands----
+2024-01-22 21:36:45,971 DEBUG - Command Sent to Server: stop
+2024-01-22 21:38:06,557 INFO - Current Time: 22/01/2024 21:38:06
+2024-01-22 21:38:06,567 DEBUG - Time before backup: 04:21:54
+2024-01-22 21:38:06,567 DEBUG - Time before first warning: 03:21:54
+2024-01-22 21:38:06,567 DEBUG - Time before second warning: 03:51:54
+2024-01-22 21:38:06,568 DEBUG - Time before third warning: 04:16:54
+2024-01-22 21:38:06,568 INFO - Setting Timers: Completed
+2024-01-22 21:38:06,569 INFO - Starting Timers
+2024-01-22 21:38:06,592 INFO - Starting Server: Completed
+2024-01-22 21:38:06,592 INFO - ----Server Commands----
+2024-01-22 21:38:17,196 DEBUG - Command Sent to Server: stop
+2024-01-22 21:38:27,347 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:28,426 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:28,820 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:29,140 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:29,410 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:29,676 DEBUG - Command Sent to Server: h
+2024-01-22 21:38:29,926 DEBUG - Command Sent to Server: h
+2024-01-22 21:41:40,225 INFO - Current Time: 22/01/2024 21:41:40
+2024-01-22 21:41:40,235 DEBUG - Time before backup: 04:18:20
+2024-01-22 21:41:40,235 DEBUG - Time before first warning: 03:18:20
+2024-01-22 21:41:40,235 DEBUG - Time before second warning: 03:48:20
+2024-01-22 21:41:40,236 DEBUG - Time before third warning: 04:13:20
+2024-01-22 21:41:40,236 INFO - Setting Timers: Completed
+2024-01-22 21:41:40,237 INFO - Starting Timers
+2024-01-22 21:41:40,268 INFO - Starting Server: Completed
+2024-01-22 21:41:40,268 INFO - ----Server Commands----
+2024-01-22 21:41:50,314 INFO - Stopping Server
+2024-01-22 21:42:00,516 INFO - Starting Server
+2024-01-22 21:42:00,528 INFO - ----Server Commands----
+2024-01-22 21:42:14,692 INFO - Stopping Server
+2024-01-22 21:44:24,943 INFO - Current Time: 22/01/2024 21:44:24
+2024-01-22 21:44:24,953 DEBUG - Time before backup: 04:15:36
+2024-01-22 21:44:24,953 DEBUG - Time before first warning: 03:15:36
+2024-01-22 21:44:24,954 DEBUG - Time before second warning: 03:45:36
+2024-01-22 21:44:24,955 DEBUG - Time before third warning: 04:10:36
+2024-01-22 21:44:24,955 INFO - Setting Timers: Completed
+2024-01-22 21:44:24,956 INFO - Starting Timers
+2024-01-22 21:44:24,990 INFO - Starting Server: Completed
+2024-01-22 21:44:24,990 INFO - ----Server Commands----
+2024-01-22 21:44:36,405 DEBUG - Command Sent to Server: stop
+2024-01-22 21:44:36,406 INFO - Stopping Server
+2024-01-31 18:19:28,139 INFO - Current Time: 31/01/2024 18:19:28
+2024-01-31 18:19:28,153 DEBUG - Time before backup: 07:40:32
+2024-01-31 18:19:28,154 DEBUG - Time before first warning: 06:40:32
+2024-01-31 18:19:28,154 DEBUG - Time before second warning: 07:10:32
+2024-01-31 18:19:28,155 DEBUG - Time before third warning: 07:35:32
+2024-01-31 18:19:28,155 INFO - Setting Timers: Completed
+2024-01-31 18:19:28,156 INFO - Starting Timers
+2024-01-31 18:19:28,216 INFO - Starting Server: Completed
+2024-01-31 18:19:28,216 INFO - ----Server Commands----
+2024-01-31 18:21:52,955 DEBUG - Command Sent to Server: stop
+2024-01-31 18:21:52,955 INFO - Stopping Server
+2024-01-31 18:22:22,745 INFO - Current Time: 31/01/2024 18:22:22
+2024-01-31 18:22:22,754 DEBUG - Time before backup: 07:37:38
+2024-01-31 18:22:22,755 DEBUG - Time before first warning: 06:37:38
+2024-01-31 18:22:22,756 DEBUG - Time before second warning: 07:07:38
+2024-01-31 18:22:22,756 DEBUG - Time before third warning: 07:32:38
+2024-01-31 18:22:22,757 INFO - Setting Timers: Completed
+2024-01-31 18:22:22,757 INFO - Starting Timers
+2024-01-31 18:22:22,788 INFO - Starting Server: Completed
+2024-01-31 18:22:22,788 INFO - ----Server Commands----
+2024-01-31 18:22:55,637 DEBUG - Command Sent to Server: stop
+2024-01-31 18:22:55,638 INFO - Stopping Server
+2024-01-31 18:25:38,195 INFO - Current Time: 31/01/2024 18:25:38
+2024-01-31 18:25:38,206 DEBUG - Time before backup: 07:34:22
+2024-01-31 18:25:38,207 DEBUG - Time before first warning: 06:34:22
+2024-01-31 18:25:38,207 DEBUG - Time before second warning: 07:04:22
+2024-01-31 18:25:38,208 DEBUG - Time before third warning: 07:29:22
+2024-01-31 18:25:38,208 INFO - Setting Timers: Completed
+2024-01-31 18:25:38,209 INFO - Starting Timers
+2024-01-31 18:25:38,239 INFO - Starting Server: Completed
+2024-01-31 18:25:38,240 INFO - ----Server Commands----
+2024-01-31 18:25:52,880 DEBUG - Command Sent to Server: stop
+2024-01-31 18:25:52,880 INFO - Stopping Server
+2024-01-31 18:30:44,003 INFO - Current Time: 31/01/2024 18:30:44
+2024-01-31 18:30:44,014 DEBUG - Time before backup: 07:29:16
+2024-01-31 18:30:44,015 DEBUG - Time before first warning: 06:29:16
+2024-01-31 18:30:44,016 DEBUG - Time before second warning: 06:59:16
+2024-01-31 18:30:44,016 DEBUG - Time before third warning: 07:24:16
+2024-01-31 18:30:44,017 INFO - Setting Timers: Completed
+2024-01-31 18:30:44,018 INFO - Starting Timers
+2024-01-31 18:30:44,047 INFO - Starting Server: Completed
+2024-01-31 18:30:44,048 INFO - ----Server Commands----
+2024-01-31 18:31:00,577 DEBUG - Command Sent to Server: stop
+2024-01-31 18:31:00,577 INFO - Stopping Server
