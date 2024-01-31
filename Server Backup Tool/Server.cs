@@ -70,7 +70,13 @@ namespace Server_Backup_Tool
             {
                 if (!string.IsNullOrEmpty(e.Data))
                 {
-                    ServerLog.Info(e.Data);
+                    switch (e.Data)
+                    {
+                        case String when e.Data.Contains("/INFO]"): ServerLog.Info(e.Data); break;
+                        case String when e.Data.Contains("/WARN]"): ServerLog.Warn(e.Data); break;
+                        case String when e.Data.Contains("/ERROR]"): ServerLog.Error(e.Data); break;
+                        case String when e.Data.Contains("/DEBUG]"): ServerLog.Debug(e.Data); break;
+                    }
 
                     if (e.Data.Contains($"{Server_Information.FilePath}>PAUSE"))
                     {

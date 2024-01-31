@@ -151,3 +151,68 @@
 2024-01-22 21:44:36,516 INFO - [21:44:36] [Server thread/INFO]: Saving chunks for level 'world'/the_end
 2024-01-22 21:44:36,599 INFO - [21:44:36] [Server Shutdown Thread/INFO]: Stopping server
 2024-01-22 21:44:36,957 INFO - D:\1.12.2 Server>PAUSE
+[2024-01-31] [18:19:31] [Server thread/INFO]: Starting minecraft server version 1.12.2
+[2024-01-31] [18:19:31] [Server thread/INFO]: Loading properties
+[2024-01-31] [18:19:31] [Server thread/INFO]: Default game type: SURVIVAL
+[2024-01-31] [18:19:31] [Server thread/INFO]: Generating keypair
+[2024-01-31] [18:19:31] [Server thread/INFO]: Starting Minecraft server on 25.60.165.231:25565
+[2024-01-31] [18:19:31] [Server thread/INFO]: Using default channel type
+[2024-01-31] [18:19:31] [Server thread/INFO]: Preparing level "world"
+[2024-01-31] [18:19:31] [Server thread/INFO]: Loaded 488 advancements
+[2024-01-31] [18:19:31] [Server thread/INFO]: Preparing start region for level 0
+[2024-01-31] [18:19:32] [Server thread/INFO]: Done (0.987s)! For help, type "help" or "?"
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Starting minecraft server version 1.12.2
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Loading properties
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Default game type: SURVIVAL
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Generating keypair
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Starting Minecraft server on 25.60.165.231:25565
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Using default channel type
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Preparing level "world"
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Loaded 488 advancements
+INFO - [2024-01-31] [18:22:25] [Server thread/INFO]: Preparing start region for level 0
+INFO - [2024-01-31] [18:22:26] [Server thread/INFO]: Done (0.797s)! For help, type "help" or "?"
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Stopping the server
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Stopping server
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Saving players
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Saving worlds
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Saving chunks for level 'world'/overworld
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Saving chunks for level 'world'/the_nether
+INFO - [2024-01-31] [18:22:55] [Server thread/INFO]: Saving chunks for level 'world'/the_end
+INFO - [2024-01-31] [18:22:55] [Server Shutdown Thread/INFO]: Stopping server
+INFO - [2024-01-31] [18:22:55] [Server Shutdown Thread/INFO]: Saving players
+INFO - [18:25:40] [Server thread/INFO]: Starting minecraft server version 1.12.2
+INFO - [18:25:40] [Server thread/INFO]: Loading properties
+INFO - [18:25:40] [Server thread/INFO]: Default game type: SURVIVAL
+INFO - [18:25:40] [Server thread/INFO]: Generating keypair
+INFO - [18:25:40] [Server thread/INFO]: Starting Minecraft server on 25.60.165.231:25565
+INFO - [18:25:40] [Server thread/INFO]: Using default channel type
+INFO - [18:25:40] [Server thread/INFO]: Preparing level "world"
+INFO - [18:25:41] [Server thread/INFO]: Loaded 488 advancements
+INFO - [18:25:41] [Server thread/INFO]: Preparing start region for level 0
+INFO - [18:25:41] [Server thread/INFO]: Done (0.798s)! For help, type "help" or "?"
+INFO - [18:25:52] [Server thread/INFO]: Stopping the server
+INFO - [18:25:52] [Server thread/INFO]: Stopping server
+INFO - [18:25:52] [Server thread/INFO]: Saving players
+INFO - [18:25:52] [Server thread/INFO]: Saving worlds
+INFO - [18:25:52] [Server thread/INFO]: Saving chunks for level 'world'/overworld
+INFO - [18:25:52] [Server thread/INFO]: Saving chunks for level 'world'/the_nether
+INFO - [18:25:52] [Server thread/INFO]: Saving chunks for level 'world'/the_end
+INFO - [18:25:53] [Server Shutdown Thread/INFO]: Stopping server
+2024-01-31 18:30:46,421 INFO - [18:30:46] [Server thread/INFO]: Starting minecraft server version 1.12.2
+2024-01-31 18:30:46,422 INFO - [18:30:46] [Server thread/INFO]: Loading properties
+2024-01-31 18:30:46,429 INFO - [18:30:46] [Server thread/INFO]: Default game type: SURVIVAL
+2024-01-31 18:30:46,429 INFO - [18:30:46] [Server thread/INFO]: Generating keypair
+2024-01-31 18:30:46,506 INFO - [18:30:46] [Server thread/INFO]: Starting Minecraft server on 25.60.165.231:25565
+2024-01-31 18:30:46,511 INFO - [18:30:46] [Server thread/INFO]: Using default channel type
+2024-01-31 18:30:46,734 INFO - [18:30:46] [Server thread/INFO]: Preparing level "world"
+2024-01-31 18:30:46,878 INFO - [18:30:46] [Server thread/INFO]: Loaded 488 advancements
+2024-01-31 18:30:46,891 INFO - [18:30:46] [Server thread/INFO]: Preparing start region for level 0
+2024-01-31 18:30:47,560 INFO - [18:30:47] [Server thread/INFO]: Done (0.825s)! For help, type "help" or "?"
+2024-01-31 18:31:00,613 INFO - [18:31:00] [Server thread/INFO]: Stopping the server
+2024-01-31 18:31:00,662 INFO - [18:31:00] [Server thread/INFO]: Stopping server
+2024-01-31 18:31:00,663 INFO - [18:31:00] [Server thread/INFO]: Saving players
+2024-01-31 18:31:00,664 INFO - [18:31:00] [Server thread/INFO]: Saving worlds
+2024-01-31 18:31:00,664 INFO - [18:31:00] [Server thread/INFO]: Saving chunks for level 'world'/overworld
+2024-01-31 18:31:00,712 INFO - [18:31:00] [Server thread/INFO]: Saving chunks for level 'world'/the_nether
+2024-01-31 18:31:00,712 INFO - [18:31:00] [Server thread/INFO]: Saving chunks for level 'world'/the_end
+2024-01-31 18:31:00,792 INFO - [18:31:00] [Server Shutdown Thread/INFO]: Stopping server
