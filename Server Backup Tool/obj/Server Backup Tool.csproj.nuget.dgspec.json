@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Coding Projects\\Server Backup Tool\\Server Backup Tool\\Server Backup Tool.csproj": {}
+    "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {}
   },
   "projects": {
-    "D:\\Coding Projects\\Server Backup Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
+    "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Coding Projects\\Server Backup Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+        "projectUniqueName": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
         "projectName": "Server Backup Tool",
-        "projectPath": "D:\\Coding Projects\\Server Backup Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+        "projectPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
         "packagesPath": "C:\\Users\\tobyh\\.nuget\\packages\\",
-        "outputPath": "D:\\Coding Projects\\Server Backup Tool\\Server Backup Tool\\obj\\",
+        "outputPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -65,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.418\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.423\\RuntimeIdentifierGraph.json"
         }
       }
     }
