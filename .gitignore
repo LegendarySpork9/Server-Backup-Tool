@@ -1,2 +1,5 @@
 # Build
 [Bb]in/
+
+# Odds
+.vs/
