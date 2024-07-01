@@ -11,6 +11,10 @@ namespace Server_Backup_Tool
         static void Main()
         {
             log4net.Config.XmlConfigurator.Configure();
+
+            AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
+
+            Email.StartEmail();
             RunProgram();
 
             while (true)
@@ -139,6 +143,11 @@ namespace Server_Backup_Tool
             Log.Info("Restarting Process");
 
             RunProgram();
+        }
+
+        static void OnProcessExit(object? sender, EventArgs e)
+        {
+            Email.CloseEmail();
         }
     }
 }

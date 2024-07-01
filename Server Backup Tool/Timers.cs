@@ -1,5 +1,6 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using log4net;
+using System.Net.NetworkInformation;
 using System.Timers;
 using Timer = System.Timers.Timer;
 
@@ -13,6 +14,7 @@ namespace Server_Backup_Tool
         static Timer WarningTwo;
         static Timer WarningThree;
         static Timer Wait;
+        static Timer Heartbeat;
 
         public static string SetTimers(TimeSpan Backup, TimeSpan One, TimeSpan Two, TimeSpan Three)
         {
@@ -42,6 +44,12 @@ namespace Server_Backup_Tool
                 };
                 WarningThree.Elapsed += WarnThree;
 
+                Heartbeat = new Timer
+                {
+                    Interval = 5000
+                };
+                Heartbeat.Elapsed += HeartbeatElapsed;
+
                 return "Completed";
             }
 
@@ -59,6 +67,7 @@ namespace Server_Backup_Tool
             WarningOne.Start();
             WarningTwo.Start();
             WarningThree.Start();
+            Heartbeat.Start();
         }
 
         public static void WaitForClose()
@@ -126,6 +135,18 @@ namespace Server_Backup_Tool
 
             WarningOne.Dispose();
             Server.SendWarning("Server will shutdown for a backup in 5 minutes.");
+        }
+
+        private static void HeartbeatElapsed(object sender, ElapsedEventArgs e)
+        {
+            Ping pingSender = new();
+            PingReply reply = pingSender.Send("25.35.45.248");
+
+            if (reply.Status != IPStatus.Success)
+            {
+                Heartbeat.Stop();
+                Email.ConnectionEmail();
+            }
         }
 
         private static void WaitServer(object sender, ElapsedEventArgs e)
