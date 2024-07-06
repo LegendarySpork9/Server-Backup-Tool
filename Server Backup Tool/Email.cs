@@ -22,7 +22,7 @@ namespace Server_Backup_Tool
                 EnableSsl = true,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential(fromAddress.Address, "dqcy dnry wlcv pptg")
+                Credentials = new NetworkCredential(fromAddress.Address, "")
             };
 
             string subject = "SBT Open Notification";
