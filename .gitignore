@@ -3,3 +3,6 @@
 
 # Odds
 /.vs/
+
+# Dev Config
+*[Aa]pp - Development.config
