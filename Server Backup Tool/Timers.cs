@@ -4,7 +4,7 @@ using System.Net.NetworkInformation;
 using System.Timers;
 using Timer = System.Timers.Timer;
 
-namespace Server_Backup_Tool
+namespace ServerBackupTool
 {
     internal class Timers
     {

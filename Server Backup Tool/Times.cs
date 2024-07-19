@@ -1,5 +1,5 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-namespace Server_Backup_Tool
+namespace ServerBackupTool
 {
     internal class Times
     {
