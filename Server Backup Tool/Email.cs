@@ -2,7 +2,7 @@
 using System.Net;
 using System.Net.NetworkInformation;
 
-namespace Server_Backup_Tool
+namespace ServerBackupTool
 {
     internal class Email
     {

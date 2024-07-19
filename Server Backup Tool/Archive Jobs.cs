@@ -2,7 +2,7 @@
 using log4net;
 using System.IO.Compression;
 
-namespace Server_Backup_Tool
+namespace ServerBackupTool
 {
     internal class Archive_Jobs
     {
