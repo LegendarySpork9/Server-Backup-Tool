@@ -1,0 +1,33 @@
+name: Check for Linked Issue
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+jobs:
+  check-linked-issue:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check if PR has linked issues in description or comments
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const issuePattern = /#\d+/g;
+
+          const prDescription = context.payload.pull_request.body || '';
+          const prComments = await github.paginate(
+            github.rest.issues.listComments, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+            }
+          );
+
+          const allText = prDescription + prComments.map(comment => comment.body).join(' ');
+
+          const linkedIssues = allText.match(issuePattern);
+
+          if (!linkedIssues || linkedIssues.length === 0) {
+            core.setFailed('This pull request does not have any linked issues.');
+          }
