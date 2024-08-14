@@ -1,16 +1,30 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using log4net;
+using System.Configuration;
+using ServerBackupTool.Models.Configuration;
 
 namespace ServerBackupTool
 {
     internal class Program
     {
         static readonly ILog Log = LogManager.GetLogger("BackupLog");
-        public static ManualResetEvent WaitForServerClose = new ManualResetEvent(false);
+        public static ManualResetEvent WaitForServerClose = new(false);
 
         static void Main()
         {
             log4net.Config.XmlConfigurator.Configure();
+
+            // Development Settings
+            string configFilePath = Path.Combine("D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\", "App - Development.config");
+
+            ExeConfigurationFileMap configMap = new()
+            {
+                ExeConfigFilename = configFilePath
+            };
+            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
+            SBTSection? serverBackupSection = (SBTSection)config.GetSection("serverBackup");
+
+            //SBTSection? serverBackupSection = ConfigurationManager.GetSection("serverBackup") as SBTSection;
 
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
