@@ -1,4 +1,4 @@
-﻿// Copyright © - 17/01/2024 - Toby Hunter
+﻿// Copyright © - unpublished - Toby Hunter
 using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration

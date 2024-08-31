@@ -2,6 +2,8 @@
 using log4net;
 using System.Configuration;
 using ServerBackupTool.Models.Configuration;
+using ServerBackupTool.Converters;
+using ServerBackupTool.Services;
 
 namespace ServerBackupTool
 {
@@ -29,7 +31,7 @@ namespace ServerBackupTool
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
             Email.StartEmail();
-            RunProgram();
+            RunProgram(serverBackupSection);
 
             while (true)
             {
@@ -80,51 +82,53 @@ namespace ServerBackupTool
             }
         }
 
-        static void RunProgram()
+        static void RunProgram(SBTSection serverBackupSection)
         {
-            Console.WriteLine($"Current Time: {DateTime.Now}");
+            TimeConverter _timeConverter = new();
+            TimerService _timerService = new();
+
+            Console.WriteLine("Current Time: {0}", DateTime.Now);
             Log.Info($"Current Time: {DateTime.Now}");
 
-            TimeSpan BackupTimer = Times.GetTimer();
+            TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
 
-            Console.WriteLine($"Time before backup: {BackupTimer}");
-            Log.Debug($"Time before backup: {BackupTimer}");
+            TimeSpan duration = _timeConverter.GetDuration(serverBackupSection.TimerDetails.BackupTime);
 
-            TimeSpan WarningOne = Times.GetWarningOne();
+            Console.WriteLine("Time before backup: {0}", duration);
+            Log.Debug($"Time before backup: {duration}");
+            
+            timerDurations = timerDurations.Append(duration).ToArray();
 
-            Console.WriteLine($"Time before first warning: {WarningOne}");
-            Log.Debug($"Time before first warning: {WarningOne}");
+            foreach (TimerElement timer in serverBackupSection.TimerDetails.Timers)
+            {
+                duration = _timeConverter.GetDuration(timer.Time);
 
-            TimeSpan WarningTwo = Times.GetWarningTwo();
+                Console.WriteLine("Time before {0}: {1}", timer.Name.ToLower(), duration);
+                Log.Debug($"Time before {timer.Name.ToLower()}: {duration}");
 
-            Console.WriteLine($"Time before second warning: {WarningTwo}");
-            Log.Debug($"Time before second warning: {WarningTwo}");
+                timerDurations = timerDurations.Append(duration).ToArray();
+            }
 
-            TimeSpan WarningThree = Times.GetWarningThree();
+            string result = _timerService.SetTimers(serverBackupSection.TimerDetails.Timers, timerDurations);
 
-            Console.WriteLine($"Time before third warning: {WarningThree}");
-            Log.Debug($"Time before third warning: {WarningThree}");
-
-            string Result = Timers.SetTimers(BackupTimer, WarningOne, WarningTwo, WarningThree);
-
-            Console.WriteLine($"Setting Timers: {Result}");
-            Log.Info($"Setting Timers: {Result}");
+            Console.WriteLine("Setting Timers: {0}", result);
+            Log.Info($"Setting Timers: {result}");
 
             Console.WriteLine($"Starting Timers");
             Log.Info("Starting Timers");
 
-            Timers.StartTimers();
+            _timerService.StartTimers();
 
-            Result = Server.StartServer();
+            result = Server.StartServer();
 
-            Console.WriteLine($"Starting Server: {Result}");
-            Log.Info($"Starting Server: {Result}");
+            Console.WriteLine("Starting Server: {0}", result);
+            Log.Info($"Starting Server: {result}");
 
             Console.WriteLine("\n----Server Commands----");
             Log.Info("----Server Commands----");
         }
 
-        public static void TakeBackup()
+        public static void TakeBackup(TimerService _timerService)
         {
             Console.WriteLine("Stopping Server");
             Log.Info("Stopping Server");
@@ -134,7 +138,7 @@ namespace ServerBackupTool
             Console.WriteLine("Waiting for 30 Seconds");
             Log.Info("Waiting for 30 Seconds");
 
-            Timers.WaitForClose();
+            _timerService.WaitForClose();
             WaitForServerClose.WaitOne();
             WaitForServerClose.Reset();
 
@@ -156,7 +160,7 @@ namespace ServerBackupTool
             Console.WriteLine("Restarting Process");
             Log.Info("Restarting Process");
 
-            RunProgram();
+            RunProgram(new SBTSection());
         }
 
         static void OnProcessExit(object? sender, EventArgs e)

@@ -1,4 +1,4 @@
-﻿// Copyright © - 17/01/2024 - Toby Hunter
+﻿// Copyright © - unpublished - Toby Hunter
 using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
@@ -20,9 +20,9 @@ namespace ServerBackupTool.Models.Configuration
         }
 
         [ConfigurationProperty("backupTime", IsRequired = true)]
-        public TimeSpan BackupTime
+        public string BackupTime
         {
-            get { return (TimeSpan)this["backupTime"]; }
+            get { return (string)this["backupTime"]; }
             set { this["backupTime"] = value; }
         }
 
