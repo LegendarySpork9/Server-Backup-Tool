@@ -5,7 +5,7 @@ namespace ServerBackupTool.Models.Configuration
 {
     public class FromAddressElement : ConfigurationElement
     {
-        [ConfigurationProperty("email")]
+        [ConfigurationProperty("email", IsRequired = true)]
         public string Email
         {
             get { return (string)this["email"]; }

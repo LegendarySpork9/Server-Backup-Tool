@@ -5,7 +5,7 @@ namespace ServerBackupTool.Models.Configuration
 {
     public class NotificationElement : ConfigurationElement
     {
-        [ConfigurationProperty("enabled")]
+        [ConfigurationProperty("enabled", IsRequired = true)]
         public bool Enabled
         {
             get { return (bool)this["enabled"]; }
