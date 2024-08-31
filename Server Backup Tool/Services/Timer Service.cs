@@ -11,7 +11,13 @@ namespace ServerBackupTool.Services
     internal class TimerService
     {
         static readonly ILog Log = LogManager.GetLogger("BackupLog");
-        readonly List<TimerModel> timers = new();
+        readonly List<TimerModel> Timers = new();
+        readonly SBTSection ServerBackupSection;
+
+        public TimerService (SBTSection configurationSection)
+        {
+            ServerBackupSection = configurationSection;
+        }
 
         public string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations)
         {
@@ -30,14 +36,14 @@ namespace ServerBackupTool.Services
                     timerData.Elapsed += (sender, e) => TimerElapsed(sender, e, currentTimerNumber);
                     timerNumber++;
 
-                    timers.Add(new TimerModel
+                    Timers.Add(new TimerModel
                     {
                         TimerName = SystemTimerModel.Names[x],
                         TimerData = timerData
                     });
                 }
 
-                timers[2].TimerData.Interval = timerDurations[0].TotalMilliseconds;
+                Timers[2].TimerData.Interval = timerDurations[0].TotalMilliseconds;
 
                 for (int x = 0; x < timerDetails.Count; x++)
                 {
@@ -49,7 +55,7 @@ namespace ServerBackupTool.Services
                     timerData.Elapsed += (sender, e) => TimerElapsed(sender, e, currentTimerNumber);
                     timerNumber++;
 
-                    timers.Add(new TimerModel
+                    Timers.Add(new TimerModel
                     {
                         TimerName = timerDetails[x].Name,
                         ElapsedMessage = timerDetails[x].Message,
@@ -70,18 +76,32 @@ namespace ServerBackupTool.Services
 
         public void StartTimers()
         {
-            foreach (TimerModel timer in timers)
+            foreach (TimerModel timer in Timers)
             {
                 if (timer.TimerName != "Wait")
                 {
                     timer.TimerData.Start();
+                }
+                
+                if (timer.TimerName != "Heartbeat")
+                {
+                    if (ServerBackupSection.Notifications.Emails.Count != 0)
+                    {
+                        foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
+                        {
+                            if (email.Trigger == "Open")
+                            {
+                                timer.TimerData.Start();
+                            }
+                        }
+                    }
                 }
             }
         }
 
         public void WaitForClose()
         {
-            foreach (TimerModel timer in timers)
+            foreach (TimerModel timer in Timers)
             {
                 if (timer.TimerName == "Wait")
                 {
@@ -95,16 +115,16 @@ namespace ServerBackupTool.Services
             switch (timerNumber)
             {
                 case 0:
-                    Heartbeat(timers[0].TimerData);
+                    Heartbeat(Timers[0].TimerData);
                     break;
                 case 1:
-                    SystemTimers(timers[1]);
+                    SystemTimers(Timers[1]);
                     break;
                 case 2:
-                    SystemTimers(timers[2]);
+                    SystemTimers(Timers[2]);
                     break;
                 default:
-                    ServerWarning(timers[timerNumber]);
+                    ServerWarning(Timers[timerNumber]);
                     break;
             }
         }
@@ -148,13 +168,22 @@ namespace ServerBackupTool.Services
 
         private void Heartbeat(Timer heartbeatTimer)
         {
+            EmailService _emailService = new();
+
             Ping pingSender = new();
             PingReply reply = pingSender.Send("25.35.45.248");
 
             if (reply.Status != IPStatus.Success)
             {
                 heartbeatTimer.Stop();
-                Email.ConnectionEmail();
+
+                foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
+                {
+                    if (email.Trigger == "Heartbeat")
+                    {
+                        _emailService.SendEmail(ServerBackupSection.Notifications, email);
+                    }
+                }
             }
         }
     }

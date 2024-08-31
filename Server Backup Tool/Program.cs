@@ -10,11 +10,14 @@ namespace ServerBackupTool
     internal class Program
     {
         static readonly ILog Log = LogManager.GetLogger("BackupLog");
+        static SBTSection ServerBackupSection;
         public static ManualResetEvent WaitForServerClose = new(false);
 
         static void Main()
         {
             log4net.Config.XmlConfigurator.Configure();
+
+            EmailService _emailService = new();
 
             // Development Settings
             string configFilePath = Path.Combine("D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\", "App - Development.config");
@@ -24,14 +27,24 @@ namespace ServerBackupTool
                 ExeConfigFilename = configFilePath
             };
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
-            SBTSection? serverBackupSection = (SBTSection)config.GetSection("serverBackup");
+            ServerBackupSection = (SBTSection)config.GetSection("serverBackup");
 
             //SBTSection? serverBackupSection = ConfigurationManager.GetSection("serverBackup") as SBTSection;
 
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
-            Email.StartEmail();
-            RunProgram(serverBackupSection);
+            if (ServerBackupSection.Notifications.Emails.Count != 0)
+            {
+                foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
+                {
+                    if (email.Trigger == "Open")
+                    {
+                        _emailService.SendEmail(ServerBackupSection.Notifications, email);
+                    }
+                }
+            }
+            
+            RunProgram(ServerBackupSection);
 
             while (true)
             {
@@ -85,7 +98,7 @@ namespace ServerBackupTool
         static void RunProgram(SBTSection serverBackupSection)
         {
             TimeConverter _timeConverter = new();
-            TimerService _timerService = new();
+            TimerService _timerService = new(serverBackupSection);
 
             Console.WriteLine("Current Time: {0}", DateTime.Now);
             Log.Info($"Current Time: {DateTime.Now}");
@@ -165,7 +178,18 @@ namespace ServerBackupTool
 
         static void OnProcessExit(object? sender, EventArgs e)
         {
-            Email.CloseEmail();
+            EmailService _emailService = new();
+
+            if (ServerBackupSection.Notifications.Emails.Count != 0)
+            {
+                foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
+                {
+                    if (email.Trigger == "Close")
+                    {
+                        _emailService.SendEmail(ServerBackupSection.Notifications, email);
+                    }
+                }
+            }
         }
     }
 }
