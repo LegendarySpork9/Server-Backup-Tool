@@ -13,10 +13,24 @@ namespace ServerBackupTool.Services
         static readonly ILog Log = LogManager.GetLogger("BackupLog");
         readonly List<TimerModel> Timers = new();
         readonly SBTSection ServerBackupSection;
+        readonly ServerService _ServerService;
+        readonly bool DoHeartbeat = false;
 
-        public TimerService (SBTSection configurationSection)
+        public TimerService (SBTSection _configurationSection, ServerService _serverService)
         {
-            ServerBackupSection = configurationSection;
+            if (_configurationSection.Notifications.Emails.Count != 0)
+            {
+                foreach (EmailElement email in _configurationSection.Notifications.Emails)
+                {
+                    if (email.Trigger == "Heartbeat")
+                    {
+                        DoHeartbeat = true;
+                    }
+                }
+            }
+
+            ServerBackupSection = _configurationSection;
+            _ServerService = _serverService;
         }
 
         public string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations)
@@ -28,6 +42,11 @@ namespace ServerBackupTool.Services
             {
                 for (int x = 0; x < SystemTimerModel.Names.Length; x++)
                 {
+                    if (SystemTimerModel.Names[x] == "Heartbeat" && !DoHeartbeat)
+                    {
+                        continue;
+                    }
+
                     Timer timerData = new()
                     {
                         Interval = SystemTimerModel.Durations[x]
@@ -81,20 +100,6 @@ namespace ServerBackupTool.Services
                 if (timer.TimerName != "Wait")
                 {
                     timer.TimerData.Start();
-                }
-                
-                if (timer.TimerName != "Heartbeat")
-                {
-                    if (ServerBackupSection.Notifications.Emails.Count != 0)
-                    {
-                        foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
-                        {
-                            if (email.Trigger == "Open")
-                            {
-                                timer.TimerData.Start();
-                            }
-                        }
-                    }
                 }
             }
         }
@@ -163,7 +168,8 @@ namespace ServerBackupTool.Services
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
-            Server.SendWarning(timer.ElapsedMessage);
+
+            _ServerService.SendCommand(timer.ElapsedMessage, true);
         }
 
         private void Heartbeat(Timer heartbeatTimer)
