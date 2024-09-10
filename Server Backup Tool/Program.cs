@@ -4,13 +4,15 @@ using System.Configuration;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Services;
+using ServerBackupTool.Models;
 
 namespace ServerBackupTool
 {
     internal class Program
     {
         static readonly ILog Log = LogManager.GetLogger("BackupLog");
-        static SBTSection ServerBackupSection;
+        static SBTSection? ServerBackupSection;
+        static ServerModel? Server;
         public static ManualResetEvent WaitForServerClose = new(false);
 
         static void Main()
@@ -33,6 +35,12 @@ namespace ServerBackupTool
 
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
+            Server = new(ServerBackupSection.ServerDetails)
+            {
+                Game = ServerBackupSection.ServerDetails.Game
+            };
+
+            /* Move this to a new method start. */
             if (ServerBackupSection.Notifications.Emails.Count != 0)
             {
                 foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
@@ -43,62 +51,54 @@ namespace ServerBackupTool
                     }
                 }
             }
-            
-            RunProgram(ServerBackupSection);
+
+            ServerService _serverService = new(ServerBackupSection, Server);
+
+            RunProgram(ServerBackupSection, Server);
 
             while (true)
             {
-                string Command = Console.ReadLine();
+                string command = Console.ReadLine();
 
-                if (!string.IsNullOrEmpty(Command))
+                if (!string.IsNullOrEmpty(command))
                 {
-                    if (Command == "Exit App")
+                    if (command.ToLower() == "exit app")
                     {
                         Console.WriteLine("Exit Command Triggered");
                         Log.Info("Exit Command Triggered");
                         break;
                     }
 
-                    else if (Command == "Start Server")
+                    else if (command.ToLower() == "start server")
                     {
-                        if (!Server_Information.IsRunning)
+                        if (!Server.ServerRunning)
                         {
                             Console.WriteLine("Starting Server");
                             Log.Info("Starting Server");
 
-                            Server.StartServer();
+                            _serverService.StartServer();
 
                             Console.WriteLine("\n----Server Commands----");
                             Log.Info("----Server Commands----");
                         }
                     }
 
-                    else if (Command == "stop")
-                    {
-                        if (Server_Information.IsRunning)
-                        {
-                            Log.Debug($"Command Sent to Server: {Command}");
-
-                            Console.WriteLine("\nStopping Server");
-                            Log.Info("Stopping Server");
-
-                            Server.StopServer();
-                        }
-                    }
-
                     else
                     {
-                        Server.SendCommand(Command);
-                        Log.Debug($"Command Sent to Server: {Command}");
+                        _serverService.SendCommand(command);
+                        Log.Debug($"Command Sent to Server: {command}");
                     }
                 }
             }
+            /* Move this to a new method end. */
         }
 
-        static void RunProgram(SBTSection serverBackupSection)
+        /* Move this to a new method start. */
+        static void RunProgram(SBTSection serverBackupSection, ServerModel server)
         {
             TimeConverter _timeConverter = new();
-            TimerService _timerService = new(serverBackupSection);
+            ServerService _serverService = new(serverBackupSection, server);
+            TimerService _timerService = new(serverBackupSection, _serverService);
 
             Console.WriteLine("Current Time: {0}", DateTime.Now);
             Log.Info($"Current Time: {DateTime.Now}");
@@ -132,7 +132,7 @@ namespace ServerBackupTool
 
             _timerService.StartTimers();
 
-            result = Server.StartServer();
+            result = _serverService.StartServer();
 
             Console.WriteLine("Starting Server: {0}", result);
             Log.Info($"Starting Server: {result}");
@@ -143,10 +143,13 @@ namespace ServerBackupTool
 
         public static void TakeBackup(TimerService _timerService)
         {
+            ServerService _serverService = new(ServerBackupSection, Server);
+            ServerConverter _serverConverter = new();
+
             Console.WriteLine("Stopping Server");
             Log.Info("Stopping Server");
 
-            Server.StopServer();
+            _serverService.SendCommand(_serverConverter.GetStopCommand(Server.Game));
 
             Console.WriteLine("Waiting for 30 Seconds");
             Log.Info("Waiting for 30 Seconds");
@@ -173,8 +176,9 @@ namespace ServerBackupTool
             Console.WriteLine("Restarting Process");
             Log.Info("Restarting Process");
 
-            RunProgram(new SBTSection());
+            RunProgram(new SBTSection(), null);
         }
+        /* Move this to a new method end. */
 
         static void OnProcessExit(object? sender, EventArgs e)
         {
