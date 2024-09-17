@@ -145,6 +145,7 @@ namespace ServerBackupTool
         {
             ServerService _serverService = new(ServerBackupSection, Server);
             ServerConverter _serverConverter = new();
+            JobService _jobService = new(ServerBackupSection);
 
             Console.WriteLine("Stopping Server");
             Log.Info("Stopping Server");
@@ -161,17 +162,17 @@ namespace ServerBackupTool
             Console.WriteLine("Creating Backup");
             Log.Info("Creating Backup");
 
-            Archive_Jobs.BackupServer();
+            _jobService.RunJobs("backup");
 
             Console.WriteLine("Archiving Logs");
             Log.Info("Archiving Logs");
 
-            Archive_Jobs.ArchiveLogs();
+            _jobService.RunJobs("archive");
 
             Console.WriteLine("Removing Old Backups and Logs");
             Log.Info("Removing Old Backups and Logs");
 
-            Archive_Jobs.RemoveOldFiles();
+            _jobService.RunJobs("clean");
 
             Console.WriteLine("Restarting Process");
             Log.Info("Restarting Process");
