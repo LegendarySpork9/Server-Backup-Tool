@@ -1,5 +1,4 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using log4net;
 using System.Configuration;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Converters;
@@ -10,7 +9,6 @@ namespace ServerBackupTool
 {
     internal class Program
     {
-        static readonly ILog Log = LogManager.GetLogger("BackupLog");
         static SBTSection? ServerBackupSection;
         static ServerModel? Server;
         public static ManualResetEvent WaitForServerClose = new(false);
@@ -19,6 +17,7 @@ namespace ServerBackupTool
         {
             log4net.Config.XmlConfigurator.Configure();
 
+            LoggerService _logger = new();
             EmailService _emailService = new();
 
             // Development Settings
@@ -64,8 +63,7 @@ namespace ServerBackupTool
                 {
                     if (command.ToLower() == "exit app")
                     {
-                        Console.WriteLine("Exit Command Triggered");
-                        Log.Info("Exit Command Triggered");
+                        _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Exit Command Triggered");
                         break;
                     }
 
@@ -73,20 +71,17 @@ namespace ServerBackupTool
                     {
                         if (!Server.ServerRunning)
                         {
-                            Console.WriteLine("Starting Server");
-                            Log.Info("Starting Server");
-
+                            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Starting Server");
                             _serverService.StartServer();
 
                             Console.WriteLine("\n----Server Commands----");
-                            Log.Info("----Server Commands----");
                         }
                     }
 
                     else
                     {
                         _serverService.SendCommand(command);
-                        Log.Debug($"Command Sent to Server: {command}");
+                        _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Command Sent to Server: {command}");
                     }
                 }
             }
@@ -96,19 +91,18 @@ namespace ServerBackupTool
         /* Move this to a new method start. */
         static void RunProgram(SBTSection serverBackupSection, ServerModel server)
         {
+            LoggerService _logger = new();
             TimeConverter _timeConverter = new();
             ServerService _serverService = new(serverBackupSection, server);
             TimerService _timerService = new(serverBackupSection, _serverService);
 
-            Console.WriteLine("Current Time: {0}", DateTime.Now);
-            Log.Info($"Current Time: {DateTime.Now}");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Current Time: {DateTime.Now}");
 
             TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
 
             TimeSpan duration = _timeConverter.GetDuration(serverBackupSection.TimerDetails.BackupTime);
 
-            Console.WriteLine("Time before backup: {0}", duration);
-            Log.Debug($"Time before backup: {duration}");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before backup: {duration}");
             
             timerDurations = timerDurations.Append(duration).ToArray();
 
@@ -116,66 +110,62 @@ namespace ServerBackupTool
             {
                 duration = _timeConverter.GetDuration(timer.Time);
 
-                Console.WriteLine("Time before {0}: {1}", timer.Name.ToLower(), duration);
-                Log.Debug($"Time before {timer.Name.ToLower()}: {duration}");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before {timer.Name.ToLower()}: {duration}");
 
                 timerDurations = timerDurations.Append(duration).ToArray();
             }
 
             string result = _timerService.SetTimers(serverBackupSection.TimerDetails.Timers, timerDurations);
 
-            Console.WriteLine("Setting Timers: {0}", result);
-            Log.Info($"Setting Timers: {result}");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Setting Timers: {result}");
 
-            Console.WriteLine($"Starting Timers");
-            Log.Info("Starting Timers");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Starting Timers");
 
             _timerService.StartTimers();
 
             result = _serverService.StartServer();
 
-            Console.WriteLine("Starting Server: {0}", result);
-            Log.Info($"Starting Server: {result}");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Starting Server: {result}");
 
             Console.WriteLine("\n----Server Commands----");
-            Log.Info("----Server Commands----");
         }
 
         public static void TakeBackup(TimerService _timerService)
         {
+            LoggerService _logger = new();
             ServerService _serverService = new(ServerBackupSection, Server);
             ServerConverter _serverConverter = new();
             JobService _jobService = new(ServerBackupSection);
 
             Console.WriteLine("Stopping Server");
-            Log.Info("Stopping Server");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Stopping Server");
 
             _serverService.SendCommand(_serverConverter.GetStopCommand(Server.Game));
 
             Console.WriteLine("Waiting for 30 Seconds");
-            Log.Info("Waiting for 30 Seconds");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Waiting for 30 Seconds");
 
             _timerService.WaitForClose();
             WaitForServerClose.WaitOne();
             WaitForServerClose.Reset();
 
             Console.WriteLine("Creating Backup");
-            Log.Info("Creating Backup");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Creating Backup");
 
             _jobService.RunJobs("backup");
 
             Console.WriteLine("Archiving Logs");
-            Log.Info("Archiving Logs");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Archiving Logs");
 
             _jobService.RunJobs("archive");
 
             Console.WriteLine("Removing Old Backups and Logs");
-            Log.Info("Removing Old Backups and Logs");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Removing Old Backups and Logs");
 
             _jobService.RunJobs("clean");
 
             Console.WriteLine("Restarting Process");
-            Log.Info("Restarting Process");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, "Restarting Process");
 
             RunProgram(new SBTSection(), null);
         }
