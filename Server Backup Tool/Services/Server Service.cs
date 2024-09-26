@@ -1,5 +1,4 @@
 ﻿// Copyright © - unpublished - Toby Hunter
-using log4net;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
@@ -9,8 +8,6 @@ namespace ServerBackupTool.Services
 {
     internal class ServerService
     {
-        static readonly ILog Log = LogManager.GetLogger("BackupLog");
-        static readonly ILog ServerLog = LogManager.GetLogger("ServerLog");
         readonly SBTSection ServerBackupSection;
         private ServerModel Server;
 
@@ -22,6 +19,8 @@ namespace ServerBackupTool.Services
 
         public string StartServer()
         {
+            LoggerService _logger = new();
+
             string result = "Completed";
 
             Server.ServerProcess.OutputDataReceived += ServerResponseData;
@@ -35,8 +34,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                Console.WriteLine("\n{0}", ex.ToString());
-                Log.Error(ex.ToString());
+                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to start the server.");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Errored";
             }
 
@@ -67,6 +66,7 @@ namespace ServerBackupTool.Services
 
         private void ServerResponseData(object sender, DataReceivedEventArgs e)
         {
+            LoggerService _logger = new();
             ServerConverter _serverConverter = new();
             EmailService _emailService = new();
 
@@ -74,16 +74,7 @@ namespace ServerBackupTool.Services
             {
                 try
                 {
-                    switch (e.Data)
-                    {
-                        /* Move this when the change to logging is made start. */
-                        case String when e.Data.Contains("/INFO]"): ServerLog.Info(e.Data); break;
-                        case String when e.Data.Contains("/WARN]"): ServerLog.Warn(e.Data); break;
-                        case String when e.Data.Contains("/ERROR]"): ServerLog.Error(e.Data); break;
-                        case String when e.Data.Contains("/DEBUG]"): ServerLog.Debug(e.Data); break;
-                        default: ServerLog.Info(e.Data); break;
-                        /* Move this when the change to logging is made end. */
-                    }
+                    _logger.LogServerMessage(e.Data);
 
                     if (ServerBackupSection.Notifications.Emails.Count != 0)
                     {
@@ -104,11 +95,10 @@ namespace ServerBackupTool.Services
 
                 catch (Exception ex)
                 {
-                    Console.WriteLine("\n{0}", ex.ToString());
-                    Log.Error(ex.ToString());
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.");
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
 
                     Console.WriteLine("\n----Server Commands----");
-                    Log.Info("----Server Commands----");
                 }
             }
         }

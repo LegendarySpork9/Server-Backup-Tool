@@ -1,5 +1,5 @@
 ﻿// Copyright © - unpublished - Toby Hunter
-using log4net;
+using ServerBackupTool.Converters;
 using ServerBackupTool.Models.Configuration;
 using System.IO.Compression;
 
@@ -7,12 +7,13 @@ namespace ServerBackupTool.Services
 {
     internal class JobService
     {
-        static readonly ILog Log = LogManager.GetLogger("BackupLog");
         readonly string ServerFilePath;
+        readonly string Game;
 
         public JobService(SBTSection _configurationSection)
         {
             ServerFilePath = _configurationSection.ServerDetails.Location;
+            Game = _configurationSection.ServerDetails.Game;
         }
 
         public string RunJobs(string? job)
@@ -50,19 +51,23 @@ namespace ServerBackupTool.Services
 
         private string BackupServer()
         {
+            JobConverter _jobConverter = new();
+            LoggerService _logger = new();
+
             string result = "Complete";
+            (string source, string destination) = _jobConverter.GetBackPaths(Game, ServerFilePath);
 
             CheckDirectory(@$"{ServerFilePath}\Backups");
 
             try
             {
-                ZipFile.CreateFromDirectory(@$"{ServerFilePath}\world", @$"{ServerFilePath}\Backups\world {DateTime.Now:dd-MM-yyyy}.zip");
+                ZipFile.CreateFromDirectory(source, destination);
             }
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                Log.Error(ex.ToString());
+                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to create a backup of the game data.");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 
@@ -71,6 +76,8 @@ namespace ServerBackupTool.Services
 
         private string ArchiveLogs()
         {
+            LoggerService _logger = new();
+
             string result = "Complete";
             string[] files = Directory.GetFiles(@".\Logs");
 
@@ -94,8 +101,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                Log.Error(ex.ToString());
+                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to archive the logs into a ZIP file.");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 
@@ -104,6 +111,8 @@ namespace ServerBackupTool.Services
 
         private string RemoveOldFiles()
         {
+            LoggerService _logger = new();
+
             string result = "Complete";
 
             CheckDirectory(@$".\Archived Logs");
@@ -133,8 +142,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                Log.Error(ex.ToString());
+                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to delete logs and/or data backups over 10 days old.");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 

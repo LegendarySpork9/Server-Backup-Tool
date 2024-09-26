@@ -1,5 +1,6 @@
 ﻿// Copyright © - unpublished - Toby Hunter
 using log4net;
+using ServerBackupTool.Converters;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using System.Net.NetworkInformation;
@@ -10,7 +11,6 @@ namespace ServerBackupTool.Services
 {
     internal class TimerService
     {
-        static readonly ILog Log = LogManager.GetLogger("BackupLog");
         readonly List<TimerModel> Timers = new();
         readonly SBTSection ServerBackupSection;
         readonly ServerService _ServerService;
@@ -35,6 +35,8 @@ namespace ServerBackupTool.Services
 
         public string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations)
         {
+            LoggerService _logger = new();
+
             string result = "Completed";
             int timerNumber = 0;
 
@@ -85,8 +87,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                Console.WriteLine(ex.ToString());
-                Log.Error(ex.ToString());
+                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to set up the timers.");
+                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Errored";
             }
 
@@ -136,10 +138,11 @@ namespace ServerBackupTool.Services
 
         private void SystemTimers(TimerModel timer)
         {
+            LoggerService _logger = new();
+
             timer.TimerData.Stop();
 
-            Console.WriteLine("\n{0} Triggered", timer.TimerName);
-            Log.Info($"{timer.TimerName} Triggered");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
@@ -157,14 +160,14 @@ namespace ServerBackupTool.Services
 
         private void ServerWarning(TimerModel timer)
         {
+            LoggerService _logger = new();
+
             timer.TimerData.Stop();
 
-            Console.WriteLine("\n{0} Triggered", timer.TimerName);
-            Log.Info($"{timer.TimerName} Triggered");
-            Log.Debug($"Warning Message: {timer.ElapsedMessage}");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Warning Message: {timer.ElapsedMessage}");
 
             Console.WriteLine("\n----Server Commands----");
-            Log.Info("----Server Commands----");
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
