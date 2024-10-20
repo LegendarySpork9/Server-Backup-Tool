@@ -11,12 +11,14 @@ namespace ServerBackupTool.Services
         readonly SBTSection ServerBackupSection;
         private ServerModel Server;
 
+        // Sets the class's global variables.
         public ServerService(SBTSection _serverBackupSection, ServerModel _server)
         {
             ServerBackupSection = _serverBackupSection;
             Server = _server;
         }
 
+        // Activates the server.
         public string StartServer()
         {
             LoggerService _logger = new();
@@ -42,6 +44,7 @@ namespace ServerBackupTool.Services
             return result;
         }
 
+        // Executes a command through the server.
         public void SendCommand(string command, bool isTimer = false)
         {
             ServerConverter _serverConverter = new();
@@ -56,14 +59,10 @@ namespace ServerBackupTool.Services
             {
                 Server.ServerProcess.StandardInput.WriteLine(command);
                 Server.ServerProcess.StandardInput.Flush();
-
-                if (command == _serverConverter.GetStopCommand(Server.Game))
-                {
-                    Server.ServerRunning = false;
-                }
             }
         }
 
+        // Logs the output from the server.
         private void ServerResponseData(object sender, DataReceivedEventArgs e)
         {
             LoggerService _logger = new();
@@ -76,16 +75,7 @@ namespace ServerBackupTool.Services
                 {
                     _logger.LogServerMessage(e.Data);
 
-                    if (ServerBackupSection.Notifications.Emails.Count != 0)
-                    {
-                        foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
-                        {
-                            if (e.Data.Contains(email.Trigger))
-                            {
-                                _emailService.SendEmail(ServerBackupSection.Notifications, email);
-                            }
-                        }
-                    }
+                    _emailService.CheckForEmail(ServerBackupSection.Notifications, null, e.Data);
 
                     if (e.Data.Contains(_serverConverter.GetFinalMessage(Server.Game, Server.ServerProcess.StartInfo.WorkingDirectory)))
                     {
@@ -103,6 +93,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Shuts down the server.
         private void StopServer()
         {
             Server.ServerProcess.StandardInput.WriteLine();

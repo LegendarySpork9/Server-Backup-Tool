@@ -3,6 +3,7 @@ namespace ServerBackupTool.Converters
 {
     internal class ServerConverter
     {
+        // Returns the command to display messages to all users on the server.
         public string GetMessageCommand(string? game, string command)
         {
             return game switch
@@ -12,6 +13,7 @@ namespace ServerBackupTool.Converters
             };
         }
 
+        // Returns the command to trigger the server shutdown.
         public string GetStopCommand(string? game)
         {
             return game switch
@@ -21,6 +23,7 @@ namespace ServerBackupTool.Converters
             };
         }
 
+        // Returns the final message the server outputs.
         public string GetFinalMessage(string? game, string filePath)
         {
             return game switch
