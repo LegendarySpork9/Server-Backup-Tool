@@ -8,6 +8,7 @@ namespace ServerBackupTool.Services
 {
     internal class EmailService
     {
+        // Configures and emails out a given email configuration.
         public void SendEmail(NotificationElement notifications, EmailElement email)
         {
             if (notifications.Enabled)
@@ -68,6 +69,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Checks if the body is a .HTML file.
         private string GetEmailBody(string configurationValue)
         {
             LoggerService _logger = new();
@@ -85,6 +87,32 @@ namespace ServerBackupTool.Services
             }
 
             return emailBody;
+        }
+
+        // Checks if the given trigger word or message exists in the email configurations.
+        public void CheckForEmail(NotificationElement notifications, string? trigger = null, string? message = null)
+        {
+            if (notifications.Emails.Count != 0)
+            {
+                foreach (EmailElement email in notifications.Emails)
+                {
+                    if (!string.IsNullOrWhiteSpace(trigger))
+                    {
+                        if (email.Trigger == trigger)
+                        {
+                            SendEmail(notifications, email);
+                        }
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(message))
+                    {
+                        if (message.Contains(email.Trigger))
+                        {
+                            SendEmail(notifications, email);
+                        }
+                    }
+                }
+            }
         }
     }
 }

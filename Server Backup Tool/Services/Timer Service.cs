@@ -1,5 +1,4 @@
 ﻿// Copyright © - unpublished - Toby Hunter
-using log4net;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
@@ -11,12 +10,14 @@ namespace ServerBackupTool.Services
 {
     internal class TimerService
     {
-        readonly List<TimerModel> Timers = new();
-        readonly SBTSection ServerBackupSection;
+        readonly ApplicationService _ApplicationService;
         readonly ServerService _ServerService;
+        readonly SBTSection ServerBackupSection;
         readonly bool DoHeartbeat = false;
+        readonly List<TimerModel> Timers = new();
 
-        public TimerService (SBTSection _configurationSection, ServerService _serverService)
+        // Sets the class's global variables.
+        public TimerService (ApplicationService _applicationService, ServerService _serverService, SBTSection _configurationSection)
         {
             if (_configurationSection.Notifications.Emails.Count != 0)
             {
@@ -29,16 +30,19 @@ namespace ServerBackupTool.Services
                 }
             }
 
-            ServerBackupSection = _configurationSection;
+            _ApplicationService = _applicationService;
             _ServerService = _serverService;
+            ServerBackupSection = _configurationSection;
         }
 
+        // Configures the timers.
         public string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations)
         {
             LoggerService _logger = new();
 
             string result = "Completed";
             int timerNumber = 0;
+            Timers.Clear();
 
             try
             {
@@ -95,6 +99,7 @@ namespace ServerBackupTool.Services
             return result;
         }
 
+        // Activates the timers.
         public void StartTimers()
         {
             foreach (TimerModel timer in Timers)
@@ -106,6 +111,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Activates the server closing delay timer.
         public void WaitForClose()
         {
             foreach (TimerModel timer in Timers)
@@ -117,6 +123,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Runs when a timer has finished.
         private void TimerElapsed(object sender, ElapsedEventArgs e, int timerNumber)
         {
             switch (timerNumber)
@@ -136,6 +143,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Runs code related to built in timers.
         private void SystemTimers(TimerModel timer)
         {
             LoggerService _logger = new();
@@ -149,15 +157,16 @@ namespace ServerBackupTool.Services
 
             if (timer.TimerName == "Backup")
             {
-                Program.TakeBackup(this);
+                _ApplicationService.RunBackup(this);
             }
 
             else
             {
-                Program.WaitForServerClose.Set();
+                ApplicationService.WaitForServerClose.Set();
             }
         }
 
+        // Runs code related to the server timers.
         private void ServerWarning(TimerModel timer)
         {
             LoggerService _logger = new();
@@ -175,6 +184,7 @@ namespace ServerBackupTool.Services
             _ServerService.SendCommand(timer.ElapsedMessage, true);
         }
 
+        // Runs when the Heartbeat timer finishes.
         private void Heartbeat(Timer heartbeatTimer)
         {
             EmailService _emailService = new();
@@ -186,13 +196,7 @@ namespace ServerBackupTool.Services
             {
                 heartbeatTimer.Stop();
 
-                foreach (EmailElement email in ServerBackupSection.Notifications.Emails)
-                {
-                    if (email.Trigger == "Heartbeat")
-                    {
-                        _emailService.SendEmail(ServerBackupSection.Notifications, email);
-                    }
-                }
+                _emailService.CheckForEmail(ServerBackupSection.Notifications, "Heartbeat");
             }
         }
     }

@@ -8,6 +8,7 @@ namespace ServerBackupTool.Services
         private readonly ILog ToolLogger = LogManager.GetLogger("ToolLogs");
         private readonly ILog ServerLogger = LogManager.GetLogger("ServerLogs");
 
+        // Outputs a message to the tool logs.
         public void LogToolMessage(string level, string message)
         {
             switch (level)
@@ -19,6 +20,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Outputs a message to the server logs.
         public void LogServerMessage(string logEntry)
         {
             switch (logEntry)

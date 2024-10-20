@@ -10,37 +10,30 @@ namespace ServerBackupTool.Services
         readonly string ServerFilePath;
         readonly string Game;
 
+        // Sets the class's global variables.
         public JobService(SBTSection _configurationSection)
         {
             ServerFilePath = _configurationSection.ServerDetails.Location;
             Game = _configurationSection.ServerDetails.Game;
         }
 
-        public string RunJobs(string? job)
+        // Executes the given method.
+        public string RunJobs(string job)
         {
             string result = "Complete";
 
-            if (string.IsNullOrWhiteSpace(job))
+            switch (job)
             {
-                result = BackupServer();
-                result = ArchiveLogs();
-                result = RemoveOldFiles();
-            }
-
-            else
-            {
-                switch (job)
-                {
-                    case "backup": result = BackupServer(); break;
-                    case "archive": result = ArchiveLogs(); break;
-                    case "clean": result = RemoveOldFiles(); break;
-                    default: break;
-                }
+                case "backup": result = BackupServer(); break;
+                case "archive": result = ArchiveLogs(); break;
+                case "clean": result = RemoveOldFiles(); break;
+                default: break;
             }
 
             return result;
         }
 
+        // Creates the directory if it does not exist.
         private void CheckDirectory(string path)
         {
             if (!Directory.Exists(path))
@@ -49,6 +42,7 @@ namespace ServerBackupTool.Services
             }
         }
 
+        // Creates a ZIP file of the world data.
         private string BackupServer()
         {
             JobConverter _jobConverter = new();
@@ -74,6 +68,7 @@ namespace ServerBackupTool.Services
             return result;
         }
 
+        // Creates a ZIP of the log files.
         private string ArchiveLogs()
         {
             LoggerService _logger = new();
@@ -109,6 +104,7 @@ namespace ServerBackupTool.Services
             return result;
         }
 
+        // Deletes logs older than a given time.
         private string RemoveOldFiles()
         {
             LoggerService _logger = new();
