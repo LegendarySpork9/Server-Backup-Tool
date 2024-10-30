@@ -1,7 +1,7 @@
 ﻿// Copyright © - unpublished - Toby Hunter
 namespace ServerBackupTool.Converters
 {
-    internal class TimeConverter
+    public class TimeConverter
     {
         // Returns the time between now and when the timer should be triggered.
         public TimeSpan GetDuration(string triggerTime)

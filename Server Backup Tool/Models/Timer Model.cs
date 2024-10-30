@@ -3,7 +3,7 @@ using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Models
 {
-    internal class TimerModel
+    public class TimerModel
     {
         public string? TimerName { get; set; }
         public string? ElapsedMessage { get; set; }

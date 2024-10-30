@@ -68,7 +68,7 @@ namespace ServerBackupTool.Services
                     });
                 }
 
-                Timers[2].TimerData.Interval = timerDurations[0].TotalMilliseconds;
+                Timers[Timers.Count() - 1].TimerData.Interval = timerDurations[0].TotalMilliseconds;
 
                 for (int x = 0; x < timerDetails.Count; x++)
                 {

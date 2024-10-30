@@ -84,7 +84,7 @@ namespace ServerBackupTool.Services
                 
                 foreach (var logFile in files)
                 {
-                    if (!logFile.Contains("Backup"))
+                    if (!logFile.Contains("Backup.log"))
                     {
                         zip.CreateEntryFromFile(logFile, Path.GetFileName(logFile), CompressionLevel.Optimal);
                         File.Delete(logFile);

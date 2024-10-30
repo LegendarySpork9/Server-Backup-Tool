@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Models
 {
-    internal class ServerModel
+    public class ServerModel
     {
         public string? Game { get; set; }
         public bool ServerRunning { get; set; } = false;

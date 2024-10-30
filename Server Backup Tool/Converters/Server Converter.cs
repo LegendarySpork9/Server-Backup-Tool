@@ -1,7 +1,7 @@
 ﻿// Copyright © - unpublished - Toby Hunter
 namespace ServerBackupTool.Converters
 {
-    internal class ServerConverter
+    public class ServerConverter
     {
         // Returns the command to display messages to all users on the server.
         public string GetMessageCommand(string? game, string command)
