@@ -24,14 +24,6 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
-    services:
-      papercut:
-        image: changemakerstudiosus/papercut-smtp:latest
-        ports:
-          - 25:25
-        env:
-          PAPERCUTSMTP_ALLOW_INSECURE: 'true'
-
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
