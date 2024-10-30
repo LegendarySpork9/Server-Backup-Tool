@@ -9,9 +9,9 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestDirectory()
         {
-            var directoryObject = Directory.CreateDirectory(Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "Output"));
+            DirectoryInfo directoryObject = Directory.CreateDirectory(Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "Output"));
 
-            Assert.IsNotNull(directoryObject, directoryObject);
+            Assert.IsNotNull(directoryObject);
         }
 
         [TestMethod]
