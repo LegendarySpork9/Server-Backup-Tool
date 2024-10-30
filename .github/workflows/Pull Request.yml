@@ -14,11 +14,6 @@ jobs:
         image: changemakerstudiosus/papercut-smtp:latest
         ports:
           - 25:25
-        options: >-
-          --health-cmd="curl --fail http://localhost:5481" 
-          --health-interval=30s 
-          --health-timeout=15s 
-          --health-retries=5
         env:
           PAPERCUTSMTP_ALLOW_INSECURE: 'true'
 
