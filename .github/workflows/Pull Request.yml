@@ -13,7 +13,7 @@ jobs:
       papercut:
         image: changemakerstudiosus/papercut-smtp:latest
         ports:
-          - 587:587
+          - 25:25
         options: >-
           --health-cmd="curl --fail http://localhost:5481" 
           --health-interval=10s 
