@@ -8,7 +8,7 @@ namespace ServerBackupTool.Tests.Functions
     {
         public static Mock<ServerModel> RunServer(SBTSection serverBackupSection)
         {
-            serverBackupSection.ServerDetails.Location = Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", @"Mocks\Server");
+            serverBackupSection.ServerDetails.Location = Path.Combine(DirectoryFunction.GetBaseDirectory(), "Mocks", "Server");
             Mock<ServerModel> mockServer = new(serverBackupSection.ServerDetails);
             mockServer.Object.Game = serverBackupSection.ServerDetails.Game;
 
