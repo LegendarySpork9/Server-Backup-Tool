@@ -6,8 +6,8 @@ on:
       - '**'
 
 jobs:
-  build-and-test:
-    runs-on: windows-latest
+  start-smtp-service:
+    runs-on: ubuntu-latest  # Use Linux runner for PaperCut service
 
     services:
       papercut:
@@ -16,6 +16,13 @@ jobs:
           - 25:25
         env:
           PAPERCUTSMTP_ALLOW_INSECURE: 'true'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+  build-and-test:
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
