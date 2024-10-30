@@ -11,7 +11,7 @@ jobs:
 
     services:
       papercut:
-        image: changemakerstudios/papercut-smtp:latest
+        image: changemakerstudiosus/papercut-smtp:latest
         ports:
           - 587:587
         options: >-
