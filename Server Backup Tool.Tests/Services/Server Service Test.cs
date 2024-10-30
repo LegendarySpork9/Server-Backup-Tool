@@ -13,7 +13,7 @@ namespace ServerBackupTool.Tests.Services
         public void TestStart()
         {
             SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            serverBackupSection.ServerDetails.Location = Path.Combine(DirectoryFunction.GetBaseDirectory(), "Mocks", "Server");
+            serverBackupSection.ServerDetails.Location = Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", @"Mocks\Server");
             Mock<ServerModel> mockServer = new(serverBackupSection.ServerDetails);
             mockServer.Object.Game = serverBackupSection.ServerDetails.Game;
 

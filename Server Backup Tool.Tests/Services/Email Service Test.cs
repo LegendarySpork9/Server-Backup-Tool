@@ -27,7 +27,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void GetEmailBodyHTMLFile()
         {
-            string emailBody = EmailFunction.LoadHTMLFile(Path.Combine(DirectoryFunction.GetBaseDirectory(), "Mocks", "Open Email Body.html"));
+            string emailBody = EmailFunction.LoadHTMLFile(@"D:\System Folders\Documents\GitHub\Server-Backup-Tool\Server Backup Tool.Tests\Mocks\Open Email Body.html");
 
             Assert.IsNotNull(emailBody);
         }

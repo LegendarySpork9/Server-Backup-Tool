@@ -10,7 +10,7 @@ namespace ServerBackupTool.Tests.Functions
         {
             ExeConfigurationFileMap configMap = new()
             {
-                ExeConfigFilename = Path.Combine(DirectoryFunction.GetBaseDirectory(), "Mocks", "Configs", file)
+                ExeConfigFilename = Path.Combine(Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", @"Mocks\Configs"), file)
             };
 
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
