@@ -1,6 +1,7 @@
 ﻿// Copyright © - unpublished - Toby Hunter
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
+using System.Globalization;
 using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Tests.Functions
@@ -10,7 +11,7 @@ namespace ServerBackupTool.Tests.Functions
         public static List<Mock<TimerModel>> ConfigureTimers(SBTSection serverBackupSection, bool doHeartbeat = false)
         {
             List<Mock<TimerModel>> timers = new();
-            TimeSpan[] timerDurations = TimerFunction.GetDurations(serverBackupSection.TimerDetails);
+            TimeSpan[] timerDurations = GetDurations(serverBackupSection.TimerDetails);
             int timerNumber = 0;
 
             try
@@ -56,7 +57,7 @@ namespace ServerBackupTool.Tests.Functions
                 }
             }
 
-            catch (Exception ex)
+            catch
             {
 
             }
@@ -69,16 +70,16 @@ namespace ServerBackupTool.Tests.Functions
             TimeSpan[] durations = Array.Empty<TimeSpan>();
 
             string currentTime = DateTime.Now.ToString();
-            string elapsedTime = GetElapsedTime(DateTime.Now, DateTime.Parse(timerDetails.BackupTime), timerDetails.BackupTime);
+            string elapsedTime = GetElapsedTime(DateTime.Now, DateTime.ParseExact(timerDetails.BackupTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture), timerDetails.BackupTime);
 
-            durations = durations.Append(DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime))).ToArray();
+            durations = durations.Append(DateTime.ParseExact(elapsedTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture).Subtract(DateTime.ParseExact(currentTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture))).ToArray();
 
             foreach (TimerElement timer in timerDetails.Timers)
             {
                 currentTime = DateTime.Now.ToString();
                 elapsedTime = GetElapsedTime(DateTime.Now, DateTime.Parse(timer.Time), timer.Time);
 
-                durations = durations.Append(DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime))).ToArray();
+                durations = durations.Append(DateTime.ParseExact(elapsedTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture).Subtract(DateTime.ParseExact(currentTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture))).ToArray();
             }
 
             return durations;

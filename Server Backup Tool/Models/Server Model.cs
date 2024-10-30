@@ -19,7 +19,7 @@ namespace ServerBackupTool.Models
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 WorkingDirectory = serverDetails.Location,
-                FileName = $@"{serverDetails.Location}\{serverDetails.StartFile}"
+                FileName = Path.Combine(serverDetails.Location, serverDetails.StartFile)
             };
 
             ServerProcess = new() { StartInfo = psi };

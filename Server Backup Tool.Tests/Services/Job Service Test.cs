@@ -12,7 +12,7 @@ namespace ServerBackupTool.Tests.Services
         {
             var directoryObject = Path.Combine(DirectoryFunction.GetBaseDirectory(), "Output");
 
-            Assert.IsNotNull(directoryObject);
+            Assert.IsNotNull(directoryObject, directoryObject);
         }
 
         [TestMethod]
