@@ -12,6 +12,20 @@ namespace ServerBackupTool.Models.Configuration
             set { this["enabled"] = value; }
         }
 
+        [ConfigurationProperty("port", DefaultValue = 587)]
+        public int Port
+        {
+            get { return (int)this["port"]; }
+            set { this["port"] = value; }
+        }
+
+        [ConfigurationProperty("enableSSL", DefaultValue = true)]
+        public bool EnableSSL
+        {
+            get { return (bool)this["enableSSL"]; }
+            set { this["enableSSL"] = value; }
+        }
+
         [ConfigurationProperty("provider")]
         public EmailProviderElement Provider
         {

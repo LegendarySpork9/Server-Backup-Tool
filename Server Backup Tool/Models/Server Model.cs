@@ -4,7 +4,7 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Models
 {
-    internal class ServerModel
+    public class ServerModel
     {
         public string? Game { get; set; }
         public bool ServerRunning { get; set; } = false;
@@ -19,7 +19,7 @@ namespace ServerBackupTool.Models
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 WorkingDirectory = serverDetails.Location,
-                FileName = $@"{serverDetails.Location}\{serverDetails.StartFile}"
+                FileName = Path.Combine(serverDetails.Location, serverDetails.StartFile)
             };
 
             ServerProcess = new() { StartInfo = psi };

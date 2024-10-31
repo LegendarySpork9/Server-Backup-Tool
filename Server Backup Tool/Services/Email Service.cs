@@ -6,7 +6,7 @@ using ServerBackupTool.Converters;
 
 namespace ServerBackupTool.Services
 {
-    internal class EmailService
+    public class EmailService
     {
         // Configures and emails out a given email configuration.
         public void SendEmail(NotificationElement notifications, EmailElement email)
@@ -22,8 +22,8 @@ namespace ServerBackupTool.Services
                     SmtpClient smtp = new()
                     {
                         Host = notifications.Provider.Name,
-                        Port = 587,
-                        EnableSsl = true,
+                        Port = notifications.Port,
+                        EnableSsl = notifications.EnableSSL,
                         DeliveryMethod = SmtpDeliveryMethod.Network,
                         UseDefaultCredentials = false,
                         Credentials = new NetworkCredential(notifications.FromAddress.Email, notifications.Provider.Password)

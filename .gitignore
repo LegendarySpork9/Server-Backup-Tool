@@ -8,3 +8,9 @@
 
 # Dev Config
 *[Aa]pp - Development.config
+
+# Server Log
+***[Ll]ogs/
+
+# Output
+**[Oo]utput/

@@ -1,0 +1,23 @@
+// Copyright © - unpublished - Toby Hunter
+using ServerBackupTool.Converters;
+using ServerBackupTool.Models.Configuration;
+using ServerBackupTool.Tests.Functions;
+
+namespace ServerBackupTool.Tests.Converters
+{
+    [TestClass]
+    public class JobConverterTest
+    {
+        [TestMethod]
+        public void TestBackupPaths()
+        {
+            Mock<JobConverter> _mockJobConverter = new();
+            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
+
+            (string source, string destination) = _mockJobConverter.Object.GetBackPaths(serverBackupSection.ServerDetails.Game, serverBackupSection.ServerDetails.Location);
+
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(source));
+            Assert.IsTrue(!string.IsNullOrWhiteSpace(destination));
+        }
+    }
+}

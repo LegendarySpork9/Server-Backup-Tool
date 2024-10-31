@@ -1,0 +1,108 @@
+2024-09-26 21:59:50,394 INFO - Current Time: 26/09/2024 21:59:50
+2024-09-26 21:59:50,406 DEBUG - Time before backup: 04:00:10
+2024-09-26 21:59:50,408 DEBUG - Time before warning one: 03:00:10
+2024-09-26 21:59:50,409 DEBUG - Time before warning two: 03:30:10
+2024-09-26 21:59:50,409 DEBUG - Time before warning three: 03:55:10
+2024-09-26 21:59:50,410 INFO - Setting Timers: Completed
+2024-09-26 21:59:50,411 INFO - Starting Timers
+2024-09-26 21:59:50,517 INFO - Starting Server: Completed
+2024-09-26 22:01:55,255 DEBUG - Command Sent to Server: stop
+2024-09-26 22:03:14,682 INFO - Current Time: 26/09/2024 22:03:14
+2024-09-26 22:03:14,695 DEBUG - Time before backup: 03:56:46
+2024-09-26 22:03:14,698 DEBUG - Time before warning one: 02:56:46
+2024-09-26 22:03:14,699 DEBUG - Time before warning two: 03:26:46
+2024-09-26 22:03:14,699 DEBUG - Time before warning three: 03:51:46
+2024-09-26 22:03:14,702 INFO - Setting Timers: Completed
+2024-09-26 22:03:14,702 INFO - Starting Timers
+2024-09-26 22:03:14,726 INFO - Starting Server: Completed
+2024-09-26 22:03:44,007 DEBUG - Command Sent to Server: stop
+2024-09-26 22:04:11,711 INFO - Exit Command Triggered
+2024-10-20 15:28:42,724 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:28:42,803 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:33:29,937 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:33:29,979 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:34:11,535 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:34:11,590 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:35:34,886 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:35:34,936 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:35:37,764 INFO - Current Time: 20/10/2024 15:35:37
+2024-10-20 15:35:37,767 DEBUG - Time before backup: 00:04:23
+2024-10-20 15:35:37,769 DEBUG - Time before warning one: 23:54:23
+2024-10-20 15:35:37,769 DEBUG - Time before warning two: 23:58:23
+2024-10-20 15:35:37,769 DEBUG - Time before warning three: 00:03:23
+2024-10-20 15:35:37,771 INFO - Setting Timers: Completed
+2024-10-20 15:35:37,771 INFO - Starting Timers
+2024-10-20 15:35:37,810 INFO - Starting Server: Completed
+2024-10-20 15:35:47,374 INFO - Trying to send "SBT Server Notification (Testing)" email.
+2024-10-20 15:35:47,385 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:36:13,318 DEBUG - Command Sent to Server: /say hello
+2024-10-20 15:36:26,639 INFO - Exit Command Triggered
+2024-10-20 15:38:30,355 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:38:30,404 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:38:32,003 INFO - Current Time: 20/10/2024 15:38:31
+2024-10-20 15:38:32,006 DEBUG - Time before backup: 00:01:28
+2024-10-20 15:38:32,008 DEBUG - Time before warning one: 23:51:28
+2024-10-20 15:38:32,008 DEBUG - Time before warning two: 23:55:28
+2024-10-20 15:38:32,008 DEBUG - Time before warning three: 00:00:28
+2024-10-20 15:38:32,010 INFO - Setting Timers: Completed
+2024-10-20 15:38:32,010 INFO - Starting Timers
+2024-10-20 15:38:32,024 INFO - Starting Server: Completed
+2024-10-20 15:38:41,878 INFO - Trying to send "SBT Server Notification (Testing)" email.
+2024-10-20 15:38:41,890 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:39:00,024 INFO - Warning Three Triggered
+2024-10-20 15:39:00,025 DEBUG - Warning Message: Server will shutdown for a backup in 5 minutes.
+2024-10-20 15:40:00,023 INFO - Backup Triggered
+2024-10-20 15:40:00,025 INFO - Stopping Server
+2024-10-20 15:40:00,025 INFO - Waiting for 30 Seconds
+2024-10-20 15:40:30,036 INFO - Wait Triggered
+2024-10-20 15:40:30,037 INFO - Creating Backup
+2024-10-20 15:40:30,180 INFO - Archiving Logs
+2024-10-20 15:40:30,182 INFO - Removing Old Backups and Logs
+2024-10-20 15:40:30,183 INFO - Restarting Process
+2024-10-20 15:40:30,183 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 15:40:30,191 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:40:31,600 INFO - Current Time: 20/10/2024 15:40:31
+2024-10-20 15:40:31,601 DEBUG - Time before backup: 23:59:29
+2024-10-20 15:40:31,601 DEBUG - Time before warning one: 23:49:29
+2024-10-20 15:40:31,602 DEBUG - Time before warning two: 23:53:29
+2024-10-20 15:40:31,602 DEBUG - Time before warning three: 23:58:29
+2024-10-20 15:40:31,602 INFO - Setting Timers: Completed
+2024-10-20 15:40:31,602 INFO - Starting Timers
+2024-10-20 15:40:31,621 INFO - Starting Server: Completed
+2024-10-20 15:40:41,383 INFO - Trying to send "SBT Server Notification (Testing)" email.
+2024-10-20 15:40:41,391 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 15:40:46,195 DEBUG - Command Sent to Server: stop
+2024-10-20 15:40:54,130 INFO - Exit Command Triggered
+2024-10-20 16:33:13,464 INFO - Trying to send "SBT Open Notification (Testing)" email.
+2024-10-20 16:33:13,522 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 16:33:16,489 INFO - Current Time: 20/10/2024 16:33:16
+2024-10-20 16:33:16,491 DEBUG - Time before backup: 09:26:44
+2024-10-20 16:33:16,493 DEBUG - Time before warning one: 08:26:44
+2024-10-20 16:33:16,493 DEBUG - Time before warning two: 08:56:44
+2024-10-20 16:33:16,494 DEBUG - Time before warning three: 09:21:44
+2024-10-20 16:33:16,495 INFO - Setting Timers: Completed
+2024-10-20 16:33:16,495 INFO - Starting Timers
+2024-10-20 16:33:16,508 INFO - Starting Server: Completed
+2024-10-20 16:33:26,385 INFO - Trying to send "SBT Server Notification (Testing)" email.
+2024-10-20 16:33:26,395 WARN - Unable to read body from file, using value specified in configuration element.
+2024-10-20 16:33:58,983 INFO - Exit Command Triggered
+2024-10-20 16:48:04,926 INFO - Current Time: 20/10/2024 16:48:04
+2024-10-20 16:48:04,937 DEBUG - Time before backup: 09:11:56
+2024-10-20 16:48:04,938 DEBUG - Time before warning one: 08:11:56
+2024-10-20 16:48:04,939 DEBUG - Time before warning two: 08:41:56
+2024-10-20 16:48:04,939 DEBUG - Time before warning three: 09:06:56
+2024-10-20 16:48:04,941 INFO - Setting Timers: Completed
+2024-10-20 16:48:04,941 INFO - Starting Timers
+2024-10-20 16:48:04,958 WARN - Failed to start the server.
+2024-10-20 16:48:05,033 ERROR - System.ComponentModel.Win32Exception (193): An error occurred trying to start process 'D:\1.12.2 Server\minecraft_server.1.12.2.jar' with working directory 'D:\1.12.2 Server'. The specified executable is not a valid application for this OS platform.
+   at System.Diagnostics.Process.StartWithCreateProcess(ProcessStartInfo startInfo)
+   at System.Diagnostics.Process.Start()
+   at ServerBackupTool.Services.ServerService.StartServer() in D:\System Folders\Documents\GitHub\Server-Backup-Tool\Server Backup Tool\Services\Server Service.cs:line 32
+2024-10-20 16:48:05,034 INFO - Starting Server: Errored
+2024-10-27 12:28:27,366 INFO - Current Time: 27/10/2024 12:28:27
+2024-10-27 12:28:27,378 DEBUG - Time before backup: 13:31:33
+2024-10-27 12:28:27,380 DEBUG - Time before warning one: 12:31:33
+2024-10-27 12:28:27,380 DEBUG - Time before warning two: 13:01:33
+2024-10-27 12:28:27,381 DEBUG - Time before warning three: 13:26:33
+2024-10-27 12:28:27,382 INFO - Setting Timers: Completed
+2024-10-27 12:28:27,382 INFO - Starting Timers
