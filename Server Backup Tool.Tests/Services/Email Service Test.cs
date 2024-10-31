@@ -11,7 +11,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void GetEmailBodyHTMLString()
         {
-            var exception = Assert.ThrowsException<DirectoryNotFoundException>(() =>
+            var exception = Assert.ThrowsException<IOException>(() =>
             {
                 string emailBody = EmailFunction.LoadHTMLFile(@"&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello,&lt;/p&gt;
 &lt;p&gt;The Server Backup Tool has opened.&lt;/p&gt;
@@ -27,7 +27,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void GetEmailBodyHTMLFile()
         {
-            string emailBody = EmailFunction.LoadHTMLFile(@"D:\System Folders\Documents\GitHub\Server-Backup-Tool\Server Backup Tool.Tests\Mocks\Open Email Body.html");
+            string emailBody = EmailFunction.LoadHTMLFile(Path.Combine(DirectoryFunction.GetBaseDirectory(), @"Mocks\Open Email Body.html"));
 
             Assert.IsNotNull(emailBody);
         }

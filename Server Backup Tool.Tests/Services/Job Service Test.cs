@@ -1,4 +1,5 @@
 // Copyright © - unpublished - Toby Hunter
+using ServerBackupTool.Tests.Functions;
 using System.IO.Compression;
 
 namespace ServerBackupTool.Tests.Services
@@ -9,7 +10,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestDirectory()
         {
-            DirectoryInfo directoryObject = Directory.CreateDirectory(Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "Output"));
+            DirectoryInfo directoryObject = Directory.CreateDirectory(Path.Combine(DirectoryFunction.GetBaseDirectory(), "Output"));
 
             Assert.IsNotNull(directoryObject);
         }
@@ -17,7 +18,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestBackup()
         {
-            string directory = Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "");
+            string directory = DirectoryFunction.GetBaseDirectory();
 
             try
             {
@@ -35,7 +36,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestArchive()
         {
-            string directory = Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "");
+            string directory = DirectoryFunction.GetBaseDirectory();
 
             try
             {
@@ -67,7 +68,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestCleanUp()
         {
-            string directory = Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "");
+            string directory = DirectoryFunction.GetBaseDirectory();
 
             try
             {
