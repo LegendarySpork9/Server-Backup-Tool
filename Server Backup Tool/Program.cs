@@ -12,11 +12,15 @@ namespace ServerBackupTool
         // Configures the application.
         static void Main()
         {
+            EmailService _emailService = new();
+
             log4net.Config.XmlConfigurator.Configure();
 
             AppDomain.CurrentDomain.ProcessExit += OnProcessExit;
 
             ServerBackupSection = ConfigurationManager.GetSection("serverBackup") as SBTSection;
+
+            _emailService.CheckForEmail(ServerBackupSection.Notifications, "Open");
 
             ApplicationService _applicationService = new(ServerBackupSection);
 
