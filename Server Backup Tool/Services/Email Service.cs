@@ -106,7 +106,7 @@ namespace ServerBackupTool.Services
 
                     if (!string.IsNullOrWhiteSpace(message))
                     {
-                        if (message.Contains(email.Trigger))
+                        if (message.Contains(email.Trigger) && !email.SystemEmail)
                         {
                             SendEmail(notifications, email);
                         }

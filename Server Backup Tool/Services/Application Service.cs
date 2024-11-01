@@ -29,10 +29,7 @@ namespace ServerBackupTool.Services
         // Executes the methods to run the application.
         public void RunApplication()
         {
-            EmailService _emailService = new();
             TimeConverter _timeConverter = new();
-
-            _emailService.CheckForEmail(ServerBackupSection.Notifications, "Open");
 
             Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Current Time: {DateTime.Now}");
 

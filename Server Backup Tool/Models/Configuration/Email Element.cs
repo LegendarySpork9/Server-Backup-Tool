@@ -12,6 +12,13 @@ namespace ServerBackupTool.Models.Configuration
             set { this["trigger"] = value; }
         }
 
+        [ConfigurationProperty("system", DefaultValue = false)]
+        public bool SystemEmail
+        {
+            get { return (bool)this["system"]; }
+            set { this["system"] = value; }
+        }
+
         [ConfigurationProperty("addresses")]
         public ToAddressCollection Addresses
         {
