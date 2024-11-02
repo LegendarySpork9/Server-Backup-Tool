@@ -8,6 +8,14 @@ namespace ServerBackupTool.Services
 {
     public class EmailService
     {
+        readonly bool ServerRunning = false;
+
+        // Sets the class's global variables.
+        public EmailService(bool serverRunning = false)
+        {
+            ServerRunning = serverRunning;
+        }
+
         // Configures and emails out a given email configuration.
         public void SendEmail(NotificationElement notifications, EmailElement email)
         {
@@ -59,11 +67,13 @@ namespace ServerBackupTool.Services
                     }
 
                     smtp.Send(message);
+
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
                 }
 
                 catch (Exception ex)
                 {
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to send \"{email.Subject.Value}\" email.");
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
                     _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 }
             }
