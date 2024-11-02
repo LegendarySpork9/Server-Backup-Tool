@@ -3,11 +3,25 @@ namespace ServerBackupTool.Converters
 {
     public class TimeConverter
     {
+        readonly TimeZoneInfo TimeZone = TimeZoneInfo.Local;
+
+        // Sets the class's global variables.
+        public TimeConverter(string configurationTimeZone)
+        {
+            foreach (TimeZoneInfo timeZone in TimeZoneInfo.GetSystemTimeZones())
+            {
+                if (timeZone.DisplayName == configurationTimeZone)
+                {
+                    TimeZone = timeZone;
+                }
+            }
+        }
+
         // Returns the time between now and when the timer should be triggered.
         public TimeSpan GetDuration(string triggerTime)
         {
-            string currentTime = DateTime.Now.ToString();
-            string elapsedTime = GetElapsedTime(DateTime.Now, DateTime.Parse(triggerTime), triggerTime);
+            string currentTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone).ToString();
+            string elapsedTime = GetElapsedTime(TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone), TimeZoneInfo.ConvertTime(DateTime.Parse(triggerTime), TimeZone), triggerTime);
 
             TimeSpan timerDuration = DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime));
 
@@ -21,12 +35,12 @@ namespace ServerBackupTool.Converters
 
             if (triggerDateTime <= currentTime)
             {
-                elapsedTime = $"{DateTime.Now.AddDays(1):dd/MM/yyyy} {triggerTime}";
+                elapsedTime = $"{TimeZoneInfo.ConvertTime(DateTime.Now.AddDays(1), TimeZone):dd/MM/yyyy} {triggerTime}";
             }
 
             else
             {
-                elapsedTime = $"{DateTime.Now:dd/MM/yyyy} {triggerTime}";
+                elapsedTime = $"{TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone):dd/MM/yyyy} {triggerTime}";
             }
 
             return elapsedTime;
