@@ -1,4 +1,5 @@
-﻿namespace ServerBackupTool.Tests.Functions
+﻿// Copyright © - 31/10/2024 - Toby Hunter
+namespace ServerBackupTool.Tests.Functions
 {
     internal static class DirectoryFunction
     {
