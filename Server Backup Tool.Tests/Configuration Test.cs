@@ -1,4 +1,4 @@
-﻿// Copyright © - unpublished - Toby Hunter
+﻿// Copyright © - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Tests.Functions;
 using ServerBackupTool.Models.Configuration;
 using System.Configuration;

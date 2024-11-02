@@ -1,4 +1,4 @@
-﻿// Copyright © - unpublished - Toby Hunter
+﻿// Copyright © - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models.Configuration;
 using System.IO.Compression;

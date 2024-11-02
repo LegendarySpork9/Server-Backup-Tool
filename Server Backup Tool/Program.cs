@@ -1,5 +1,6 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using System.Configuration;
+using ServerBackupTool.Functions;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
 
@@ -13,6 +14,8 @@ namespace ServerBackupTool
         static void Main()
         {
             EmailService _emailService = new();
+
+            Console.SetOut(new FilterConsoleFunction(Console.Out));
 
             log4net.Config.XmlConfigurator.Configure();
 
