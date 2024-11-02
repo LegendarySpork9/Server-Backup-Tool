@@ -9,7 +9,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Check if PR has linked issues in description or comments
+    - name: Check if PR has linked issues in description, comments, or Development section
       uses: actions/github-script@v6
       with:
         script: |
@@ -24,9 +24,29 @@ jobs:
             }
           );
 
-          const allText = prDescription + prComments.map(comment => comment.body).join(' ');
+          const linkedIssuesQuery = `query ($owner: String!, $repo: String!, $number: Int!) {
+              repository(owner: $owner, name: $repo) {
+                pullRequest(number: $number) {
+                  closingIssuesReferences(first: 10) {
+                    nodes {
+                      number
+                    }
+                  }
+                }
+              }
+            }`;
 
-          const linkedIssues = allText.match(issuePattern);
+          const result = await github.graphql(linkedIssuesQuery, {
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            number: context.payload.pull_request.number,
+          });
+
+          const linkedIssuesInDevelopment = result.repository.pullRequest.closingIssuesReferences.nodes.map(issue => `#${issue.number}`);
+
+          const allText = prDescription + prComments.map(comment => comment.body).join(' ') + linkedIssuesInDevelopment.join(' ');
+
+          const linkedIssues = allText.match(issuePattern) || linkedIssuesInDevelopment;
 
           if (!linkedIssues || linkedIssues.length === 0) {
             core.setFailed('This pull request does not have any linked issues.');
