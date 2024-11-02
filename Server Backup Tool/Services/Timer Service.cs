@@ -174,9 +174,7 @@ namespace ServerBackupTool.Services
             timer.TimerData.Stop();
 
             _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
-            _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Warning Message: {timer.ElapsedMessage}");
-
-            Console.WriteLine("\n----Server Commands----");
+            _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Warning Message: {timer.ElapsedMessage}", true);
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
@@ -187,7 +185,7 @@ namespace ServerBackupTool.Services
         // Runs when the Heartbeat timer finishes.
         private void Heartbeat(Timer heartbeatTimer)
         {
-            EmailService _emailService = new();
+            EmailService _emailService = new(true);
 
             Ping pingSender = new();
             PingReply reply = pingSender.Send("25.35.45.248");

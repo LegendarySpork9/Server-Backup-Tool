@@ -9,13 +9,13 @@ namespace ServerBackupTool.Services
         private readonly ILog ServerLogger = LogManager.GetLogger("ServerLogs");
 
         // Outputs a message to the tool logs.
-        public void LogToolMessage(string level, string message)
+        public void LogToolMessage(string level, string message, bool serverRunning = false)
         {
             switch (level)
             {
-                case "Info": ToolLogger.Info(message); break;
-                case "Debug": ToolLogger.Debug(message); break;
-                case "Warn": ToolLogger.Warn(message); break;
+                case "Info": ToolLogger.Info(message); DisplayCommandsMessage(serverRunning); break;
+                case "Debug": ToolLogger.Debug(message); DisplayCommandsMessage(serverRunning); break;
+                case "Warn": ToolLogger.Warn(message); DisplayCommandsMessage(serverRunning); break;
                 case "Error": ToolLogger.Error(message); break;
             }
         }
@@ -30,6 +30,15 @@ namespace ServerBackupTool.Services
                 case String when logEntry.Contains("/ERROR]"): ServerLogger.Error(logEntry); break;
                 case String when logEntry.Contains("/DEBUG]"): ServerLogger.Debug(logEntry); break;
                 default: ServerLogger.Info(logEntry); break;
+            }
+        }
+
+        // Displays the server commands message on the console.
+        private void DisplayCommandsMessage(bool serverRunning)
+        {
+            switch (serverRunning)
+            {
+                case true: Console.WriteLine("\n----Server Commands----"); break;
             }
         }
     }

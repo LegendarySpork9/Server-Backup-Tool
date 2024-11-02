@@ -9,6 +9,7 @@ namespace ServerBackupTool.Functions
     {
         private readonly TextWriter Console;
 
+        // Sets the class's global variables.
         public FilterConsoleFunction(TextWriter console)
         {
             Console = console;
@@ -16,6 +17,7 @@ namespace ServerBackupTool.Functions
 
         public override Encoding Encoding => Console.Encoding;
 
+        // Captures the console output and checks it has gone through Log4Net.
         public override void WriteLine(string? message)
         {
             LoggerService _logger = new();
@@ -32,6 +34,7 @@ namespace ServerBackupTool.Functions
             }
         }
 
+        // Captures the console output and checks it has gone through Log4Net.
         public override void Write(string? message)
         {
             LoggerService _logger = new();

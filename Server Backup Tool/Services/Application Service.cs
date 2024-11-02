@@ -57,8 +57,7 @@ namespace ServerBackupTool.Services
             _TimerService.StartTimers();
             result = _ServerService.StartServer();
 
-            Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Starting Server: {result}");
-            Console.WriteLine("\n----Server Commands----");
+            Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Starting Server: {result}", true);
 
             UserInput();
         }

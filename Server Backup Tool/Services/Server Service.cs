@@ -67,7 +67,7 @@ namespace ServerBackupTool.Services
         {
             LoggerService _logger = new();
             ServerConverter _serverConverter = new();
-            EmailService _emailService = new();
+            EmailService _emailService = new(true);
 
             if (!string.IsNullOrEmpty(e.Data))
             {
@@ -85,10 +85,8 @@ namespace ServerBackupTool.Services
 
                 catch (Exception ex)
                 {
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.");
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.", true);
                     _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
-
-                    Console.WriteLine("\n----Server Commands----");
                 }
             }
         }

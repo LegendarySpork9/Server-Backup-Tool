@@ -35,7 +35,7 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestEmail()
         {
-            Mock<EmailService> _mockEmailService = new();
+            Mock<EmailService> _mockEmailService = new(false);
             SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
 
             try
