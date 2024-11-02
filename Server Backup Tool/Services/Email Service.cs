@@ -73,7 +73,7 @@ namespace ServerBackupTool.Services
 
                 catch (Exception ex)
                 {
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
+                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, $"Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
                     _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 }
             }
