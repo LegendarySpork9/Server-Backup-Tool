@@ -118,10 +118,12 @@ namespace ServerBackupTool.Tests.Services
         [TestMethod]
         public void TestHeartbeat()
         {
+            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
+
             try
             {
                 Ping pingSender = new();
-                PingReply reply = pingSender.Send("localhost");
+                PingReply reply = pingSender.Send(serverBackupSection.ServerDetails.IPAddress);
 
                 if (reply.Status != IPStatus.Success)
                 {
