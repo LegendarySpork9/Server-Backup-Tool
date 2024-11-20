@@ -8,14 +8,10 @@
           "System.Configuration.ConfigurationManager": "4.5.0"
         },
         "compile": {
-          "lib/netstandard2.0/log4net.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/log4net.dll": {}
         },
         "runtime": {
-          "lib/netstandard2.0/log4net.dll": {
-            "related": ".xml"
-          }
+          "lib/netstandard2.0/log4net.dll": {}
         }
       },
       "Microsoft.NETCore.Platforms/2.0.0": {
@@ -34,9 +30,7 @@
           "System.Security.Permissions": "4.5.0"
         },
         "compile": {
-          "ref/netstandard2.0/System.Configuration.ConfigurationManager.dll": {
-            "related": ".xml"
-          }
+          "ref/netstandard2.0/System.Configuration.ConfigurationManager.dll": {}
         },
         "runtime": {
           "lib/netstandard2.0/System.Configuration.ConfigurationManager.dll": {}
@@ -49,9 +43,7 @@
           "System.Security.Principal.Windows": "4.5.0"
         },
         "compile": {
-          "ref/netstandard2.0/System.Security.AccessControl.dll": {
-            "related": ".xml"
-          }
+          "ref/netstandard2.0/System.Security.AccessControl.dll": {}
         },
         "runtime": {
           "lib/netstandard2.0/System.Security.AccessControl.dll": {}
@@ -66,9 +58,7 @@
       "System.Security.Cryptography.ProtectedData/4.5.0": {
         "type": "package",
         "compile": {
-          "ref/netstandard2.0/_._": {
-            "related": ".xml"
-          }
+          "ref/netstandard2.0/_._": {}
         },
         "runtime": {
           "lib/netstandard2.0/System.Security.Cryptography.ProtectedData.dll": {}
@@ -86,9 +76,7 @@
           "System.Security.AccessControl": "4.5.0"
         },
         "compile": {
-          "ref/netstandard2.0/System.Security.Permissions.dll": {
-            "related": ".xml"
-          }
+          "ref/netstandard2.0/System.Security.Permissions.dll": {}
         },
         "runtime": {
           "lib/netstandard2.0/System.Security.Permissions.dll": {}
@@ -100,9 +88,7 @@
           "Microsoft.NETCore.Platforms": "2.0.0"
         },
         "compile": {
-          "ref/netstandard2.0/System.Security.Principal.Windows.dll": {
-            "related": ".xml"
-          }
+          "ref/netstandard2.0/System.Security.Principal.Windows.dll": {}
         },
         "runtime": {
           "lib/netstandard2.0/System.Security.Principal.Windows.dll": {}
@@ -339,23 +325,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\tobyh\\.nuget\\packages\\": {},
-    "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Users\\TobyH\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+      "projectUniqueName": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
       "projectName": "Server Backup Tool",
-      "projectPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
-      "packagesPath": "C:\\Users\\tobyh\\.nuget\\packages\\",
-      "outputPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\obj\\",
+      "projectPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+      "packagesPath": "C:\\Users\\TobyH\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\tobyh\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\TobyH\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -364,7 +350,8 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-        "https://api.nuget.org/v3/index.json": {}
+        "https://api.nuget.org/v3/index.json": {},
+        "https://tfs.briefyourmarket.com/BYM2020/_packaging/BYMNuget/nuget/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
@@ -393,8 +380,7 @@
           "net47",
           "net471",
           "net472",
-          "net48",
-          "net481"
+          "net48"
         ],
         "assetTargetFallback": true,
         "warn": true,
@@ -403,7 +389,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.427\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.136\\RuntimeIdentifierGraph.json"
       }
     }
   }
