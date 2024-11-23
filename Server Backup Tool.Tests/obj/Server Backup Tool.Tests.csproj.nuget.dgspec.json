@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj": {}
+    "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj": {}
   },
   "projects": {
-    "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj": {
+    "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj",
+        "projectUniqueName": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj",
         "projectName": "Server Backup Tool.Tests",
-        "projectPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj",
-        "packagesPath": "C:\\Users\\TobyH\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\obj\\",
+        "projectPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\Server Backup Tool.Tests.csproj",
+        "packagesPath": "C:\\Users\\tobyh\\.nuget\\packages\\",
+        "outputPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool.Tests\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\TobyH\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tobyh\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,15 +26,14 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://tfs.briefyourmarket.com/BYM2020/_packaging/BYMNuget/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
-                "projectPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj"
+              "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
+                "projectPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj"
               }
             }
           }
@@ -43,27 +42,38 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
           "dependencies": {
+            "MSTest.TestAdapter": {
+              "target": "Package",
+              "version": "[3.6.3, )"
+            },
             "MSTest.TestFramework": {
               "target": "Package",
-              "version": "[2.2.8, )"
+              "version": "[3.6.3, )"
             },
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
-              "version": "[17.1.0, )"
+              "version": "[17.12.0, )"
             },
             "Moq": {
               "target": "Package",
               "version": "[4.20.72, )"
             },
             "coverlet.collector": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[3.1.2, )"
+              "version": "[6.0.2, )"
             }
           },
           "imports": [
@@ -72,7 +82,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -81,24 +92,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.136\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.428\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
+    "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+        "projectUniqueName": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
         "projectName": "Server Backup Tool",
-        "projectPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
-        "packagesPath": "C:\\Users\\TobyH\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\TobyH\\OneDrive - BriefYourMarket\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\obj\\",
+        "projectPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\Server Backup Tool.csproj",
+        "packagesPath": "C:\\Users\\tobyh\\.nuget\\packages\\",
+        "outputPath": "D:\\System Folders\\Documents\\GitHub\\Server-Backup-Tool\\Server Backup Tool\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+          "D:\\Program Files\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\TobyH\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\tobyh\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -107,8 +118,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "https://api.nuget.org/v3/index.json": {},
-          "https://tfs.briefyourmarket.com/BYM2020/_packaging/BYMNuget/nuget/v3/index.json": {}
+          "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
@@ -120,6 +130,11 @@
           "warnAsError": [
             "NU1605"
           ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -137,7 +152,8 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
@@ -146,7 +162,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.136\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.428\\RuntimeIdentifierGraph.json"
         }
       }
     }
