@@ -1,4 +1,6 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
+using System.Globalization;
+
 namespace ServerBackupTool.Converters
 {
     public class TimeConverter
@@ -23,7 +25,7 @@ namespace ServerBackupTool.Converters
             string currentTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone).ToString();
             string elapsedTime = GetElapsedTime(TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone), TimeZoneInfo.ConvertTime(DateTime.Parse(triggerTime), TimeZone), triggerTime);
 
-            TimeSpan timerDuration = DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime));
+            TimeSpan timerDuration = DateTime.ParseExact(elapsedTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture).Subtract(DateTime.ParseExact(currentTime, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture));
 
             return timerDuration;
         }
