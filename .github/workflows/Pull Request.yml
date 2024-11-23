@@ -28,7 +28,7 @@ jobs:
 
     - name: Set time zone to UTC
       run: |
-        sudo timedatectl set-timezone UTC
+        Set-TimeZone -Id "UTC"
         
     - name: Checkout code
       uses: actions/checkout@v3
