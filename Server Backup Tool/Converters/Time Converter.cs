@@ -22,7 +22,7 @@ namespace ServerBackupTool.Converters
         // Returns the time between now and when the timer should be triggered.
         public TimeSpan GetDuration(string triggerTime)
         {
-            string currentTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone).ToString("dd/MM/yyyy HH:mm:ss");
+            string currentTime = TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone).ToString();
             string elapsedTime = GetElapsedTime(TimeZoneInfo.ConvertTime(DateTime.Now, TimeZone), TimeZoneInfo.ConvertTime(DateTime.Parse(triggerTime), TimeZone), triggerTime);
 
             TimeSpan timerDuration = DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime));

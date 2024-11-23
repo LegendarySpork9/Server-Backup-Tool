@@ -25,6 +25,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
+
+    - name: Set time zone to UTC
+      run: |
+        sudo timedatectl set-timezone UTC
+        
     - name: Checkout code
       uses: actions/checkout@v3
       
