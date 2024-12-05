@@ -25,5 +25,12 @@ namespace ServerBackupTool.Models.Configuration
             get { return (string)this["startFile"]; }
             set { this["startFile"] = value; }
         }
+
+        [ConfigurationProperty("ipAddress", IsRequired = true)]
+        public string IPAddress
+        {
+            get { return (string)this["ipAddress"]; }
+            set { this["ipAddress"] = value; }
+        }
     }
 }

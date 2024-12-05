@@ -188,7 +188,7 @@ namespace ServerBackupTool.Services
             EmailService _emailService = new(true);
 
             Ping pingSender = new();
-            PingReply reply = pingSender.Send("25.35.45.248");
+            PingReply reply = pingSender.Send(ServerBackupSection.ServerDetails.IPAddress);
 
             if (reply.Status != IPStatus.Success)
             {

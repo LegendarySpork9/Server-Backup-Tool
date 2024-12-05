@@ -24,7 +24,7 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
-    steps:
+    steps:        
     - name: Checkout code
       uses: actions/checkout@v3
       
@@ -32,6 +32,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0'
+
+    - name: Set DateTime Format
+      run: |
+        Set-Culture en-GB
 
     - name: Restore dependencies
       run: dotnet restore

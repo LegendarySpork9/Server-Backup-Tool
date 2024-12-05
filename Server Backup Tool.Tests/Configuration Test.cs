@@ -92,5 +92,16 @@ namespace ServerBackupTool.Tests
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'email' not found."));
         }
+
+        [TestMethod]
+        public void ParseConfigurationMissingIPAddress()
+        {
+            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            {
+                SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing IP Address.config");
+            });
+
+            Assert.IsTrue(exception.Message.Contains("Required attribute 'ipAddress' not found."));
+        }
     }
 }
