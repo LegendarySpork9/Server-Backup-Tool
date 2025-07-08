@@ -849,7 +849,7 @@
           }
         }
       },
-      "Server Backup Tool/1.0.0": {
+      "Server Backup Tool/2.0.2": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v6.0",
         "dependencies": {
@@ -2143,7 +2143,7 @@
         "version.txt"
       ]
     },
-    "Server Backup Tool/1.0.0": {
+    "Server Backup Tool/2.0.2": {
       "type": "project",
       "path": "../Server Backup Tool/Server Backup Tool.csproj",
       "msbuildProject": "../Server Backup Tool/Server Backup Tool.csproj"
@@ -2155,7 +2155,7 @@
       "MSTest.TestFramework >= 3.6.3",
       "Microsoft.NET.Test.Sdk >= 17.12.0",
       "Moq >= 4.20.72",
-      "Server Backup Tool >= 1.0.0",
+      "Server Backup Tool >= 2.0.2",
       "coverlet.collector >= 6.0.2"
     ]
   },
@@ -2185,6 +2185,7 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -2206,7 +2207,8 @@
         "enableAudit": "true",
         "auditLevel": "low",
         "auditMode": "direct"
-      }
+      },
+      "SdkAnalysisLevel": "9.0.200"
     },
     "frameworks": {
       "net6.0": {
@@ -2251,7 +2253,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\6.0.428\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203\\RuntimeIdentifierGraph.json"
       }
     }
   }

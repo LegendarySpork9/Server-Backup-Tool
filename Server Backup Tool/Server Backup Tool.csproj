@@ -6,10 +6,34 @@
     <RootNamespace>ServerBackupTool</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Title>Server Backup Tool</Title>
+    <Version>2.0.2</Version>
+    <Authors>Hunter Industries</Authors>
+    <Description>Controls the specified server, allowing for scheduled backups, email notifications and logging.</Description>
+    <Copyright>Copyright ©  2025</Copyright>
+    <PackageIcon>Logo.ico</PackageIcon>
+    <ApplicationIcon>Content\Logo.ico</ApplicationIcon>
+    <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="Content\Logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="log4net" Version="2.0.15" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\HI Tech Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="Content\Logo.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
