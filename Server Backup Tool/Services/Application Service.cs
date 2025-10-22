@@ -129,6 +129,13 @@ namespace ServerBackupTool.Services
                         }
                     }
 
+                    else if (command.ToLower() == "reset heartbeat")
+                    {
+                        Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Restarting Heartbeat Timer");
+
+                        _TimerService.RestartHeartbeat();
+                    }
+
                     else
                     {
                         _ServerService.SendCommand(command);

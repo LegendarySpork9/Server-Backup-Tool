@@ -13,7 +13,7 @@ namespace ServerBackupTool.Services
         readonly ApplicationService _ApplicationService;
         readonly ServerService _ServerService;
         readonly SBTSection ServerBackupSection;
-        readonly bool DoHeartbeat = false;
+        readonly bool DoHeartbeat = true;
         readonly List<TimerModel> Timers = new();
 
         // Sets the class's global variables.
@@ -108,6 +108,17 @@ namespace ServerBackupTool.Services
                 {
                     timer.TimerData.Start();
                 }
+            }
+        }
+
+        // Activates the heartbeat timer.
+        public void RestartHeartbeat()
+        {
+            TimerModel? heartbeat = Timers.Find(c => c.TimerName == "Heartbeat");
+
+            if (heartbeat != null)
+            {
+                heartbeat.TimerData.Start();
             }
         }
 
