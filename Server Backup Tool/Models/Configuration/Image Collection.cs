@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores a list of images from the configuration file.
     [ConfigurationCollection(typeof(ImageElement), AddItemName = "image")]
     public class ImageCollection : ConfigurationElementCollection
     {

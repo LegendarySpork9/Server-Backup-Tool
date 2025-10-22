@@ -3,6 +3,7 @@ using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Models
 {
+    // Stores the information about the timers.
     public class TimerModel
     {
         public string? TimerName { get; set; }

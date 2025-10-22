@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the information about the server in the configuration file.
     public class ServerDetailsElement : ConfigurationElement
     {
         [ConfigurationProperty("game", IsRequired = true)]

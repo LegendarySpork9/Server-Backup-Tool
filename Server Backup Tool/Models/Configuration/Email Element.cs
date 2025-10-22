@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the information about an email in the configuration file.
     public class EmailElement : ConfigurationElement
     {
         [ConfigurationProperty("trigger")]

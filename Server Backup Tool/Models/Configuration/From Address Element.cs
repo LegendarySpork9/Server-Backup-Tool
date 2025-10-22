@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the information about the email sender.
     public class FromAddressElement : ConfigurationElement
     {
         [ConfigurationProperty("email", IsRequired = true)]

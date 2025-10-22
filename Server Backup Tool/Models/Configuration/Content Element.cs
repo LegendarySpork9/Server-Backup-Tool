@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the content of an email in the configuration file.
     public class ContentElement : ConfigurationElement
     {
         [ConfigurationProperty("value")]

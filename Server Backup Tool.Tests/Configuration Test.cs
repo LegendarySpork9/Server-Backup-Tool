@@ -8,6 +8,7 @@ namespace ServerBackupTool.Tests
     [TestClass]
     public class ConfigurationTest
     {
+        // Checks whether the full configuration file loads successfully.
         [TestMethod]
         public void ParseFullConfiguration()
         {
@@ -16,6 +17,7 @@ namespace ServerBackupTool.Tests
             Assert.IsNotNull(serverBackupSection);
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingGameTag()
         {
@@ -27,6 +29,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'game' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingLocationTag()
         {
@@ -38,6 +41,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'location' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingStartFileTag()
         {
@@ -49,6 +53,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'startFile' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingBackupTimeTag()
         {
@@ -60,6 +65,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'backupTime' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingEnabledTag()
         {
@@ -71,6 +77,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'enabled' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingFAEmailTag()
         {
@@ -82,6 +89,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'email' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingTAEmailTag()
         {
@@ -93,6 +101,7 @@ namespace ServerBackupTool.Tests
             Assert.IsTrue(exception.Message.Contains("Required attribute 'email' not found."));
         }
 
+        // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
         public void ParseConfigurationMissingIPAddress()
         {

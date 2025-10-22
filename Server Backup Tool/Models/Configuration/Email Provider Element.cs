@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the login information about the email sender.
     public class EmailProviderElement : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true)]

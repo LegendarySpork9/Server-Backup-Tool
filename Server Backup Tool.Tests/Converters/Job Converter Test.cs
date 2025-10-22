@@ -8,6 +8,8 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class JobConverterTest
     {
+
+        // Checks whether the GetBackPaths method returns the expected values.
         [TestMethod]
         public void TestBackupPaths()
         {

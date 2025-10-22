@@ -9,6 +9,7 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class ServerServiceTest
     {
+        // Checks whether the server starts as expected.
         [TestMethod]
         public void TestStart()
         {
@@ -33,6 +34,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the command can be sent to the server.
         [TestMethod]
         public void TestCommand()
         {
@@ -54,6 +56,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the server can be stopped.
         [TestMethod]
         public void TestStop()
         {
