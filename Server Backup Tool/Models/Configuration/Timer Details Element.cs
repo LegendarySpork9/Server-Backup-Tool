@@ -13,13 +13,6 @@ namespace ServerBackupTool.Models.Configuration
             set { this["count"] = value; }
         }
 
-        [ConfigurationProperty("timeZone", DefaultValue = "(UTC+00:00) Dublin, Edinburgh, Lisbon, London")]
-        public string TimeZone
-        {
-            get { return (string)this["timeZone"]; }
-            set { this["timeZone"] = value; }
-        }
-
         [ConfigurationProperty("backupTime", IsRequired = true)]
         public string BackupTime
         {

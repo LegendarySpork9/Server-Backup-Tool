@@ -13,7 +13,7 @@ namespace ServerBackupTool.Tests.Converters
         public void TestDuration()
         {
             SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            Mock<TimeConverter> _mockTimeConverter = new(serverBackupSection.TimerDetails.TimeZone);
+            Mock<TimeConverter> _mockTimeConverter = new();
 
             TimeSpan duration = _mockTimeConverter.Object.GetDuration(serverBackupSection.TimerDetails.BackupTime);
 

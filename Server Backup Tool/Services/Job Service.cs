@@ -80,7 +80,7 @@ namespace ServerBackupTool.Services
 
             try
             {
-                var zip = ZipFile.Open(@$".\Archived Logs\Server {DateTime.Now:dd-MM-yyyy}.zip", ZipArchiveMode.Create);
+                var zip = ZipFile.Open(@$".\Archived Logs\Server {DateTime.UtcNow:dd-MM-yyyy}.zip", ZipArchiveMode.Create);
                 
                 foreach (var logFile in files)
                 {
@@ -119,7 +119,7 @@ namespace ServerBackupTool.Services
             {
                 foreach (var archivedLog in archivedLogs)
                 {
-                    if (File.GetCreationTime(archivedLog) < DateTime.Now.AddDays(-10))
+                    if (File.GetCreationTime(archivedLog) < DateTime.UtcNow.AddDays(-10))
                     {
                         File.Delete(archivedLog);
                     }
@@ -129,7 +129,7 @@ namespace ServerBackupTool.Services
 
                 foreach (var backup in backups)
                 {
-                    if (File.GetCreationTime(backup) < DateTime.Now.AddDays(-10))
+                    if (File.GetCreationTime(backup) < DateTime.UtcNow.AddDays(-10))
                     {
                         File.Delete(backup);
                     }

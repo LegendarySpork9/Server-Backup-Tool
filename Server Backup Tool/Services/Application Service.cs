@@ -29,9 +29,9 @@ namespace ServerBackupTool.Services
         // Executes the methods to run the application.
         public void RunApplication()
         {
-            TimeConverter _timeConverter = new(ServerBackupSection.TimerDetails.TimeZone);
+            TimeConverter _timeConverter = new();
 
-            Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Current Time: {DateTime.Now}");
+            Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Current Time: {DateTime.UtcNow}");
 
             TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
             TimeSpan duration = _timeConverter.GetDuration(ServerBackupSection.TimerDetails.BackupTime);

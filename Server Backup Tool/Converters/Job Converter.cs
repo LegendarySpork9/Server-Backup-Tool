@@ -8,7 +8,7 @@ namespace ServerBackupTool.Converters
         {
             return game switch
             {
-                "Minecraft" => (@$"{filePath}\world", @$"{filePath}\Backups\world {DateTime.Now:dd-MM-yyyy}.zip"),
+                "Minecraft" => (@$"{filePath}\world", @$"{filePath}\Backups\world {DateTime.UtcNow:dd-MM-yyyy}.zip"),
                 _ => ("", "")
             };
         }
