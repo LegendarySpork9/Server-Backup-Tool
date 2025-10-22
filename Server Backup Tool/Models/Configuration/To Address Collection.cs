@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores a list of addresses to send emails to from the configuration file.
     [ConfigurationCollection(typeof(ToAddressElement), AddItemName = "toAddress")]
     public class ToAddressCollection : ConfigurationElementCollection
     {

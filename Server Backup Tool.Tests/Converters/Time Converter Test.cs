@@ -8,6 +8,7 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class TimeConverterTest
     {
+        // Checks whether the method GetDuration returns the expected duration.
         [TestMethod]
         public void TestDuration()
         {

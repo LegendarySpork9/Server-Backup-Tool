@@ -1,4 +1,4 @@
-﻿// Copyright © - unpublished - Toby Hunter
+﻿// Copyright © - 17/01/2024 - Toby Hunter
 using ServerBackupTool.Models.Configuration;
 using System.Net.Mail;
 using System.Net;

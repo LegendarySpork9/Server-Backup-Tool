@@ -9,6 +9,7 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class TimerServiceTest
     {
+        // Checks whether the timers can be set up without the heartbeat system timer.
         [TestMethod]
         public void TestTimerSetupNoHeartbeat()
         {
@@ -36,6 +37,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the timers can be setup with the heartbeat system timer.
         [TestMethod]
         public void TestTimerSetupHeartbeat()
         {
@@ -63,6 +65,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the timers can be started.
         [TestMethod]
         public void TestStart()
         {
@@ -89,6 +92,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the "Wait for Close" timer works as expected.
         [TestMethod]
         public void TestWaitForClose()
         {
@@ -115,6 +119,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the Heartbeat timer works as expected.
         [TestMethod]
         public void TestHeartbeat()
         {

@@ -6,6 +6,7 @@ namespace ServerBackupTool.Tests.Functions
 {
     internal static class ConfigurationLoaderFunction
     {
+        // Returns the SBTSection for the given configuration file.
         public static SBTSection LoadConfig(string file)
         {
             ExeConfigurationFileMap configMap = new()

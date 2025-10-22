@@ -8,6 +8,7 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class EmailServiceTest
     {
+        // Checks whether the LoadHTMLFile method throws the correct error when given a HTML string.
         [TestMethod]
         public void GetEmailBodyHTMLString()
         {
@@ -24,6 +25,7 @@ namespace ServerBackupTool.Tests.Services
             Assert.IsTrue(exception.Message.Contains("The filename, directory name, or volume label syntax is incorrect."));
         }
 
+        // Checks whether the LoadHTMLFile method returns the HTML string for the given file.
         [TestMethod]
         public void GetEmailBodyHTMLFile()
         {
@@ -32,6 +34,7 @@ namespace ServerBackupTool.Tests.Services
             Assert.IsNotNull(emailBody);
         }
 
+        // Checks whether the SendEmail method sends the email as expected.
         [TestMethod]
         public void TestEmail()
         {

@@ -6,6 +6,9 @@
 # Odds
 /.vs/
 
+# Obj
+**[Oo]bj/
+
 # Dev Config
 *[Aa]pp - Development.config
 

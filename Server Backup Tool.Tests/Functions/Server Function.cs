@@ -6,6 +6,7 @@ namespace ServerBackupTool.Tests.Functions
 {
     internal static class ServerFunction
     {
+        // Runs a mock server for testing some commands.
         public static Mock<ServerModel> RunServer(SBTSection serverBackupSection)
         {
             serverBackupSection.ServerDetails.Location = Path.Combine(DirectoryFunction.GetBaseDirectory(), @"Mocks\Server");

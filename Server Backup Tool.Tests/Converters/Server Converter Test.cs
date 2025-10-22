@@ -8,6 +8,7 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class ServerConverterTest
     {
+        // Checks whether the GetMessageCommand method returns the expected command.
         [TestMethod]
         public void TestMessageCommand()
         {
@@ -19,6 +20,7 @@ namespace ServerBackupTool.Tests.Converters
             Assert.IsTrue(!string.IsNullOrWhiteSpace(command));
         }
 
+        // Checks whether the GetStopCommand method returns the expected command.
         [TestMethod]
         public void TestStopCommand()
         {
@@ -30,6 +32,7 @@ namespace ServerBackupTool.Tests.Converters
             Assert.IsTrue(!string.IsNullOrWhiteSpace(command));
         }
 
+        // Checks whether the GetFinalMessage method returns the expected message.
         [TestMethod]
         public void TestFinalMessage()
         {

@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores the information about the notifications in the configuration file. 
     public class NotificationElement : ConfigurationElement
     {
         [ConfigurationProperty("enabled", IsRequired = true)]

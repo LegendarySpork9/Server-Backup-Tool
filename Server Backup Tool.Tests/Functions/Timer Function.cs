@@ -7,6 +7,7 @@ namespace ServerBackupTool.Tests.Functions
 {
     internal static class TimerFunction
     {
+        // Creates a mock of the timers in a given configuration file.
         public static List<Mock<TimerModel>> ConfigureTimers(SBTSection serverBackupSection, bool doHeartbeat = false)
         {
             List<Mock<TimerModel>> timers = new();
@@ -64,6 +65,7 @@ namespace ServerBackupTool.Tests.Functions
             return timers;
         }
 
+        // Returns the durations of the given timer.
         private static TimeSpan[] GetDurations(TimerDetailsElement timerDetails)
         {
             TimeSpan[] durations = Array.Empty<TimeSpan>();
@@ -84,6 +86,7 @@ namespace ServerBackupTool.Tests.Functions
             return durations;
         }
 
+        // Returns the elapsed time for the given times.
         private static string GetElapsedTime(DateTime currentTime, DateTime triggerDateTime, string triggerTime)
         {
             string? elapsedTime;

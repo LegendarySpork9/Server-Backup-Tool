@@ -3,6 +3,7 @@ namespace ServerBackupTool.Converters
 {
     internal static class StandardValues
     {
+        // Standard Logger Values.
         public static class LoggerValues
         {
             public const string Debug = "Debug";

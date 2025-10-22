@@ -7,6 +7,7 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class JobServiceTest
     {
+        // Checks whether the CreateDirectory method returns the created directory information.
         [TestMethod]
         public void TestDirectory()
         {
@@ -15,6 +16,7 @@ namespace ServerBackupTool.Tests.Services
             Assert.IsNotNull(directoryObject);
         }
 
+        // Checks whether the CreateFromDirectory method creates a backup of the world folder.
         [TestMethod]
         public void TestBackup()
         {
@@ -33,6 +35,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the logs can be archived correctly.
         [TestMethod]
         public void TestArchive()
         {
@@ -65,6 +68,7 @@ namespace ServerBackupTool.Tests.Services
             }
         }
 
+        // Checks whether the old files can be removed.
         [TestMethod]
         public void TestCleanUp()
         {

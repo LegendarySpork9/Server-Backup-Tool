@@ -4,6 +4,7 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Models
 {
+    // Stores the information about the server.
     public class ServerModel
     {
         public string? Game { get; set; }

@@ -3,6 +3,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
+    // Stores a list of emails from the configuration file.
     [ConfigurationCollection(typeof(EmailElement), AddItemName = "email")]
     public class EmailCollection : ConfigurationElementCollection
     {
