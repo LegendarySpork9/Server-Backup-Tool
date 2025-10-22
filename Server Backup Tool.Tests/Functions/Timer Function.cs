@@ -70,17 +70,17 @@ namespace ServerBackupTool.Tests.Functions
         {
             TimeSpan[] durations = Array.Empty<TimeSpan>();
 
-            string currentTime = DateTime.Now.ToString();
-            string elapsedTime = GetElapsedTime(DateTime.Now, DateTime.Parse(timerDetails.BackupTime), timerDetails.BackupTime);
+            DateTime currentTime = DateTime.UtcNow;
+            string elapsedTime = GetElapsedTime(currentTime, DateTime.Parse(timerDetails.BackupTime).ToUniversalTime(), timerDetails.BackupTime);
 
-            durations = durations.Append(DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime))).ToArray();
+            durations = durations.Append(DateTime.Parse(elapsedTime).ToUniversalTime().Subtract(currentTime)).ToArray();
 
             foreach (TimerElement timer in timerDetails.Timers)
             {
-                currentTime = DateTime.Now.ToString();
-                elapsedTime = GetElapsedTime(DateTime.Now, DateTime.Parse(timer.Time), timer.Time);
+                currentTime = DateTime.UtcNow;
+                elapsedTime = GetElapsedTime(currentTime, DateTime.Parse(timer.Time).ToUniversalTime(), timer.Time);
 
-                durations = durations.Append(DateTime.Parse(elapsedTime).Subtract(DateTime.Parse(currentTime))).ToArray();
+                durations = durations.Append(DateTime.Parse(elapsedTime).ToUniversalTime().Subtract(currentTime)).ToArray();
             }
 
             return durations;
@@ -93,12 +93,12 @@ namespace ServerBackupTool.Tests.Functions
 
             if (triggerDateTime <= currentTime)
             {
-                elapsedTime = $"{DateTime.Now.AddDays(1):dd/MM/yyyy} {triggerTime}";
+                elapsedTime = $"{DateTime.UtcNow.AddDays(1):dd/MM/yyyy} {triggerTime}";
             }
 
             else
             {
-                elapsedTime = $"{DateTime.Now:dd/MM/yyyy} {triggerTime}";
+                elapsedTime = $"{DateTime.UtcNow:dd/MM/yyyy} {triggerTime}";
             }
 
             return elapsedTime;

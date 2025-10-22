@@ -24,7 +24,7 @@ namespace ServerBackupTool.Tests.Services
 
             try
             {
-                ZipFile.CreateFromDirectory(Path.Combine(directory, @"Mocks\Jobs\world"), Path.Combine(directory, @$"Output\world {DateTime.Now:dd-MM-yyyy}.zip"));
+                ZipFile.CreateFromDirectory(Path.Combine(directory, @"Mocks\Jobs\world"), Path.Combine(directory, @$"Output\world {DateTime.UtcNow:dd-MM-yyyy}.zip"));
 
                 Assert.IsTrue(true);
             }
@@ -46,7 +46,7 @@ namespace ServerBackupTool.Tests.Services
                 string[] files = Directory.GetFiles(Path.Combine(directory, @"Mocks\Jobs\Logs"));
                 string[] zippedFiles = Array.Empty<string>();
 
-                var zip = ZipFile.Open(Path.Combine(directory, @$"Output\Server {DateTime.Now:dd-MM-yyyy}.zip"), ZipArchiveMode.Create);
+                var zip = ZipFile.Open(Path.Combine(directory, @$"Output\Server {DateTime.UtcNow:dd-MM-yyyy}.zip"), ZipArchiveMode.Create);
 
                 foreach (var logFile in files)
                 {

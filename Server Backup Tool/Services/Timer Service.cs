@@ -13,7 +13,7 @@ namespace ServerBackupTool.Services
         readonly ApplicationService _ApplicationService;
         readonly ServerService _ServerService;
         readonly SBTSection ServerBackupSection;
-        readonly bool DoHeartbeat = true;
+        readonly bool DoHeartbeat = false;
         readonly List<TimerModel> Timers = new();
 
         // Sets the class's global variables.
