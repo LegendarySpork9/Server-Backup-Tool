@@ -36,7 +36,7 @@ namespace ServerBackupTool.Services
             TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
             TimeSpan duration = _timeConverter.GetDuration(ServerBackupSection.TimerDetails.BackupTime);
 
-            Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before backup: {duration}");
+            Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before backup: {duration:hh\\:mm\\:ss}");
 
             timerDurations = timerDurations.Append(duration).ToArray();
 
@@ -44,7 +44,7 @@ namespace ServerBackupTool.Services
             {
                 duration = _timeConverter.GetDuration(timer.Time);
 
-                Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before {timer.Name.ToLower()}: {duration}");
+                Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before {timer.Name.ToLower()}: {duration:hh\\:mm\\:ss}");
 
                 timerDurations = timerDurations.Append(duration).ToArray();
             }

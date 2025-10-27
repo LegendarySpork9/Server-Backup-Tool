@@ -77,7 +77,7 @@ namespace ServerBackupTool.Services
 
                     _emailService.CheckForEmail(ServerBackupSection.Notifications, null, e.Data);
 
-                    if (e.Data.Contains(_serverConverter.GetFinalMessage(Server.Game, Server.ServerProcess.StartInfo.WorkingDirectory)))
+                    if (e.Data.IndexOf(_serverConverter.GetFinalMessage(Server.Game, Server.ServerProcess.StartInfo.WorkingDirectory), StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         StopServer();
                     }
