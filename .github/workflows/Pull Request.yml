@@ -9,28 +9,16 @@ jobs:
   build-and-test:
     runs-on: windows-latest
 
-    services:
-      papercut:
-        image: changemakerstudiosus/papercut-smtp:latest
-        ports:
-          - 25:25
-        env:
-          PAPERCUTSMTP_ALLOW_INSECURE: 'true'
-
     steps:        
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Wait for Papercut to start
+    - name: Download and start Papercut SMTP
       run: |
-        echo "Waiting for Papercut SMTP to start..."
-        for i in {1..10}; do
-          if (Test-NetConnection -ComputerName localhost -Port 25).TcpTestSucceeded; then
-            echo "Papercut is running"
-            break
-          fi
-          Start-Sleep -Seconds 2
-        done
+        Invoke-WebRequest https://github.com/ChangemakerStudios/Papercut-SMTP/releases/latest/download/PapercutSMTP-win-x64-stable-Portable.zip -OutFile PapercutSMTP.zip
+        Expand-Archive PapercutSMTP.zip -DestinationPath Papercut
+        Start-Process -FilePath ".\Papercut\Papercut.Service.exe" -ArgumentList "--AllowInsecure" -WindowStyle Hidden
+        Start-Sleep -Seconds 5
       
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
