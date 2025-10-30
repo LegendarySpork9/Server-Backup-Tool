@@ -1,7 +1,7 @@
 // Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
-using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Tests.Functions;
+using ServerBackupTool.Implementations;
 
 namespace ServerBackupTool.Tests.Converters
 {
@@ -9,17 +9,54 @@ namespace ServerBackupTool.Tests.Converters
     public class JobConverterTest
     {
 
-        // Checks whether the GetBackPaths method returns the expected values.
+        // Checks whether the GetBackPaths method returns the expected values for Minecraft.
         [TestMethod]
-        public void TestBackupPaths()
+        public void TestGetBackupPathsMinecraft()
         {
-            Mock<JobConverter> _mockJobConverter = new();
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
+            Mock<IClock> mockClock = new();
+            mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 01, 01));
 
-            (string source, string destination) = _mockJobConverter.Object.GetBackPaths(serverBackupSection.ServerDetails.Game, serverBackupSection.ServerDetails.Location);
+            JobConverter _jobConverter = new(mockClock.Object);
 
-            Assert.IsTrue(!string.IsNullOrWhiteSpace(source));
-            Assert.IsTrue(!string.IsNullOrWhiteSpace(destination));
+            string game = "Minecraft";
+            string location = @"C:\GameServer";
+
+            string expectedSource = @"C:\GameServer\world";
+            string expectedDestination = @$"C:\GameServer\Backups\world 01-01-2025.zip";
+
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, location);
+
+            Assert.AreEqual(expectedSource, actualSource);
+            Assert.AreEqual(expectedDestination, actualDestination);
+        }
+
+        // Checks whether the GetBackPaths method returns the empty strings when the game isn't registered.
+        [TestMethod]
+        public void TestGetBackupPathsUnregisteredGame()
+        {
+            JobConverter _jobConverter = new(new SystemClock());
+
+            string game = "UnknownGame";
+            string location = @"C:\GameServer";
+
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, location);
+
+            Assert.AreEqual("", actualSource);
+            Assert.AreEqual("", actualDestination);
+        }
+
+        // Checks whether the GetBackPaths method returns the empty strings when the game is null.
+        [TestMethod]
+        public void TestGetBackupPathsNoGame()
+        {
+            JobConverter _jobConverter = new(new SystemClock());
+
+            string location = @"C:\GameServer";
+
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(null, location);
+
+            Assert.AreEqual("", actualSource);
+            Assert.AreEqual("", actualDestination);
         }
     }
 }

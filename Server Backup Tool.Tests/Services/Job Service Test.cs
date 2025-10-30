@@ -1,97 +1,127 @@
 // Copyright © - 31/10/2024 - Toby Hunter
-using ServerBackupTool.Tests.Functions;
-using System.IO.Compression;
+using ServerBackupTool.Abstractions;
+using ServerBackupTool.Models.Configuration;
+using ServerBackupTool.Services;
 
 namespace ServerBackupTool.Tests.Services
 {
     [TestClass]
     public class JobServiceTest
     {
-        // Checks whether the CreateDirectory method returns the created directory information.
+        // Checks whether the RunJobs method creates a backup of the world folder when the backup type is specified.
         [TestMethod]
-        public void TestDirectory()
+        public void TestRunJobsBackup()
         {
-            DirectoryInfo directoryObject = Directory.CreateDirectory(Path.Combine(DirectoryFunction.GetBaseDirectory(), "Output"));
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
+            _mockFileSystem.Setup(fs => fs.CreateZIPFromDirectory(It.IsAny<string>(), It.IsAny<string>()));
+            Mock<IClock> _mockClock = new();
+            _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 01, 01));
 
-            Assert.IsNotNull(directoryObject);
-        }
-
-        // Checks whether the CreateFromDirectory method creates a backup of the world folder.
-        [TestMethod]
-        public void TestBackup()
-        {
-            string directory = DirectoryFunction.GetBaseDirectory();
-
-            try
+            SBTSection serverBackupSection = new()
             {
-                ZipFile.CreateFromDirectory(Path.Combine(directory, @"Mocks\Jobs\world"), Path.Combine(directory, @$"Output\world {DateTime.UtcNow:dd-MM-yyyy}.zip"));
-
-                Assert.IsTrue(true);
-            }
-
-            catch (Exception ex)
-            {
-                Assert.Fail($"Failed to create backup. Exception: {ex.Message}");
-            }
-        }
-
-        // Checks whether the logs can be archived correctly.
-        [TestMethod]
-        public void TestArchive()
-        {
-            string directory = DirectoryFunction.GetBaseDirectory();
-
-            try
-            {
-                string[] files = Directory.GetFiles(Path.Combine(directory, @"Mocks\Jobs\Logs"));
-                string[] zippedFiles = Array.Empty<string>();
-
-                var zip = ZipFile.Open(Path.Combine(directory, @$"Output\Server {DateTime.UtcNow:dd-MM-yyyy}.zip"), ZipArchiveMode.Create);
-
-                foreach (var logFile in files)
+                ServerDetails = new ServerDetailsElement
                 {
-                    if (!logFile.Contains("Backup.log"))
-                    {
-                        zip.CreateEntryFromFile(logFile, Path.GetFileName(logFile), CompressionLevel.Optimal);
-                        zippedFiles = zippedFiles.Append(logFile).ToArray();
-                    }
+                    Location = @"C:\Server",
+                    Game = "Minecraft"
                 }
+            };
 
-                zip.Dispose();
+            JobService _jobService = new(_mockLogger.Object, _mockFileSystem.Object, _mockClock.Object, serverBackupSection);
 
-                Assert.IsTrue(!zippedFiles.Contains(Path.Combine(directory, @"Mocks\Jobs\Logs\Server Backup.log")));
-            }
+            string expected = "Complete";
 
-            catch (Exception ex)
-            {
-                Assert.Fail($"Failed to archive logs. Exception: {ex.Message}");
-            }
+            string actual = _jobService.RunJobs("backup");
+
+            Assert.AreEqual(expected, actual);
+            _mockFileSystem.Verify(fs => fs.CreateZIPFromDirectory(
+                It.Is<string>(s => s.Contains("world")),
+                It.Is<string>(d => d.Contains("Backups"))),
+                Times.Once);
         }
 
-        // Checks whether the old files can be removed.
+        // Checks whether the RunJobs method archives the server logs when the archive type is specified.
         [TestMethod]
-        public void TestCleanUp()
+        public void TestRunJobsArchive()
         {
-            string directory = DirectoryFunction.GetBaseDirectory();
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            _mockFileSystem.Setup(fs => fs.GetFiles(It.IsAny<string>())).Returns(new[] { "Server.log", "Backup.log" });
+            _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
+            Mock<IClock> _mockClock = new();
+            _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 01, 01));
 
-            try
+            SBTSection serverBackupSection = new()
             {
-                string[] files = Directory.GetFiles(Path.Combine(directory, "Output"));
-
-                foreach (var file in files)
+                ServerDetails = new ServerDetailsElement
                 {
-                    File.Delete(file);
+                    Location = @"C:\Server",
+                    Game = "Minecraft"
                 }
+            };
 
-                files = Directory.GetFiles(Path.Combine(directory, "Output"));
+            JobService _jobService = new(_mockLogger.Object, _mockFileSystem.Object, _mockClock.Object, serverBackupSection);
 
-                Assert.IsTrue(files.Length == 0);
-            }
+            string expected = "Complete";
 
-            catch (Exception ex)
+            string actual = _jobService.RunJobs("archive");
+
+            Assert.AreEqual(expected, actual);
+            _mockFileSystem.Verify(fs => fs.CreateZIPFile(It.IsAny<string>()), Times.Once);
+            _mockFileSystem.Verify(fs => fs.CreateZIPEntryFromFile(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
+        }
+
+        // Checks whether the RunJobs method deletes old log archives when the clean type is specified.
+        [TestMethod]
+        public void TestRunJobsCleanUp()
+        {
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            _mockFileSystem.Setup(fs => fs.GetFiles(@".\Archived Logs")).Returns(new[] { "old.zip" });
+            _mockFileSystem.Setup(fs => fs.GetFiles(@"C:\Server\Backups")).Returns(new[] { "oldbackup.zip" });
+            _mockFileSystem.Setup(fs => fs.GetCreationTime(It.IsAny<string>())).Returns(new DateTime(2025, 01, 01).AddDays(-11));
+            Mock<IClock> _mockClock = new();
+            _mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 01, 01));
+
+            SBTSection serverBackupSection = new()
             {
-                Assert.Fail($"Failed to delete archives. Exception: {ex.Message}");
-            }
+                ServerDetails = new ServerDetailsElement
+                {
+                    Location = @"C:\Server",
+                    Game = "Minecraft"
+                }
+            };
+
+            JobService _jobService = new(_mockLogger.Object, _mockFileSystem.Object, _mockClock.Object, serverBackupSection);
+
+            string expected = "Complete";
+
+            string actual = _jobService.RunJobs("clean");
+
+            Assert.AreEqual(expected, actual);
+            _mockFileSystem.Verify(fs => fs.DeleteFile("old.zip"), Times.Once);
+            _mockFileSystem.Verify(fs => fs.DeleteFile("oldbackup.zip"), Times.Once);
+        }
+
+        // Checks whether the RunJobs method deletes old log archives when an unknown type is specified.
+        [TestMethod]
+        public void TestRunJobsUnknown()
+        {
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IClock> _mockClock = new();
+
+            SBTSection serverBackupSection = new();
+
+            JobService _jobService = new(_mockLogger.Object, _mockFileSystem.Object, _mockClock.Object, serverBackupSection);
+
+            string expected = "Complete";
+
+            string actual = _jobService.RunJobs("unknown");
+
+            Assert.AreEqual(expected, actual);
+            _mockFileSystem.VerifyNoOtherCalls();
         }
     }
 }

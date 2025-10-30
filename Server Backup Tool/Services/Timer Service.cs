@@ -1,5 +1,7 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
+using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using System.Net.NetworkInformation;
@@ -8,16 +10,17 @@ using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Services
 {
-    internal class TimerService
+    public class TimerService
     {
         readonly ApplicationService _ApplicationService;
         readonly ServerService _ServerService;
+        readonly ILoggerService _Logger;
         readonly SBTSection ServerBackupSection;
         readonly bool DoHeartbeat = false;
         readonly List<TimerModel> Timers = new();
 
         // Sets the class's global variables.
-        public TimerService (ApplicationService _applicationService, ServerService _serverService, SBTSection _configurationSection)
+        public TimerService (ApplicationService _applicationService, ServerService _serverService, ILoggerService _logger, SBTSection _configurationSection)
         {
             if (_configurationSection.Notifications.Emails.Count != 0)
             {
@@ -32,14 +35,13 @@ namespace ServerBackupTool.Services
 
             _ApplicationService = _applicationService;
             _ServerService = _serverService;
+            _Logger = _logger;
             ServerBackupSection = _configurationSection;
         }
 
         // Configures the timers.
         public string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations)
         {
-            LoggerService _logger = new();
-
             string result = "Completed";
             int timerNumber = 0;
             Timers.Clear();
@@ -57,6 +59,7 @@ namespace ServerBackupTool.Services
                     {
                         Interval = SystemTimerModel.Durations[x]
                     };
+
                     int currentTimerNumber = timerNumber;
                     timerData.Elapsed += (sender, e) => TimerElapsed(sender, e, currentTimerNumber);
                     timerNumber++;
@@ -76,6 +79,7 @@ namespace ServerBackupTool.Services
                     {
                         Interval = timerDurations[x + 1].TotalMilliseconds,
                     };
+
                     int currentTimerNumber = timerNumber;
                     timerData.Elapsed += (sender, e) => TimerElapsed(sender, e, currentTimerNumber);
                     timerNumber++;
@@ -91,8 +95,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to set up the timers.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to set up the timers.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Errored";
             }
 
@@ -157,11 +161,9 @@ namespace ServerBackupTool.Services
         // Runs code related to built in timers.
         private void SystemTimers(TimerModel timer)
         {
-            LoggerService _logger = new();
-
             timer.TimerData.Stop();
 
-            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
+            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
@@ -180,12 +182,10 @@ namespace ServerBackupTool.Services
         // Runs code related to the server timers.
         private void ServerWarning(TimerModel timer)
         {
-            LoggerService _logger = new();
-
             timer.TimerData.Stop();
 
-            _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
-            _logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Warning Message: {timer.ElapsedMessage}", true);
+            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"{timer.TimerName} Triggered");
+            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Warning Message: {timer.ElapsedMessage}", true);
 
             timer.TimerData.Dispose();
             timer.Triggered = true;
@@ -196,7 +196,7 @@ namespace ServerBackupTool.Services
         // Runs when the Heartbeat timer finishes.
         private void Heartbeat(Timer heartbeatTimer)
         {
-            EmailService _emailService = new(true);
+            EmailService _emailService = new(_Logger, new SMTPEmailSender(), new FileSystem(), true);
 
             Ping pingSender = new();
             PingReply reply = pingSender.Send(ServerBackupSection.ServerDetails.IPAddress);

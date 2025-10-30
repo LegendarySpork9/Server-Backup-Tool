@@ -3,16 +3,23 @@ using ServerBackupTool.Models.Configuration;
 using System.Net.Mail;
 using System.Net;
 using ServerBackupTool.Converters;
+using ServerBackupTool.Abstractions;
 
 namespace ServerBackupTool.Services
 {
     public class EmailService
     {
+        readonly ILoggerService _Logger;
+        readonly IEmailSender _EmailSender;
+        readonly IFileSystem _FileSystem;
         readonly bool ServerRunning = false;
 
         // Sets the class's global variables.
-        public EmailService(bool serverRunning = false)
+        public EmailService(ILoggerService _logger, IEmailSender _emailSender, IFileSystem _fileSystem, bool serverRunning = false)
         {
+            _Logger = _logger;
+            _EmailSender = _emailSender;
+            _FileSystem = _fileSystem;
             ServerRunning = serverRunning;
         }
 
@@ -21,24 +28,12 @@ namespace ServerBackupTool.Services
         {
             if (notifications.Enabled)
             {
-                LoggerService _logger = new();
-
-                _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Trying to send \"{email.Subject.Value}\" email.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Trying to send \"{email.Subject.Value}\" email.");
 
                 try
                 {
-                    SmtpClient smtp = new()
-                    {
-                        Host = notifications.Provider.Name,
-                        Port = notifications.Port,
-                        EnableSsl = notifications.EnableSSL,
-                        DeliveryMethod = SmtpDeliveryMethod.Network,
-                        UseDefaultCredentials = false,
-                        Credentials = new NetworkCredential(notifications.FromAddress.Email, notifications.Provider.Password)
-                    };
-
+                    NetworkCredential credential = new(notifications.FromAddress.Email, notifications.Provider.Password);
                     MailAddress fromAddress = new(notifications.FromAddress.Email, notifications.FromAddress.Name);
-
                     MailMessage message = new()
                     {
                         From = fromAddress,
@@ -66,15 +61,14 @@ namespace ServerBackupTool.Services
                         }
                     }
 
-                    smtp.Send(message);
-
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Info, $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
+                    _EmailSender.Send(message, notifications.Provider.Name, notifications.Port, notifications.EnableSSL, credential);
+                    _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
                 }
 
                 catch (Exception ex)
                 {
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, $"Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                    _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, $"Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
+                    _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 }
             }
         }
@@ -82,18 +76,16 @@ namespace ServerBackupTool.Services
         // Checks if the body is a .HTML file.
         private string GetEmailBody(string configurationValue)
         {
-            LoggerService _logger = new();
-
             string emailBody = configurationValue;
 
             try
             {
-                emailBody = File.ReadAllText(configurationValue);
+                emailBody = _FileSystem.ReadAllText(configurationValue);
             }
 
             catch
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Unable to read body from file, using value specified in configuration element.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Unable to read body from file, using value specified in configuration element.");
             }
 
             return emailBody;

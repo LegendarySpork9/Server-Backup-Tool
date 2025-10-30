@@ -1,7 +1,6 @@
 // Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
-using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Tests.Functions;
 
 namespace ServerBackupTool.Tests.Converters
 {
@@ -10,14 +9,20 @@ namespace ServerBackupTool.Tests.Converters
     {
         // Checks whether the method GetDuration returns the expected duration.
         [TestMethod]
-        public void TestDuration()
+        public void TestGetDuration()
         {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            Mock<TimeConverter> _mockTimeConverter = new();
+            Mock<IClock> mockClock = new();
+            mockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 01, 01));
 
-            TimeSpan duration = _mockTimeConverter.Object.GetDuration(serverBackupSection.TimerDetails.BackupTime);
+            TimeConverter _timeConverter = new(mockClock.Object);
 
-            Assert.IsNotNull(duration);
+            string backupTime = "02:00:00";
+
+            TimeSpan expected = new(02, 00, 00);
+
+            TimeSpan actual = _timeConverter.GetDuration(backupTime);
+
+            Assert.AreEqual(expected, actual);
         }
     }
 }

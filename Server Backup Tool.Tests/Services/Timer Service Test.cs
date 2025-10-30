@@ -1,145 +1,161 @@
 // Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Tests.Functions;
-using System.Net.NetworkInformation;
+using ServerBackupTool.Services;
+using System.Reflection;
 
 namespace ServerBackupTool.Tests.Services
 {
     [TestClass]
     public class TimerServiceTest
     {
-        // Checks whether the timers can be set up without the heartbeat system timer.
+        // Checks whether the SetTimers method creates the timers without the heartbeat timer.
         [TestMethod]
-        public void TestTimerSetupNoHeartbeat()
+        public void TestSetTimers()
         {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            List<Mock<TimerModel>> timers = TimerFunction.ConfigureTimers(serverBackupSection);
+            SBTSection serverBackupSection = new();
+            ServerModel server = new(new());
 
-            try
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+
+            var timerDurations = new[]
             {
-                bool heartbeatAdded = false;
+                new TimeSpan(2, 0, 0),
+                new TimeSpan(1, 0, 0)
+            };
 
-                foreach (Mock<TimerModel> timer in timers)
-                {
-                    if (timer.Object.TimerName == "Heartbeat")
-                    {
-                        heartbeatAdded = true;
-                    }
-                }
+            TimerCollection timers = new();
 
-                Assert.IsTrue(timers.Count != 0 && !heartbeatAdded);
-            }
+            MethodInfo baseAdd = timers.GetType().BaseType!
+                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
 
-            catch (Exception ex)
+            baseAdd.Invoke(timers, new object[] { new TimerElement()
             {
-                Assert.Fail($"Failed to setup timers without heartbeat. Exception: {ex.Message}");
-            }
+                Name = "Warning One",
+                Time = "01:00:00",
+                Message = "Server will shutdown for a backup in an hour."
+            } });
+
+            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
+
+            string expected = "Completed";
+
+            string actual = _timerService.SetTimers(timers, timerDurations);
+
+            Assert.AreEqual(expected, actual);
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("Failed to set up")),
+                It.IsAny<bool>()),
+                Times.Never);
         }
 
-        // Checks whether the timers can be setup with the heartbeat system timer.
+        // Checks whether the SetTimers method creates the timers with the heartbeat timer.
         [TestMethod]
-        public void TestTimerSetupHeartbeat()
+        public void TestSetTimersHeartbeat()
         {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            List<Mock<TimerModel>> timers = TimerFunction.ConfigureTimers(serverBackupSection, true);
+            SBTSection serverBackupSection = new();
+            ServerModel server = new(new());
 
-            try
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+
+            var timerDurations = new[]
             {
-                bool heartbeatAdded = false;
+                new TimeSpan(2, 0, 0),
+                new TimeSpan(1, 0, 0)
+            };
 
-                foreach (Mock<TimerModel> timer in timers)
-                {
-                    if (timer.Object.TimerName == "Heartbeat")
-                    {
-                        heartbeatAdded = true;
-                    }
-                }
+            TimerCollection timers = new();
 
-                Assert.IsTrue(timers.Count != 0 && heartbeatAdded);
-            }
+            MethodInfo baseAdd = timers.GetType().BaseType!
+                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
 
-            catch (Exception ex)
+            baseAdd.Invoke(timers, new object[] { new TimerElement()
             {
-                Assert.Fail($"Failed to setup timers with heartbeat. Exception: {ex.Message}");
-            }
+                Name = "Warning One",
+                Time = "01:00:00",
+                Message = "Server will shutdown for a backup in an hour."
+            } });
+
+            NotificationElement notifications = new()
+            {
+                Enabled = true
+            };
+
+            baseAdd = notifications.Emails.GetType().BaseType!
+                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+
+            baseAdd.Invoke(notifications.Emails, new object[] { new EmailElement()
+            {
+                Trigger = "Heartbeat",
+                SystemEmail = true
+            } });
+
+            serverBackupSection.Notifications = notifications;
+
+            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
+
+            string expected = "Completed";
+
+            string actual = _timerService.SetTimers(timers, timerDurations);
+
+            Assert.AreEqual(expected, actual);
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("Failed to set up")),
+                It.IsAny<bool>()),
+                Times.Never);
         }
 
-        // Checks whether the timers can be started.
+        // Checks whether the SetTimers method creates only the system timers.
         [TestMethod]
-        public void TestStart()
+        public void TestSetTimersOnlySystem()
         {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            List<Mock<TimerModel>> timers = TimerFunction.ConfigureTimers(serverBackupSection);
+            SBTSection serverBackupSection = new();
+            ServerModel server = new(new());
 
-            try
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+
+            var timerDurations = new[]
             {
-                foreach (Mock<TimerModel> timer in timers)
-                {
-                    if (timer.Object.TimerName != "Wait")
-                    {
-                        timer.Object.TimerData.Start();
-                        timer.Object.TimerData.Stop();
-                    }
-                }
+                new TimeSpan(2, 0, 0)
+            };
 
-                Assert.IsTrue(true);
-            }
-
-            catch (Exception ex)
+            NotificationElement notifications = new()
             {
-                Assert.Fail($"Failed to start timers. Exception: {ex.Message}");
-            }
-        }
+                Enabled = true
+            };
 
-        // Checks whether the "Wait for Close" timer works as expected.
-        [TestMethod]
-        public void TestWaitForClose()
-        {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
-            List<Mock<TimerModel>> timers = TimerFunction.ConfigureTimers(serverBackupSection);
+            MethodInfo baseAdd = notifications.Emails.GetType().BaseType!
+                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
 
-            try
+            baseAdd.Invoke(notifications.Emails, new object[] { new EmailElement()
             {
-                foreach (Mock<TimerModel> timer in timers)
-                {
-                    if (timer.Object.TimerName == "Wait")
-                    {
-                        timer.Object.TimerData.Start();
-                        timer.Object.TimerData.Stop();
-                    }
-                }
+                Trigger = "Heartbeat",
+                SystemEmail = true
+            } });
 
-                Assert.IsTrue(true);
-            }
+            serverBackupSection.Notifications = notifications;
 
-            catch (Exception ex)
-            {
-                Assert.Fail($"Failed to start the wait timer. Exception: {ex.Message}");
-            }
-        }
+            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
 
-        // Checks whether the Heartbeat timer works as expected.
-        [TestMethod]
-        public void TestHeartbeat()
-        {
-            SBTSection serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
+            string expected = "Completed";
 
-            try
-            {
-                Ping pingSender = new();
-                PingReply reply = pingSender.Send(serverBackupSection.ServerDetails.IPAddress);
+            string actual = _timerService.SetTimers(new(), timerDurations);
 
-                if (reply.Status != IPStatus.Success)
-                {
-                    Assert.IsTrue(true);
-                }
-            }
-
-            catch (Exception ex)
-            {
-                Assert.Fail($"Failed to ping ip address. Exception: {ex.Message}");
-            }
+            Assert.AreEqual(expected, actual);
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("Failed to set up")),
+                It.IsAny<bool>()),
+                Times.Never);
         }
     }
 }

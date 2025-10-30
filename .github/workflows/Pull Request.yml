@@ -6,36 +6,26 @@ on:
       - '**'
 
 jobs:
-  start-smtp-service:
-    runs-on: ubuntu-latest  # Use Linux runner for PaperCut service
-
-    services:
-      papercut:
-        image: changemakerstudiosus/papercut-smtp:latest
-        ports:
-          - 25:25
-        env:
-          PAPERCUTSMTP_ALLOW_INSECURE: 'true'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
   build-and-test:
     runs-on: windows-latest
 
     steps:        
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Download and start Papercut SMTP
+      run: |
+        Invoke-WebRequest https://github.com/ChangemakerStudios/Papercut-SMTP/releases/latest/download/PapercutSMTP-win-x64-stable-Portable.zip -OutFile PapercutSMTP.zip
+        Expand-Archive PapercutSMTP.zip -DestinationPath Papercut
+        $exePath = Get-ChildItem -Recurse -Filter "Papercut SMTP.exe" -Path ".\Papercut" | Select-Object -First 1 | Select-Object -ExpandProperty FullName
+        Write-Host "Found Papercut at $exePath"
+        Start-Process -FilePath $exePath -ArgumentList "--AllowInsecure" -WindowStyle Hidden
+        Start-Sleep -Seconds 5
       
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0'
-
-    - name: Set DateTime Format
-      run: |
-        Set-Culture en-GB
 
     - name: Restore dependencies
       run: dotnet restore
@@ -45,3 +35,8 @@ jobs:
 
     - name: Run tests
       run: dotnet test --no-restore --verbosity normal
+
+    - name: Stop Papercut SMTP
+      if: always()
+      run: |
+        Get-Process "Papercut SMTP" -ErrorAction SilentlyContinue | Stop-Process -Force

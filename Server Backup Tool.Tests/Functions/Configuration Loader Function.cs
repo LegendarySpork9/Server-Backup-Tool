@@ -7,7 +7,7 @@ namespace ServerBackupTool.Tests.Functions
     internal static class ConfigurationLoaderFunction
     {
         // Returns the SBTSection for the given configuration file.
-        public static SBTSection LoadConfig(string file)
+        public static SBTSection? LoadConfig(string file)
         {
             ExeConfigurationFileMap configMap = new()
             {
@@ -16,7 +16,7 @@ namespace ServerBackupTool.Tests.Functions
 
             Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
 
-            return (SBTSection)config.GetSection("serverBackup");
+            return config.GetSection("serverBackup") as SBTSection;
         }
     }
 }
