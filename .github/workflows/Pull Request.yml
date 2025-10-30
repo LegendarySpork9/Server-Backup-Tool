@@ -17,7 +17,9 @@ jobs:
       run: |
         Invoke-WebRequest https://github.com/ChangemakerStudios/Papercut-SMTP/releases/latest/download/PapercutSMTP-win-x64-stable-Portable.zip -OutFile PapercutSMTP.zip
         Expand-Archive PapercutSMTP.zip -DestinationPath Papercut
-        Start-Process -FilePath ".\Papercut\Papercut.Service.exe" -ArgumentList "--AllowInsecure" -WindowStyle Hidden
+        $exePath = Get-ChildItem -Recurse -Filter "Papercut.Service.exe" -Path ".\Papercut" | Select-Object -First 1 | Select-Object -ExpandProperty FullName
+        Write-Host "Found Papercut service at $exePath"
+        Start-Process -FilePath $exePath -ArgumentList "--AllowInsecure" -WindowStyle Hidden
         Start-Sleep -Seconds 5
       
     - name: Setup .NET Core
@@ -33,3 +35,8 @@ jobs:
 
     - name: Run tests
       run: dotnet test --no-restore --verbosity normal
+
+    - name: Stop Papercut SMTP
+      if: always()
+      run: |
+        Get-Process "Papercut.Service" -ErrorAction SilentlyContinue | Stop-Process -Force
