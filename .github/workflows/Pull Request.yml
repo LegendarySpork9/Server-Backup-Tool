@@ -33,10 +33,6 @@ jobs:
       with:
         dotnet-version: '6.0'
 
-    - name: Set DateTime Format
-      run: |
-        Set-Culture en-GB
-
     - name: Restore dependencies
       run: dotnet restore
 

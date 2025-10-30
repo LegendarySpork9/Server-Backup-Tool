@@ -22,7 +22,7 @@ namespace ServerBackupTool.Tests.Converters
             string location = @"C:\GameServer";
 
             string expectedSource = @"C:\GameServer\world";
-            string expectedDestination = @$"C:\GameServer\Backups\world 29-10-2025.zip";
+            string expectedDestination = @$"C:\GameServer\Backups\world 01-01-2025.zip";
 
             (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, location);
 

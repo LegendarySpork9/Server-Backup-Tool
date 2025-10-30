@@ -43,7 +43,7 @@ namespace ServerBackupTool.Tests.Services
                 },
                 FromAddress = new()
                 {
-                    Email = "sender@test.com",
+                    Email = "unittests@hunter-industries.co.uk",
                     Name = "Test Sender"
                 }
             };
@@ -59,7 +59,7 @@ namespace ServerBackupTool.Tests.Services
 
             baseAdd.Invoke(email.Addresses, new object[] { new ToAddressElement()
             {
-                Email = "recipient@test.com",
+                Email = "unittests@hunter-industries.co.uk",
                 Name = "Test Recipient"
             } });
 
@@ -108,7 +108,7 @@ namespace ServerBackupTool.Tests.Services
                 },
                 FromAddress = new()
                 {
-                    Email = "sender@test.com",
+                    Email = "unittests@hunter-industries.co.uk",
                     Name = "Test Sender"
                 }
             };
@@ -124,7 +124,7 @@ namespace ServerBackupTool.Tests.Services
 
             baseAdd.Invoke(email.Addresses, new object[] { new ToAddressElement()
             {
-                Email = "recipient@test.com",
+                Email = "unittests@hunter-industries.co.uk",
                 Name = "Test Recipient"
             } });
 
