@@ -119,6 +119,11 @@ namespace ServerBackupTool.Services
                             ServerConverter _serverConverter = new();
 
                             _ServerService.SendCommand(_serverConverter.GetStopCommand(Server.Game));
+
+                            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, "Stop Command Sent to Server");
+                            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, "Waiting for 30 seconds");
+
+                            Thread.Sleep(30000);
                         }
 
                         break;

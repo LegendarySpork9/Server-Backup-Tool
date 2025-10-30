@@ -32,7 +32,7 @@ namespace ServerBackupTool.Services
 
                 try
                 {
-                    NetworkCredential credential = new(notifications.FromAddress.Email, notifications.Provider.Password);
+                    NetworkCredential credentials = new(notifications.FromAddress.Email, notifications.Provider.Password);
                     MailAddress fromAddress = new(notifications.FromAddress.Email, notifications.FromAddress.Name);
                     MailMessage message = new()
                     {
@@ -61,7 +61,7 @@ namespace ServerBackupTool.Services
                         }
                     }
 
-                    _EmailSender.Send(message, notifications.Provider.Name, notifications.Port, notifications.EnableSSL, credential);
+                    _EmailSender.Send(message, notifications.Provider.Name, notifications.Port, notifications.EnableSSL, credentials);
                     _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
                 }
 

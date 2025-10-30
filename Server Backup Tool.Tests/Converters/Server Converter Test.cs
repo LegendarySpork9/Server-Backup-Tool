@@ -101,11 +101,11 @@ namespace ServerBackupTool.Tests.Converters
             ServerConverter _serverConverter = new();
 
             string game = "Minecraft";
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
             string expected = @"C:\GameServer>PAUSE";
 
-            string actual = _serverConverter.GetFinalMessage(game, location);
+            string actual = _serverConverter.GetFinalMessage(game, filePath);
 
             Assert.AreEqual(expected, actual);
         }
@@ -117,9 +117,9 @@ namespace ServerBackupTool.Tests.Converters
             ServerConverter _serverConverter = new();
 
             string game = "UnknownGame";
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
-            string actual = _serverConverter.GetFinalMessage(game, location);
+            string actual = _serverConverter.GetFinalMessage(game, filePath);
 
             Assert.AreEqual("", actual);
         }
@@ -130,9 +130,9 @@ namespace ServerBackupTool.Tests.Converters
         {
             ServerConverter _serverConverter = new();
 
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
-            string actual = _serverConverter.GetFinalMessage(null, location);
+            string actual = _serverConverter.GetFinalMessage(null, filePath);
 
             Assert.AreEqual("", actual);
         }

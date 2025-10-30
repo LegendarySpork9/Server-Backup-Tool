@@ -20,11 +20,11 @@ namespace ServerBackupTool.Services
         readonly List<TimerModel> Timers = new();
 
         // Sets the class's global variables.
-        public TimerService (ApplicationService _applicationService, ServerService _serverService, ILoggerService _logger, SBTSection _configurationSection)
+        public TimerService (ApplicationService _applicationService, ServerService _serverService, ILoggerService _logger, SBTSection serverBackupSection)
         {
-            if (_configurationSection.Notifications.Emails.Count != 0)
+            if (serverBackupSection.Notifications.Emails.Count != 0)
             {
-                foreach (EmailElement email in _configurationSection.Notifications.Emails)
+                foreach (EmailElement email in serverBackupSection.Notifications.Emails)
                 {
                     if (email.Trigger == "Heartbeat")
                     {
@@ -36,7 +36,7 @@ namespace ServerBackupTool.Services
             _ApplicationService = _applicationService;
             _ServerService = _serverService;
             _Logger = _logger;
-            ServerBackupSection = _configurationSection;
+            ServerBackupSection = serverBackupSection;
         }
 
         // Configures the timers.
