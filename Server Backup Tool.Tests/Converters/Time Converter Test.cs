@@ -16,11 +16,11 @@ namespace ServerBackupTool.Tests.Converters
 
             TimeConverter _timeConverter = new(mockClock.Object);
 
-            string backupTime = "02:00:00";
+            string triggerTime = "02:00:00";
 
             TimeSpan expected = new(02, 00, 00);
 
-            TimeSpan actual = _timeConverter.GetDuration(backupTime);
+            TimeSpan actual = _timeConverter.GetDuration(triggerTime);
 
             Assert.AreEqual(expected, actual);
         }

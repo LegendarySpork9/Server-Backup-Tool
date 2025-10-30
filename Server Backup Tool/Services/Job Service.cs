@@ -10,17 +10,17 @@ namespace ServerBackupTool.Services
         readonly ILoggerService _Logger;
         readonly IFileSystem _FileSystem;
         readonly IClock _Clock;
-        readonly string ServerFilePath;
+        readonly string ServerPath;
         readonly string Game;
 
         // Sets the class's global variables.
-        public JobService(ILoggerService _logger, IFileSystem _fileSystem, IClock _clock, SBTSection _configurationSection)
+        public JobService(ILoggerService _logger, IFileSystem _fileSystem, IClock _clock, SBTSection serverBackupSection)
         {
             _Logger = _logger;
             _FileSystem = _fileSystem;
             _Clock = _clock;
-            ServerFilePath = _configurationSection.ServerDetails.Location;
-            Game = _configurationSection.ServerDetails.Game;
+            ServerPath = serverBackupSection.ServerDetails.Location;
+            Game = serverBackupSection.ServerDetails.Game;
         }
 
         // Executes the given method.
@@ -54,9 +54,9 @@ namespace ServerBackupTool.Services
             JobConverter _jobConverter = new(_Clock);
 
             string result = "Complete";
-            (string source, string destination) = _jobConverter.GetBackPaths(Game, ServerFilePath);
+            (string source, string destination) = _jobConverter.GetBackPaths(Game, ServerPath);
 
-            CheckDirectory(@$"{ServerFilePath}\Backups");
+            CheckDirectory(@$"{ServerPath}\Backups");
 
             try
             {
@@ -126,7 +126,7 @@ namespace ServerBackupTool.Services
                     }
                 }
 
-                string[] backups = _FileSystem.GetFiles(@$"{ServerFilePath}\Backups").ToArray();
+                string[] backups = _FileSystem.GetFiles(@$"{ServerPath}\Backups").ToArray();
 
                 foreach (string backup in backups)
                 {

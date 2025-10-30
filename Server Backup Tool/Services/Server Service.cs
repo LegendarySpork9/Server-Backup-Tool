@@ -15,10 +15,10 @@ namespace ServerBackupTool.Services
         private ServerModel Server;
 
         // Sets the class's global variables.
-        public ServerService(ILoggerService _logger, SBTSection _serverBackupSection, ServerModel _server)
+        public ServerService(ILoggerService _logger, SBTSection serverBackupSection, ServerModel _server)
         {
             _Logger = _logger;
-            ServerBackupSection = _serverBackupSection;
+            ServerBackupSection = serverBackupSection;
             Server = _server;
         }
 

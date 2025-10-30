@@ -15,9 +15,6 @@ namespace ServerBackupTool.Implementations
         // Returns all the files in a given path.
         public IEnumerable<string> GetFiles(string path) => Directory.GetFiles(path);
 
-        // Returns whether the given file exists.
-        public bool FileExists(string file) => File.Exists(file);
-
         // Deletes the given file.
         public void DeleteFile(string file) => File.Delete(file);
 
@@ -48,8 +45,5 @@ namespace ServerBackupTool.Implementations
 
         // Returns all the text in a given file.
         public string ReadAllText(string file) => File.ReadAllText(file);
-
-        // Adds the given text to a given file.
-        public void WriteAllText(string file, string content) => File.WriteAllText(file, content);
     }
 }

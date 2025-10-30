@@ -8,7 +8,6 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class JobConverterTest
     {
-
         // Checks whether the GetBackPaths method returns the expected values for Minecraft.
         [TestMethod]
         public void TestGetBackupPathsMinecraft()
@@ -19,12 +18,12 @@ namespace ServerBackupTool.Tests.Converters
             JobConverter _jobConverter = new(mockClock.Object);
 
             string game = "Minecraft";
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
             string expectedSource = @"C:\GameServer\world";
             string expectedDestination = @$"C:\GameServer\Backups\world 01-01-2025.zip";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, location);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, filePath);
 
             Assert.AreEqual(expectedSource, actualSource);
             Assert.AreEqual(expectedDestination, actualDestination);
@@ -37,9 +36,9 @@ namespace ServerBackupTool.Tests.Converters
             JobConverter _jobConverter = new(new SystemClock());
 
             string game = "UnknownGame";
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, location);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, filePath);
 
             Assert.AreEqual("", actualSource);
             Assert.AreEqual("", actualDestination);
@@ -51,9 +50,9 @@ namespace ServerBackupTool.Tests.Converters
         {
             JobConverter _jobConverter = new(new SystemClock());
 
-            string location = @"C:\GameServer";
+            string filePath = @"C:\GameServer";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(null, location);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(null, filePath);
 
             Assert.AreEqual("", actualSource);
             Assert.AreEqual("", actualDestination);
