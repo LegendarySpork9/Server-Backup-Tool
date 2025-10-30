@@ -17,8 +17,8 @@ jobs:
       run: |
         Invoke-WebRequest https://github.com/ChangemakerStudios/Papercut-SMTP/releases/latest/download/PapercutSMTP-win-x64-stable-Portable.zip -OutFile PapercutSMTP.zip
         Expand-Archive PapercutSMTP.zip -DestinationPath Papercut
-        $exePath = Get-ChildItem -Recurse -Filter "Papercut.Service.exe" -Path ".\Papercut" | Select-Object -First 1 | Select-Object -ExpandProperty FullName
-        Write-Host "Found Papercut service at $exePath"
+        $exePath = Get-ChildItem -Recurse -Filter "Papercut SMTP.exe" -Path ".\Papercut" | Select-Object -First 1 | Select-Object -ExpandProperty FullName
+        Write-Host "Found Papercut at $exePath"
         Start-Process -FilePath $exePath -ArgumentList "--AllowInsecure" -WindowStyle Hidden
         Start-Sleep -Seconds 5
       
@@ -39,4 +39,4 @@ jobs:
     - name: Stop Papercut SMTP
       if: always()
       run: |
-        Get-Process "Papercut.Service" -ErrorAction SilentlyContinue | Stop-Process -Force
+        Get-Process "Papercut SMTP" -ErrorAction SilentlyContinue | Stop-Process -Force
