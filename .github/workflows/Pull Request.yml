@@ -6,8 +6,8 @@ on:
       - '**'
 
 jobs:
-  start-smtp-service:
-    runs-on: ubuntu-latest  # Use Linux runner for PaperCut service
+  build-and-test:
+    runs-on: windows-latest
 
     services:
       papercut:
@@ -17,16 +17,20 @@ jobs:
         env:
           PAPERCUTSMTP_ALLOW_INSECURE: 'true'
 
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-  build-and-test:
-    runs-on: windows-latest
-
     steps:        
     - name: Checkout code
       uses: actions/checkout@v3
+
+    - name: Wait for Papercut to start
+      run: |
+        echo "Waiting for Papercut SMTP to start..."
+        for i in {1..10}; do
+          if (Test-NetConnection -ComputerName localhost -Port 25).TcpTestSucceeded; then
+            echo "Papercut is running"
+            break
+          fi
+          Start-Sleep -Seconds 2
+        done
       
     - name: Setup .NET Core
       uses: actions/setup-dotnet@v3

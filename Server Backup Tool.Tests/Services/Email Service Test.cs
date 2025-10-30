@@ -79,6 +79,7 @@ namespace ServerBackupTool.Tests.Services
         }
 
         // Checks whether the SendEmail method sends the email as expected.
+        [TestCategory("Integration")]
         [TestMethod]
         public void TestSendEmail()
         {
