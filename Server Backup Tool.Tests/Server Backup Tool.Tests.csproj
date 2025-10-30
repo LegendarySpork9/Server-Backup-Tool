@@ -25,9 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mocks\Jobs\" />
     <Folder Include="Mocks\Server\" />
-    <Folder Include="Output\" />
   </ItemGroup>
 
 </Project>

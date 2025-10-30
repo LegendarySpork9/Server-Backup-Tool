@@ -1,18 +1,24 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models.Configuration;
-using System.IO.Compression;
 
 namespace ServerBackupTool.Services
 {
-    internal class JobService
+    public class JobService
     {
+        readonly ILoggerService _Logger;
+        readonly IFileSystem _FileSystem;
+        readonly IClock _Clock;
         readonly string ServerFilePath;
         readonly string Game;
 
         // Sets the class's global variables.
-        public JobService(SBTSection _configurationSection)
+        public JobService(ILoggerService _logger, IFileSystem _fileSystem, IClock _clock, SBTSection _configurationSection)
         {
+            _Logger = _logger;
+            _FileSystem = _fileSystem;
+            _Clock = _clock;
             ServerFilePath = _configurationSection.ServerDetails.Location;
             Game = _configurationSection.ServerDetails.Game;
         }
@@ -36,17 +42,16 @@ namespace ServerBackupTool.Services
         // Creates the directory if it does not exist.
         private void CheckDirectory(string path)
         {
-            if (!Directory.Exists(path))
+            if (!_FileSystem.DirectoryExists(path))
             {
-                Directory.CreateDirectory(path);
+                _FileSystem.CreateDirectory(path);
             }
         }
 
         // Creates a ZIP file of the world data.
         private string BackupServer()
         {
-            JobConverter _jobConverter = new();
-            LoggerService _logger = new();
+            JobConverter _jobConverter = new(_Clock);
 
             string result = "Complete";
             (string source, string destination) = _jobConverter.GetBackPaths(Game, ServerFilePath);
@@ -55,13 +60,13 @@ namespace ServerBackupTool.Services
 
             try
             {
-                ZipFile.CreateFromDirectory(source, destination);
+                _FileSystem.CreateZIPFromDirectory(source, destination);
             }
 
             catch (Exception ex)
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to create a backup of the game data.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to create a backup of the game data.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 
@@ -71,33 +76,31 @@ namespace ServerBackupTool.Services
         // Creates a ZIP of the log files.
         private string ArchiveLogs()
         {
-            LoggerService _logger = new();
-
             string result = "Complete";
-            string[] files = Directory.GetFiles(@".\Logs");
+            string[] files = _FileSystem.GetFiles(@".\Logs").ToArray();
 
             CheckDirectory(@$".\Archived Logs");
 
             try
             {
-                var zip = ZipFile.Open(@$".\Archived Logs\Server {DateTime.UtcNow:dd-MM-yyyy}.zip", ZipArchiveMode.Create);
+                string zipPath = @$".\Archived Logs\Server {_Clock.UtcNow:dd-MM-yyyy}.zip";
+
+                _FileSystem.CreateZIPFile(zipPath);
                 
-                foreach (var logFile in files)
+                foreach (string logFile in files)
                 {
                     if (!logFile.Contains("Backup.log"))
                     {
-                        zip.CreateEntryFromFile(logFile, Path.GetFileName(logFile), CompressionLevel.Optimal);
-                        File.Delete(logFile);
+                        _FileSystem.CreateZIPEntryFromFile(zipPath, logFile, Path.GetFileName(logFile));
+                        _FileSystem.DeleteFile(logFile);
                     }
                 }
-
-                zip.Dispose();
             }
 
             catch (Exception ex)
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to archive the logs into a ZIP file.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to archive the logs into a ZIP file.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 
@@ -107,39 +110,37 @@ namespace ServerBackupTool.Services
         // Deletes logs older than a given time.
         private string RemoveOldFiles()
         {
-            LoggerService _logger = new();
-
             string result = "Complete";
 
             CheckDirectory(@$".\Archived Logs");
 
-            string[] archivedLogs = Directory.GetFiles(@".\Archived Logs");
+            string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs").ToArray();
 
             try
             {
-                foreach (var archivedLog in archivedLogs)
+                foreach (string archivedLog in archivedLogs)
                 {
-                    if (File.GetCreationTime(archivedLog) < DateTime.UtcNow.AddDays(-10))
+                    if (_FileSystem.GetCreationTime(archivedLog) < _Clock.UtcNow.AddDays(-10))
                     {
-                        File.Delete(archivedLog);
+                        _FileSystem.DeleteFile(archivedLog);
                     }
                 }
 
-                string[] backups = Directory.GetFiles(@$"{ServerFilePath}\Backups");
+                string[] backups = _FileSystem.GetFiles(@$"{ServerFilePath}\Backups").ToArray();
 
-                foreach (var backup in backups)
+                foreach (string backup in backups)
                 {
-                    if (File.GetCreationTime(backup) < DateTime.UtcNow.AddDays(-10))
+                    if (_FileSystem.GetCreationTime(backup) < _Clock.UtcNow.AddDays(-10))
                     {
-                        File.Delete(backup);
+                        _FileSystem.DeleteFile(backup);
                     }
                 }
             }
 
             catch (Exception ex)
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to delete logs and/or data backups over 10 days old.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to delete logs and/or data backups over 10 days old.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Failed";
             }
 

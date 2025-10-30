@@ -1,19 +1,23 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
+using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using System.Diagnostics;
 
 namespace ServerBackupTool.Services
 {
-    internal class ServerService
+    public class ServerService
     {
+        readonly ILoggerService _Logger;
         readonly SBTSection ServerBackupSection;
         private ServerModel Server;
 
         // Sets the class's global variables.
-        public ServerService(SBTSection _serverBackupSection, ServerModel _server)
+        public ServerService(ILoggerService _logger, SBTSection _serverBackupSection, ServerModel _server)
         {
+            _Logger = _logger;
             ServerBackupSection = _serverBackupSection;
             Server = _server;
         }
@@ -21,8 +25,6 @@ namespace ServerBackupTool.Services
         // Activates the server.
         public string StartServer()
         {
-            LoggerService _logger = new();
-
             string result = "Completed";
 
             Server.ServerProcess.OutputDataReceived += ServerResponseData;
@@ -36,8 +38,8 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to start the server.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to start the server.");
+                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 result = "Errored";
             }
 
@@ -65,15 +67,14 @@ namespace ServerBackupTool.Services
         // Logs the output from the server.
         private void ServerResponseData(object sender, DataReceivedEventArgs e)
         {
-            LoggerService _logger = new();
             ServerConverter _serverConverter = new();
-            EmailService _emailService = new(true);
+            EmailService _emailService = new(_Logger, new SMTPEmailSender(), new FileSystem(), true);
 
             if (!string.IsNullOrEmpty(e.Data))
             {
                 try
                 {
-                    _logger.LogServerMessage(e.Data);
+                    _Logger.LogServerMessage(e.Data);
 
                     _emailService.CheckForEmail(ServerBackupSection.Notifications, null, e.Data);
 
@@ -85,8 +86,8 @@ namespace ServerBackupTool.Services
 
                 catch (Exception ex)
                 {
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.", true);
-                    _logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                    _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.", true);
+                    _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
                 }
             }
         }
