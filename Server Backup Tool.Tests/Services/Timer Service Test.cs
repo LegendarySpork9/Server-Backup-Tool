@@ -1,4 +1,4 @@
-// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright Â© - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
@@ -18,8 +18,10 @@ namespace ServerBackupTool.Tests.Services
             ServerModel server = new(new());
 
             Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
 
             var timerDurations = new[]
             {
@@ -61,8 +63,10 @@ namespace ServerBackupTool.Tests.Services
             ServerModel server = new(new());
 
             Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
 
             var timerDurations = new[]
             {
@@ -120,8 +124,10 @@ namespace ServerBackupTool.Tests.Services
             ServerModel server = new(new());
 
             Mock<ILoggerService> _mockLogger = new();
+            Mock<IFileSystem> _mockFileSystem = new();
+            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
 
             var timerDurations = new[]
             {

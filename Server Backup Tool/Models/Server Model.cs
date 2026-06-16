@@ -7,6 +7,7 @@ namespace ServerBackupTool.Models
     // Stores the information about the server.
     public class ServerModel
     {
+        public string? Name { get; set; }
         public string? Game { get; set; }
         public bool ServerRunning { get; set; } = false;
         public Process ServerProcess { get; }

@@ -6,6 +6,13 @@ namespace ServerBackupTool.Models.Configuration
     // Stores the information about the server in the configuration file.
     public class ServerDetailsElement : ConfigurationElement
     {
+        [ConfigurationProperty("name", IsRequired = true)]
+        public string Name
+        {
+            get { return (string)this["name"]; }
+            set { this["name"] = value; }
+        }
+
         [ConfigurationProperty("game", IsRequired = true)]
         public string Game
         {

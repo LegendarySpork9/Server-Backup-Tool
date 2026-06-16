@@ -19,6 +19,18 @@ namespace ServerBackupTool.Tests
 
         // Checks whether the configuration file fails to load if missing a tag.
         [TestMethod]
+        public void ParseConfigurationMissingNameTag()
+        {
+            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            {
+                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Name.config");
+            });
+
+            Assert.IsTrue(exception.Message.Contains("Required attribute 'name' not found."));
+        }
+
+        // Checks whether the configuration file fails to load if missing a tag.
+        [TestMethod]
         public void ParseConfigurationMissingGameTag()
         {
             var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>

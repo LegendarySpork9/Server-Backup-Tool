@@ -11,19 +11,21 @@ namespace ServerBackupTool.Services
     public class ServerService
     {
         readonly ILoggerService _Logger;
+        readonly PidFileService _PidFileService;
         readonly SBTSection ServerBackupSection;
         private ServerModel Server;
 
         // Sets the class's global variables.
-        public ServerService(ILoggerService _logger, SBTSection serverBackupSection, ServerModel _server)
+        public ServerService(ILoggerService _logger, PidFileService pidFileService, SBTSection serverBackupSection, ServerModel _server)
         {
             _Logger = _logger;
+            _PidFileService = pidFileService;
             ServerBackupSection = serverBackupSection;
             Server = _server;
         }
 
         // Activates the server.
-        public string StartServer()
+        public async Task<string> StartServer()
         {
             string result = "Completed";
 
@@ -34,6 +36,11 @@ namespace ServerBackupTool.Services
                 Server.ServerProcess.Start();
                 Server.ServerProcess.BeginOutputReadLine();
                 Server.ServerRunning = true;
+
+                await _PidFileService.Write(
+                    Server.Name,
+                    Server.ServerProcess.Id,
+                    Server.ServerProcess.StartTime.ToUniversalTime());
             }
 
             catch (Exception ex)
@@ -101,6 +108,8 @@ namespace ServerBackupTool.Services
             Server.ServerProcess.Close();
             Server.ServerProcess.OutputDataReceived -= ServerResponseData;
             Server.ServerRunning = false;
+
+            _PidFileService.Delete(Server.Name);
         }
     }
 }
