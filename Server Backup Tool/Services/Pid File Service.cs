@@ -33,7 +33,7 @@ namespace ServerBackupTool.Services
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
-                $"Writing PID file for {serverName}");
+                $"Writing PID file for {serverName}.");
 
             try
             {
@@ -75,7 +75,7 @@ namespace ServerBackupTool.Services
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
-                $"Deleting PID file for {serverName}");
+                $"Deleting PID file for {serverName}.");
 
             try
             {
