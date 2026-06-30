@@ -159,7 +159,7 @@ namespace ServerBackupTool.Services
         }
 
         // Runs code related to built in timers.
-        private void SystemTimers(TimerModel timer)
+        private async void SystemTimers(TimerModel timer)
         {
             timer.TimerData.Stop();
 
@@ -170,7 +170,7 @@ namespace ServerBackupTool.Services
 
             if (timer.TimerName == "Backup")
             {
-                _ApplicationService.RunBackup(this);
+                await _ApplicationService.RunBackup(this);
             }
 
             else

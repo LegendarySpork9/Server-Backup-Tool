@@ -12,7 +12,7 @@ namespace ServerBackupTool
         static SBTSection? ServerBackupSection;
 
         // Configures the application.
-        static void Main()
+        static async Task Main()
         {
             EmailService _emailService = new(new LoggerServiceWrapper(), new SMTPEmailSender(), new FileSystem());
 
@@ -33,17 +33,20 @@ namespace ServerBackupTool
 
             ApplicationService _applicationService = new(ServerBackupSection);
 
-            _applicationService.RunApplication();
+            await _applicationService.RunApplication();
         }
 
         // Runs code when the application closes.
         static void OnProcessExit(object? sender, EventArgs e)
         {
             EmailService _emailService = new(new LoggerServiceWrapper(), new SMTPEmailSender(), new FileSystem());
+            PidFileService _pidFileService = new(new LoggerServiceWrapper(), new FileSystem());
 
             if (ServerBackupSection != null)
             {
                 _emailService.CheckForEmail(ServerBackupSection.Notifications, "Close");
+
+                _pidFileService.Delete(ServerBackupSection.ServerDetails.Name);
             }
         }
     }

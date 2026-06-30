@@ -10,6 +10,7 @@ namespace ServerBackupTool.Services
     public class ApplicationService
     {
         readonly ILoggerService _Logger = new LoggerServiceWrapper();
+        readonly PidFileService _PidFileService;
         readonly ServerService _ServerService;
         readonly TimerService _TimerService;
         readonly SBTSection ServerBackupSection;
@@ -24,14 +25,17 @@ namespace ServerBackupTool.Services
             ServerBackupSection = serverBackupSection;
             Server = new(serverBackupSection.ServerDetails)
             {
+                Name = serverBackupSection.ServerDetails.Name,
                 Game = serverBackupSection.ServerDetails.Game
             };
-            _ServerService = new(_Logger, ServerBackupSection, Server);
+            _PidFileService = new(_Logger, new FileSystem());
+            _PidFileService.Delete(Server.Name);
+            _ServerService = new(_Logger, _PidFileService, ServerBackupSection, Server);
             _TimerService = new(this, _ServerService, _Logger, ServerBackupSection);
         }
 
         // Executes the methods to run the application.
-        public void RunApplication()
+        public async Task RunApplication()
         {
             TimeConverter _timeConverter = new(Clock);
 
@@ -60,15 +64,15 @@ namespace ServerBackupTool.Services
 
             _TimerService.StartTimers();
 
-            result = _ServerService.StartServer();
+            result = await _ServerService.StartServer();
 
             _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Starting Server: {result}", true);
 
-            UserInput();
+            await UserInput();
         }
 
         // Executes the methods to take a backup of the server and log data.
-        public void RunBackup(TimerService _timerService)
+        public async Task RunBackup(TimerService _timerService)
         {
             ServerConverter _serverConverter = new();
             JobService _jobService = new(_Logger, new FileSystem(), Clock, ServerBackupSection);
@@ -98,11 +102,11 @@ namespace ServerBackupTool.Services
 
             _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Restarting Process");
 
-            RunApplication();
+            await RunApplication();
         }
 
         // Handles inputs from the user.
-        private void UserInput()
+        private async Task UserInput()
         {
             while (true)
             {
@@ -134,7 +138,7 @@ namespace ServerBackupTool.Services
                         if (!Server.ServerRunning)
                         {
                             _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Starting Server");
-                            _ServerService.StartServer();
+                            await _ServerService.StartServer();
 
                             Console.WriteLine("\n----Server Commands----");
                         }

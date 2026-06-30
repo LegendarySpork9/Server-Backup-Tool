@@ -28,10 +28,7 @@ namespace ServerBackupTool.Implementations
         // Creates a ZIP file in the given directory.
         public void CreateZIPFile(string path)
         {
-            using (ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Create))
-            {
-
-            }
+            using ZipArchive zip = ZipFile.Open(path, ZipArchiveMode.Create);
         }
 
         // Adds the given file to the given ZIP file.
@@ -45,5 +42,11 @@ namespace ServerBackupTool.Implementations
 
         // Returns all the text in a given file.
         public string ReadAllText(string file) => File.ReadAllText(file);
+
+        // Writes text to a given file asynchronously.
+        public Task WriteAllText(string path, string content) => File.WriteAllTextAsync(path, content);
+
+        // Returns whether the file exists for a given path.
+        public bool FileExists(string path) => File.Exists(path);
     }
 }
