@@ -7,11 +7,11 @@ namespace ServerBackupTool.Services
 {
     public class JobService
     {
-        readonly ILoggerService _Logger;
-        readonly IFileSystem _FileSystem;
-        readonly IClock _Clock;
-        readonly string ServerPath;
-        readonly string Game;
+        private readonly ILoggerService _Logger;
+        private readonly IFileSystem _FileSystem;
+        private readonly IClock _Clock;
+        private readonly string ServerPath;
+        private readonly string Game;
 
         // Sets the class's global variables.
         public JobService(ILoggerService _logger, IFileSystem _fileSystem, IClock _clock, SBTSection serverBackupSection)

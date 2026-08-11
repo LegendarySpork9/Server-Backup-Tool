@@ -4,7 +4,7 @@ using System.Configuration;
 
 namespace ServerBackupTool.Tests.Functions
 {
-    internal static class ConfigurationLoaderFunction
+    public static class ConfigurationLoaderFunction
     {
         // Returns the SBTSection for the given configuration file.
         public static SBTSection? LoadConfig(string file)

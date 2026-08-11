@@ -10,10 +10,10 @@ namespace ServerBackupTool.Services
 {
     public class ServerService
     {
-        readonly ILoggerService _Logger;
-        readonly PidFileService _PidFileService;
-        readonly SBTSection ServerBackupSection;
-        private ServerModel Server;
+        private readonly ILoggerService _Logger;
+        private readonly PidFileService _PidFileService;
+        private readonly SBTSection ServerBackupSection;
+        private readonly ServerModel Server;
 
         // Sets the class's global variables.
         public ServerService(ILoggerService _logger, PidFileService pidFileService, SBTSection serverBackupSection, ServerModel _server)

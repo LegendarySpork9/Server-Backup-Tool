@@ -1,7 +1,7 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
 namespace ServerBackupTool.Tests.Functions
 {
-    internal static class DirectoryFunction
+    public static class DirectoryFunction
     {
         // Returns the base directory of the running application.
         public static string GetBaseDirectory()

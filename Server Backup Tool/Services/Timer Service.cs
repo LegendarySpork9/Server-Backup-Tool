@@ -12,12 +12,12 @@ namespace ServerBackupTool.Services
 {
     public class TimerService
     {
-        readonly ApplicationService _ApplicationService;
-        readonly ServerService _ServerService;
-        readonly ILoggerService _Logger;
-        readonly SBTSection ServerBackupSection;
-        readonly bool DoHeartbeat = false;
-        readonly List<TimerModel> Timers = new();
+        private readonly ApplicationService _ApplicationService;
+        private readonly ServerService _ServerService;
+        private readonly ILoggerService _Logger;
+        private readonly SBTSection ServerBackupSection;
+        private readonly bool DoHeartbeat = false;
+        private readonly List<TimerModel> Timers = new();
 
         // Sets the class's global variables.
         public TimerService (ApplicationService _applicationService, ServerService _serverService, ILoggerService _logger, SBTSection serverBackupSection)
