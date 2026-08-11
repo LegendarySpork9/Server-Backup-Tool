@@ -21,7 +21,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingNameTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Name.config");
             });
@@ -33,7 +33,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingGameTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Game.config");
             });
@@ -45,7 +45,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingLocationTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Location.config");
             });
@@ -57,7 +57,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingStartFileTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Start File.config");
             });
@@ -69,7 +69,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingBackupTimeTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Backup Time.config");
             });
@@ -81,7 +81,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingEnabledTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Notification Enabled.config");
             });
@@ -93,7 +93,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingFAEmailTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing From Address Email.config");
             });
@@ -105,7 +105,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingTAEmailTag()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing To Address Email.config");
             });
@@ -117,7 +117,7 @@ namespace ServerBackupTool.Tests
         [TestMethod]
         public void ParseConfigurationMissingIPAddress()
         {
-            var exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
                 SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing IP Address.config");
             });

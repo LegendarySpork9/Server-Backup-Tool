@@ -6,8 +6,8 @@ namespace ServerBackupTool.Services
 {
     public class PidFileService
     {
-        readonly ILoggerService _Logger;
-        readonly IFileSystem _FileSystem;
+        private readonly ILoggerService _Logger;
+        private readonly IFileSystem _FileSystem;
 
         private static readonly string PidDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),

@@ -9,13 +9,13 @@ namespace ServerBackupTool.Services
 {
     public class ApplicationService
     {
-        readonly ILoggerService _Logger = new LoggerServiceWrapper();
-        readonly PidFileService _PidFileService;
-        readonly ServerService _ServerService;
-        readonly TimerService _TimerService;
-        readonly SBTSection ServerBackupSection;
-        readonly ServerModel Server;
-        readonly SystemClock Clock = new();
+        private readonly ILoggerService _Logger = new LoggerServiceWrapper();
+        private readonly PidFileService _PidFileService;
+        private readonly ServerService _ServerService;
+        private readonly TimerService _TimerService;
+        private readonly SBTSection ServerBackupSection;
+        private readonly ServerModel Server;
+        private readonly SystemClock Clock = new();
 
         public static ManualResetEvent WaitForServerClose = new(false);
 
