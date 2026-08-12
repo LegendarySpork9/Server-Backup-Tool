@@ -34,7 +34,7 @@ namespace ServerBackupTool
                 Environment.Exit(0);
             }
 
-            _emailService.CheckForEmail(
+            await _emailService.CheckForEmail(
                 ServerBackupSection.Notifications,
                 "Open");
 
@@ -62,7 +62,8 @@ namespace ServerBackupTool
             {
                 _emailService.CheckForEmail(
                     ServerBackupSection.Notifications,
-                    "Close");
+                    "Close").GetAwaiter()
+                    .GetResult();
 
                 _pidFileService.Delete(ServerBackupSection.ServerDetails.Name);
             }

@@ -115,7 +115,7 @@ namespace ServerBackupTool.Services
                 StandardValues.LoggerValues.Info,
                 "Stopping Server");
 
-            _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
+            await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
@@ -170,7 +170,7 @@ namespace ServerBackupTool.Services
 
                         if (Server.ServerRunning)
                         {
-                            _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
+                            await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
                             _Logger.LogToolMessage(
                                 StandardValues.LoggerValues.Debug,
@@ -210,7 +210,7 @@ namespace ServerBackupTool.Services
 
                     else
                     {
-                        _ServerService.SendCommand(command);
+                        await _ServerService.SendCommand(command);
 
                         _Logger.LogToolMessage(
                             StandardValues.LoggerValues.Debug,

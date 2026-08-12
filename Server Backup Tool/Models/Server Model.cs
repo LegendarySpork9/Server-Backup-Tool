@@ -9,8 +9,8 @@ namespace ServerBackupTool.Models
     /// </summary>
     public class ServerModel
     {
-        public string? Name { get; set; }
-        public string? Game { get; set; }
+        public required string Name { get; set; }
+        public required string Game { get; set; }
         public bool ServerRunning { get; set; } = false;
         public Process ServerProcess { get; }
 

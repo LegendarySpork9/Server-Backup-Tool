@@ -1,4 +1,4 @@
-// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright ï¿½ - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
@@ -16,7 +16,7 @@ namespace ServerBackupTool.Tests.Services
         /// Checks whether the SendEmail method sends the email as expected.
         /// </summary>
         [TestMethod]
-        public void TestSendEmailMock()
+        public async Task TestSendEmailMock()
         {
             string testEmail = @"&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello,&lt;/p&gt;
 &lt;p&gt;The Server Backup Tool has opened.&lt;/p&gt;
@@ -32,9 +32,9 @@ namespace ServerBackupTool.Tests.Services
                 It.IsAny<string>(),
                 It.IsAny<int>(),
                 It.IsAny<bool>(),
-                It.IsAny<NetworkCredential>())).Throws(new InvalidOperationException("Failed to send email."));
+                It.IsAny<NetworkCredential>())).ThrowsAsync(new InvalidOperationException("Failed to send email."));
             Mock<IFileSystem> _mockFileSystem = new();
-            _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).Returns(testEmail);
+            _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync(testEmail);
 
             EmailService _emailService = new(
                 _mockLogger.Object,
@@ -77,7 +77,7 @@ namespace ServerBackupTool.Tests.Services
                 Name = "Test Recipient"
             } });
 
-            _emailService.SendEmail(
+            await _emailService.SendEmail(
                 notifications,
                 email);
 
@@ -99,7 +99,7 @@ namespace ServerBackupTool.Tests.Services
         /// </summary>
         [TestCategory("Integration")]
         [TestMethod]
-        public void TestSendEmail()
+        public async Task TestSendEmail()
         {
             string testEmail = @"&lt;html&gt;&lt;body&gt;&lt;p&gt;Hello,&lt;/p&gt;
 &lt;p&gt;The Server Backup Tool has opened.&lt;/p&gt;
@@ -111,7 +111,7 @@ namespace ServerBackupTool.Tests.Services
             Mock<ILoggerService> _mockLogger = new();
             SMTPEmailSender _smtpEmailSender = new();
             Mock<IFileSystem> _mockFileSystem = new();
-            _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).Returns(testEmail);
+            _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync(testEmail);
 
             EmailService _emailService = new(
                 _mockLogger.Object,
@@ -154,7 +154,7 @@ namespace ServerBackupTool.Tests.Services
                 Name = "Test Recipient"
             } });
 
-            _emailService.SendEmail(
+            await _emailService.SendEmail(
                 notifications,
                 email);
 

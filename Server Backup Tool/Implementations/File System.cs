@@ -73,7 +73,7 @@ namespace ServerBackupTool.Implementations
         /// <summary>
         /// Returns all the text in a given file.
         /// </summary>
-        public string ReadAllText(string file) => File.ReadAllText(file);
+        public Task<string> ReadAllText(string file) => File.ReadAllTextAsync(file);
 
         /// <summary>
         /// Writes text to a given file asynchronously.

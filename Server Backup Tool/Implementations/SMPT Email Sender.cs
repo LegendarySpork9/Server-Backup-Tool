@@ -10,7 +10,7 @@ namespace ServerBackupTool.Implementations
         /// <summary>
         /// Sends the given email.
         /// </summary>
-        public void Send(
+        public async Task Send(
             MailMessage message,
             string host,
             int port,
@@ -27,7 +27,7 @@ namespace ServerBackupTool.Implementations
                 Credentials = credentials
             };
 
-            smtp.Send(message);
+            await smtp.SendMailAsync(message);
         }
     }
 }

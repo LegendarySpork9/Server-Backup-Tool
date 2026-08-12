@@ -17,7 +17,11 @@ namespace ServerBackupTool.Tests.Services
         public void TestSetTimers()
         {
             SBTSection serverBackupSection = new();
-            ServerModel server = new(new());
+            ServerModel server = new(new())
+            {
+                Name = "Test Server",
+                Game = "Minecraft"
+            };
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();
@@ -85,7 +89,11 @@ namespace ServerBackupTool.Tests.Services
         public void TestSetTimersHeartbeat()
         {
             SBTSection serverBackupSection = new();
-            ServerModel server = new(new());
+            ServerModel server = new(new())
+            {
+                Name = "Test Server",
+                Game = "Minecraft"
+            };
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();
@@ -176,7 +184,11 @@ namespace ServerBackupTool.Tests.Services
         public void TestSetTimersOnlySystem()
         {
             SBTSection serverBackupSection = new();
-            ServerModel server = new(new());
+            ServerModel server = new(new())
+            {
+                Name = "Test Server",
+                Game = "Minecraft"
+            };
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();

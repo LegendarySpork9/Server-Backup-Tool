@@ -17,7 +17,7 @@ namespace ServerBackupTool.Services
         private readonly ILoggerService _Logger;
         private readonly SBTSection ServerBackupSection;
         private readonly bool DoHeartbeat = false;
-        private readonly List<TimerModel> Timers = new();
+        private readonly List<TimerModel> Timers = [];
 
         // Sets the class's global variables.
         public TimerService (
@@ -69,7 +69,7 @@ namespace ServerBackupTool.Services
                     };
 
                     int currentTimerNumber = timerNumber;
-                    timerData.Elapsed += (sender, e) => TimerElapsed(
+                    timerData.Elapsed += async (sender, e) => await TimerElapsed(
                         sender,
                         e,
                         currentTimerNumber);
@@ -92,7 +92,7 @@ namespace ServerBackupTool.Services
                     };
 
                     int currentTimerNumber = timerNumber;
-                    timerData.Elapsed += (sender, e) => TimerElapsed(
+                    timerData.Elapsed += async (sender, e) => await TimerElapsed(
                         sender,
                         e,
                         currentTimerNumber);
@@ -166,15 +166,15 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Runs when a timer has finished.
         /// </summary>
-        private void TimerElapsed(
-            object sender,
+        private async Task TimerElapsed(
+            object? sender,
             ElapsedEventArgs e,
             int timerNumber)
         {
             switch (timerNumber)
             {
                 case 0:
-                    Heartbeat(Timers[0].TimerData);
+                    await Heartbeat(Timers[0].TimerData);
                     break;
                 case 1:
                     SystemTimers(Timers[1]);
@@ -216,7 +216,7 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Runs code related to the server timers.
         /// </summary>
-        private void ServerWarning(TimerModel timer)
+        private async void ServerWarning(TimerModel timer)
         {
             timer.TimerData.Stop();
 
@@ -231,15 +231,15 @@ namespace ServerBackupTool.Services
             timer.TimerData.Dispose();
             timer.Triggered = true;
 
-            _ServerService.SendCommand(
-                timer.ElapsedMessage,
+            await _ServerService.SendCommand(
+                timer.ElapsedMessage ?? "No elapsed message configured",
                 true);
         }
 
         /// <summary>
         /// Runs when the Heartbeat timer finishes.
         /// </summary>
-        private void Heartbeat(Timer heartbeatTimer)
+        private async Task Heartbeat(Timer heartbeatTimer)
         {
             EmailService _emailService = new(
                 _Logger,
@@ -248,13 +248,13 @@ namespace ServerBackupTool.Services
                 true);
 
             Ping pingSender = new();
-            PingReply reply = pingSender.Send(ServerBackupSection.ServerDetails.IPAddress);
+            PingReply reply = await pingSender.SendPingAsync(ServerBackupSection.ServerDetails.IPAddress);
 
             if (reply.Status != IPStatus.Success)
             {
                 heartbeatTimer.Stop();
 
-                _emailService.CheckForEmail(
+                await _emailService.CheckForEmail(
                     ServerBackupSection.Notifications,
                     "Heartbeat");
             }
