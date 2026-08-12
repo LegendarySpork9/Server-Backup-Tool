@@ -9,10 +9,15 @@ namespace ServerBackupTool.Tests.Functions
         /// <returns></returns>
         public static string GetBaseDirectory()
         {
-            return Directory.GetCurrentDirectory()
-                .Replace(
-                    @"bin\Debug\net6.0",
-                    "");
+            string directory = Directory.GetCurrentDirectory();
+            int binIndex = directory.IndexOf(@"\bin\");
+
+            if (binIndex >= 0)
+            {
+                directory = directory[..binIndex] + @"\";
+            }
+
+            return directory;
         }
     }
 }

@@ -34,7 +34,8 @@ namespace ServerBackupTool.Tests.Services
                 StartFile = "Start.bat"
             })
             {
-                Name = "Test Server"
+                Name = "Test Server",
+                Game = "Minecraft"
             };
 
             ServerService _serverService = new(

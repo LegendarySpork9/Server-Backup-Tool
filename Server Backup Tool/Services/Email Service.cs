@@ -4,6 +4,7 @@ using System.Net.Mail;
 using System.Net;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Abstractions;
+using System.Runtime.CompilerServices;
 
 namespace ServerBackupTool.Services
 {
@@ -30,7 +31,7 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Configures and emails out a given email configuration.
         /// </summary>
-        public void SendEmail(
+        public async Task SendEmail(
             NotificationElement notifications,
             EmailElement email)
         {
@@ -52,7 +53,7 @@ namespace ServerBackupTool.Services
                     {
                         From = fromAddress,
                         Subject = email.Subject.Value,
-                        Body = GetEmailBody(email.Content.Value),
+                        Body = await GetEmailBody(email.Content.Value),
                         IsBodyHtml = true
                     };
 
@@ -72,12 +73,12 @@ namespace ServerBackupTool.Services
                             {
                                 ContentId = imageElement.Key
                             };
-                            image.ContentDisposition.Inline = true;
+                            image.ContentDisposition?.Inline = true;
                             message.Attachments.Add(image);
                         }
                     }
 
-                    _EmailSender.Send(
+                    await _EmailSender.Send(
                         message,
                         notifications.Provider.Name,
                         notifications.Port,
@@ -103,13 +104,13 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Checks if the body is a .HTML file.
         /// </summary>
-        private string GetEmailBody(string configurationValue)
+        private async Task<string> GetEmailBody(string configurationValue)
         {
             string emailBody = configurationValue;
 
             try
             {
-                emailBody = _FileSystem.ReadAllText(configurationValue);
+                emailBody = await _FileSystem.ReadAllText(configurationValue);
             }
 
             catch
@@ -121,7 +122,7 @@ namespace ServerBackupTool.Services
         }
 
         // Checks if the given trigger word or message exists in the email configurations.
-        public void CheckForEmail(
+        public async Task CheckForEmail(
             NotificationElement notifications,
             string? trigger = null,
             string? message = null)
@@ -134,7 +135,7 @@ namespace ServerBackupTool.Services
                     {
                         if (email.Trigger == trigger)
                         {
-                            SendEmail(
+                            await SendEmail(
                                 notifications,
                                 email);
                         }
@@ -144,7 +145,7 @@ namespace ServerBackupTool.Services
                     {
                         if (message.Contains(email.Trigger) && !email.SystemEmail)
                         {
-                            SendEmail(
+                            await SendEmail(
                                 notifications,
                                 email);
                         }

@@ -17,7 +17,7 @@ namespace ServerBackupTool.Abstractions
         void CreateZIPFile(string path);
         void CreateZIPEntryFromFile(string zipFilePath, string sourceFilePath, string entryName);
 
-        string ReadAllText(string file);
+        Task<string> ReadAllText(string file);
 
         Task WriteAllText(string path, string content);
         bool FileExists(string path);

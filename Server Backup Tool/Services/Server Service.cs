@@ -67,29 +67,29 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Executes a command through the server.
         /// </summary>
-        public void SendCommand(
+        public async Task SendCommand(
             string command,
             bool isTimer = false)
         {
             if (isTimer)
             {
-                Server.ServerProcess.StandardInput.WriteLine(ServerConverter.GetMessageCommand(
+                await Server.ServerProcess.StandardInput.WriteLineAsync(ServerConverter.GetMessageCommand(
                     Server.Game,
                     command));
-                Server.ServerProcess.StandardInput.Flush();
+                await Server.ServerProcess.StandardInput.FlushAsync();
             }
 
             else
             {
-                Server.ServerProcess.StandardInput.WriteLine(command);
-                Server.ServerProcess.StandardInput.Flush();
+                await Server.ServerProcess.StandardInput.WriteLineAsync(command);
+                await Server.ServerProcess.StandardInput.FlushAsync();
             }
         }
 
         /// <summary>
         /// Logs the output from the server.
         /// </summary>
-        private void ServerResponseData(
+        private async void ServerResponseData(
             object sender,
             DataReceivedEventArgs e)
         {
@@ -105,7 +105,7 @@ namespace ServerBackupTool.Services
                 {
                     _Logger.LogServerMessage(e.Data);
 
-                    _emailService.CheckForEmail(
+                    await _emailService.CheckForEmail(
                         ServerBackupSection.Notifications,
                         null,
                         e.Data);
@@ -116,7 +116,7 @@ namespace ServerBackupTool.Services
                             Server.ServerProcess.StartInfo.WorkingDirectory),
                         StringComparison.OrdinalIgnoreCase) >= 0)
                     {
-                        StopServer();
+                        await StopServer();
                     }
                 }
 
@@ -136,10 +136,10 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Shuts down the server.
         /// </summary>
-        private void StopServer()
+        private async Task StopServer()
         {
-            Server.ServerProcess.StandardInput.WriteLine();
-            Server.ServerProcess.StandardInput.WriteLine();
+            await Server.ServerProcess.StandardInput.WriteLineAsync();
+            await Server.ServerProcess.StandardInput.WriteLineAsync();
             Server.ServerProcess.CancelOutputRead();
             Server.ServerProcess.Close();
             Server.ServerProcess.OutputDataReceived -= ServerResponseData;

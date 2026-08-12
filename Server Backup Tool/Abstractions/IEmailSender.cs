@@ -9,6 +9,6 @@ namespace ServerBackupTool.Abstractions
     /// </summary>
     public interface IEmailSender
     {
-        void Send(MailMessage message, string host, int port, bool enableSsl, NetworkCredential credentials);
+        Task Send(MailMessage message, string host, int port, bool enableSsl, NetworkCredential credentials);
     }
 }
