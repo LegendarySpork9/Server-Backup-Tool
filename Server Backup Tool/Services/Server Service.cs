@@ -46,7 +46,7 @@ namespace ServerBackupTool.Services
                 await _PidFileService.Write(
                     Server.Name,
                     Server.ServerProcess.Id,
-                    Server.ServerProcess.StartTime.ToUniversalTime());
+                    Server.ServerProcess.StartTime);
             }
 
             catch (Exception ex)
