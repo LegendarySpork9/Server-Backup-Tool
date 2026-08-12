@@ -11,6 +11,7 @@
 
 # Dev Config
 *[Aa]pp - Development.config
+*[Aa]ppsettings.[Dd]evelopment.json
 
 # Server Log
 ***[Ll]ogs/
