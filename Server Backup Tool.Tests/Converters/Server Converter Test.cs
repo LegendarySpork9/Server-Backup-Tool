@@ -8,133 +8,161 @@ namespace ServerBackupTool.Tests.Converters
     {
         #region GetMessageCommand
 
-        // Checks whether the GetMessageCommand method returns the expected command for Minecraft.
+        /// <summary>
+        /// Checks whether the GetMessageCommand method returns the expected command for Minecraft.
+        /// </summary>
         [TestMethod]
         public void TestGetMessageCommandMinecraft()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "Minecraft";
-
             string expected = "/say Hello! This is a test!";
 
-            string actual = _serverConverter.GetMessageCommand(game, "Hello! This is a test!");
+            string actual = ServerConverter.GetMessageCommand(
+                game,
+                "Hello! This is a test!");
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
         }
 
-        // Checks whether the GetMessageCommand method returns the empty strings when the game isn't registered.
+        /// <summary>
+        /// Checks whether the GetMessageCommand method returns the empty strings when the game isn't registered.
+        /// </summary>
         [TestMethod]
         public void TestGetMessageCommandUnregisteredGame()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "UnknownGame";
 
-            string actual = _serverConverter.GetMessageCommand(game, "Hello! This is a test!");
+            string actual = ServerConverter.GetMessageCommand(
+                game,
+                "Hello! This is a test!");
 
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
-        // Checks whether the GetMessageCommand method returns the empty strings when the game is null.
+        /// <summary>
+        /// Checks whether the GetMessageCommand method returns the empty strings when the game is null.
+        /// </summary>
         [TestMethod]
         public void TestGetMessageCommandNoGame()
         {
-            ServerConverter _serverConverter = new();
+            string actual = ServerConverter.GetMessageCommand(
+                null,
+                "Hello! This is a test!");
 
-            string actual = _serverConverter.GetMessageCommand(null, "Hello! This is a test!");
-
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
         #endregion
 
         #region GetStopCommand
 
-        // Checks whether the GetStopCommand method returns the expected command for Minecraft.
+        /// <summary>
+        /// Checks whether the GetStopCommand method returns the expected command for Minecraft.
+        /// </summary>
         [TestMethod]
         public void TestGetStopCommandMinecraft()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "Minecraft";
-
             string expected = "stop";
 
-            string actual = _serverConverter.GetStopCommand(game);
+            string actual = ServerConverter.GetStopCommand(game);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
         }
 
-        // Checks whether the GetStopCommand method returns the empty strings when the game isn't registered.
+        /// <summary>
+        /// Checks whether the GetStopCommand method returns the empty strings when the game isn't registered.
+        /// </summary>
         [TestMethod]
         public void TestGetStopCommandUnregisteredGame()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "UnknownGame";
 
-            string actual = _serverConverter.GetStopCommand(game);
+            string actual = ServerConverter.GetStopCommand(game);
 
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
-        // Checks whether the GetStopCommand method returns the empty strings when the game is null.
+        /// <summary>
+        /// Checks whether the GetStopCommand method returns the empty strings when the game is null.
+        /// </summary>
         [TestMethod]
         public void TestGetStopCommandNoGame()
         {
-            ServerConverter _serverConverter = new();
+            string actual = ServerConverter.GetStopCommand(null);
 
-            string actual = _serverConverter.GetStopCommand(null);
-
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
         #endregion
 
         #region GetFinalMessage
 
-        // Checks whether the GetFinalMessage method returns the expected command for Minecraft.
+        /// <summary>
+        /// Checks whether the GetFinalMessage method returns the expected command for Minecraft.
+        /// </summary>
         [TestMethod]
         public void TestGetFinalMessageMinecraft()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "Minecraft";
             string filePath = @"C:\GameServer";
 
             string expected = @"C:\GameServer>PAUSE";
 
-            string actual = _serverConverter.GetFinalMessage(game, filePath);
+            string actual = ServerConverter.GetFinalMessage(
+                game,
+                filePath);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
         }
 
-        // Checks whether the GetFinalMessage method returns the empty strings when the game isn't registered.
+        /// <summary>
+        /// Checks whether the GetFinalMessage method returns the empty strings when the game isn't registered.
+        /// </summary>
         [TestMethod]
         public void TestGetFinalMessageUnregisteredGame()
         {
-            ServerConverter _serverConverter = new();
-
             string game = "UnknownGame";
             string filePath = @"C:\GameServer";
 
-            string actual = _serverConverter.GetFinalMessage(game, filePath);
+            string actual = ServerConverter.GetFinalMessage(
+                game,
+                filePath);
 
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
-        // Checks whether the GetFinalMessage method returns the empty strings when the game is null.
+        /// <summary>
+        /// Checks whether the GetFinalMessage method returns the empty strings when the game is null.
+        /// </summary>
         [TestMethod]
         public void TestGetFinalMessageNoGame()
         {
-            ServerConverter _serverConverter = new();
-
             string filePath = @"C:\GameServer";
 
-            string actual = _serverConverter.GetFinalMessage(null, filePath);
+            string actual = ServerConverter.GetFinalMessage(
+                null,
+                filePath);
 
-            Assert.AreEqual("", actual);
+            Assert.AreEqual(
+                "",
+                actual);
         }
 
         #endregion

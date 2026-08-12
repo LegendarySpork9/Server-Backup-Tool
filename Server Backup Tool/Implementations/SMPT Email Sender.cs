@@ -7,8 +7,15 @@ namespace ServerBackupTool.Implementations
 {
     public class SMTPEmailSender : IEmailSender
     {
-        // Sends the given email.
-        public void Send(MailMessage message, string host, int port, bool enableSsl, NetworkCredential credentials)
+        /// <summary>
+        /// Sends the given email.
+        /// </summary>
+        public void Send(
+            MailMessage message,
+            string host,
+            int port,
+            bool enableSsl,
+            NetworkCredential credentials)
         {
             SmtpClient smtp = new()
             {

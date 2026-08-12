@@ -4,7 +4,9 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Models
 {
-    // Stores the information about the server.
+    /// <summary>
+    /// Stores the information about the server.
+    /// </summary>
     public class ServerModel
     {
         public string? Name { get; set; }

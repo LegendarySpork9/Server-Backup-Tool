@@ -14,7 +14,11 @@ namespace ServerBackupTool.Services
         private readonly string Game;
 
         // Sets the class's global variables.
-        public JobService(ILoggerService _logger, IFileSystem _fileSystem, IClock _clock, SBTSection serverBackupSection)
+        public JobService(
+            ILoggerService _logger,
+            IFileSystem _fileSystem,
+            IClock _clock,
+            SBTSection serverBackupSection)
         {
             _Logger = _logger;
             _FileSystem = _fileSystem;
@@ -23,7 +27,9 @@ namespace ServerBackupTool.Services
             Game = serverBackupSection.ServerDetails.Game;
         }
 
-        // Executes the given method.
+        /// <summary>
+        /// Executes the given method.
+        /// </summary>
         public string RunJobs(string job)
         {
             string result = "Complete";
@@ -39,7 +45,9 @@ namespace ServerBackupTool.Services
             return result;
         }
 
-        // Creates the directory if it does not exist.
+        /// <summary>
+        /// Creates the directory if it does not exist.
+        /// </summary>
         private void CheckDirectory(string path)
         {
             if (!_FileSystem.DirectoryExists(path))
@@ -48,36 +56,50 @@ namespace ServerBackupTool.Services
             }
         }
 
-        // Creates a ZIP file of the world data.
+        /// <summary>
+        /// Creates a ZIP file of the world data.
+        /// </summary>
         private string BackupServer()
         {
             JobConverter _jobConverter = new(_Clock);
 
             string result = "Complete";
-            (string source, string destination) = _jobConverter.GetBackPaths(Game, ServerPath);
+            (string source, string destination) = _jobConverter.GetBackPaths(
+                Game,
+                ServerPath);
 
             CheckDirectory(@$"{ServerPath}\Backups");
 
             try
             {
-                _FileSystem.CreateZIPFromDirectory(source, destination);
+                _FileSystem.CreateZIPFromDirectory(
+                    source,
+                    destination);
             }
 
             catch (Exception ex)
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to create a backup of the game data.");
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to create a backup of the game data.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
                 result = "Failed";
             }
 
             return result;
         }
 
-        // Creates a ZIP of the log files.
+        /// <summary>
+        /// Creates a ZIP of the log files.
+        /// </summary>
         private string ArchiveLogs()
         {
             string result = "Complete";
-            string[] files = _FileSystem.GetFiles(@".\Logs").ToArray();
+            string[] files = _FileSystem.GetFiles(@".\Logs")
+                .ToArray();
 
             CheckDirectory(@$".\Archived Logs");
 
@@ -91,7 +113,10 @@ namespace ServerBackupTool.Services
                 {
                     if (!logFile.Contains("Backup.log"))
                     {
-                        _FileSystem.CreateZIPEntryFromFile(zipPath, logFile, Path.GetFileName(logFile));
+                        _FileSystem.CreateZIPEntryFromFile(
+                            zipPath,
+                            logFile,
+                            Path.GetFileName(logFile));
                         _FileSystem.DeleteFile(logFile);
                     }
                 }
@@ -99,22 +124,30 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to archive the logs into a ZIP file.");
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to archive the logs into a ZIP file.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
                 result = "Failed";
             }
 
             return result;
         }
 
-        // Deletes logs older than a given time.
+        /// <summary>
+        /// Deletes logs older than a given time.
+        /// </summary>
         private string RemoveOldFiles()
         {
             string result = "Complete";
 
             CheckDirectory(@$".\Archived Logs");
 
-            string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs").ToArray();
+            string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs")
+                .ToArray();
 
             try
             {
@@ -126,7 +159,8 @@ namespace ServerBackupTool.Services
                     }
                 }
 
-                string[] backups = _FileSystem.GetFiles(@$"{ServerPath}\Backups").ToArray();
+                string[] backups = _FileSystem.GetFiles(@$"{ServerPath}\Backups")
+                    .ToArray();
 
                 foreach (string backup in backups)
                 {
@@ -139,8 +173,13 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to delete logs and/or data backups over 10 days old.");
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to delete logs and/or data backups over 10 days old.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
                 result = "Failed";
             }
 

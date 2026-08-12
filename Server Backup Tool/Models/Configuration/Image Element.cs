@@ -3,7 +3,9 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
-    // Stores the information about an image in the configuration file.
+    /// <summary>
+    /// Stores the information about an image in the configuration file.
+    /// </summary>
     public class ImageElement : ConfigurationElement
     {
         [ConfigurationProperty("key")]

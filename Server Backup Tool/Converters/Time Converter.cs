@@ -13,19 +13,32 @@ namespace ServerBackupTool.Converters
             _Clock = _clock;
         }
 
-        // Returns the time between now and when the timer should be triggered.
+        /// <summary>
+        /// Returns the time between now and when the timer should be triggered.
+        /// </summary>
         public TimeSpan GetDuration(string triggerTime)
         {
             DateTime currentTime = _Clock.UtcNow;
-            string elapsedTime = GetElapsedTime(currentTime, DateTime.Parse(triggerTime).ToUniversalTime(), triggerTime);
+            string elapsedTime = GetElapsedTime(
+                currentTime,
+                DateTime.Parse(triggerTime)
+                    .ToUniversalTime(),
+                triggerTime);
 
-            TimeSpan timerDuration = DateTime.Parse(elapsedTime).ToUniversalTime().Subtract(currentTime);
+            TimeSpan timerDuration = DateTime.Parse(elapsedTime)
+                .ToUniversalTime()
+                .Subtract(currentTime);
 
             return timerDuration;
         }
 
-        // Returns the date and time the timer should be triggered.
-        private string GetElapsedTime(DateTime currentTime, DateTime triggerDateTime, string triggerTime)
+        /// <summary>
+        /// Returns the date and time the timer should be triggered.
+        /// </summary>
+        private string GetElapsedTime(
+            DateTime currentTime,
+            DateTime triggerDateTime,
+            string triggerTime)
         {
             string? elapsedTime;
 

@@ -3,7 +3,9 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
-    // Stores the information about the server in the configuration file.
+    /// <summary>
+    /// Stores the information about the server in the configuration file.
+    /// </summary>
     public class ServerDetailsElement : ConfigurationElement
     {
         [ConfigurationProperty("name", IsRequired = true)]

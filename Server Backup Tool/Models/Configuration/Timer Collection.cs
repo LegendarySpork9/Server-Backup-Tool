@@ -3,7 +3,9 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
-    // Stores a list of timers from the configuration file.
+    /// <summary>
+    /// Stores a list of timers from the configuration file.
+    /// </summary>
     [ConfigurationCollection(typeof(TimerElement), AddItemName = "timer")]
     public class TimerCollection : ConfigurationElementCollection
     {

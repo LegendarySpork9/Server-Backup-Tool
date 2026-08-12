@@ -17,15 +17,21 @@ namespace ServerBackupTool.Functions
 
         public override Encoding Encoding => Console.Encoding;
 
-        // Captures the console output and checks it has gone through Log4Net.
+        /// <summary>
+        /// Captures the console output and checks it has gone through Log4Net.
+        /// </summary>
         public override void WriteLine(string? message)
         {
             LoggerService _logger = new();
 
             if (!string.IsNullOrWhiteSpace(message) && message != "\n----Server Commands----")
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, message);
+                _logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
+                _logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    message);
             }
 
             else
@@ -34,15 +40,21 @@ namespace ServerBackupTool.Functions
             }
         }
 
-        // Captures the console output and checks it has gone through Log4Net.
+        /// <summary>
+        /// Captures the console output and checks it has gone through Log4Net.
+        /// </summary>
         public override void Write(string? message)
         {
             LoggerService _logger = new();
 
             if (!string.IsNullOrWhiteSpace(message) && !message.Contains("log4net - "))
             {
-                _logger.LogToolMessage(StandardValues.LoggerValues.Warning, "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
-                _logger.LogToolMessage(StandardValues.LoggerValues.Error, message);
+                _logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
+                _logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    message);
             }
 
             if (!string.IsNullOrWhiteSpace(message) && message.Contains("log4net - "))

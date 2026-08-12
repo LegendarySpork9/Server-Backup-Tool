@@ -8,13 +8,23 @@ namespace ServerBackupTool.Implementations
     {
         private readonly LoggerService _Logger = new();
 
-        // Logs the given message to the tool logs.
-        public void LogToolMessage(string level, string message, bool verbose = false)
+        /// <summary>
+        /// Logs the given message to the tool logs.
+        /// </summary>
+        public void LogToolMessage(
+            string level,
+            string message,
+            bool verbose = false)
         {
-            _Logger.LogToolMessage(level, message, verbose);
+            _Logger.LogToolMessage(
+                level,
+                message,
+                verbose);
         }
 
-        // Logs the given message to the server logs.
+        /// <summary>
+        /// Logs the given message to the server logs.
+        /// </summary>
         public void LogServerMessage(string message)
         {
             _Logger.LogServerMessage(message);

@@ -10,7 +10,9 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class TimerServiceTest
     {
-        // Checks whether the SetTimers method creates the timers without the heartbeat timer.
+        /// <summary>
+        /// Checks whether the SetTimers method creates the timers without the heartbeat timer.
+        /// </summary>
         [TestMethod]
         public void TestSetTimers()
         {
@@ -19,9 +21,15 @@ namespace ServerBackupTool.Tests.Services
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();
-            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
+            PidFileService _pidFileService = new(
+                _mockLogger.Object,
+                _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(
+                _mockLogger.Object,
+                _pidFileService,
+                serverBackupSection,
+                server);
 
             var timerDurations = new[]
             {
@@ -32,22 +40,37 @@ namespace ServerBackupTool.Tests.Services
             TimerCollection timers = new();
 
             MethodInfo baseAdd = timers.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
-            baseAdd.Invoke(timers, new object[] { new TimerElement()
+            baseAdd.Invoke(
+                timers,
+                new object[] { new TimerElement()
             {
                 Name = "Warning One",
                 Time = "01:00:00",
                 Message = "Server will shutdown for a backup in an hour."
             } });
 
-            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
+            TimerService _timerService = new(
+                _mockApplicationService.Object,
+                _mockServerService.Object,
+                _mockLogger.Object,
+                serverBackupSection);
 
             string expected = "Completed";
 
-            string actual = _timerService.SetTimers(timers, timerDurations);
+            string actual = _timerService.SetTimers(
+                timers,
+                timerDurations);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Failed to set up")),
@@ -55,7 +78,9 @@ namespace ServerBackupTool.Tests.Services
                 Times.Never);
         }
 
-        // Checks whether the SetTimers method creates the timers with the heartbeat timer.
+        /// <summary>
+        /// Checks whether the SetTimers method creates the timers with the heartbeat timer.
+        /// </summary>
         [TestMethod]
         public void TestSetTimersHeartbeat()
         {
@@ -64,9 +89,15 @@ namespace ServerBackupTool.Tests.Services
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();
-            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
+            PidFileService _pidFileService = new(
+                _mockLogger.Object,
+                _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(
+                _mockLogger.Object,
+                _pidFileService,
+                serverBackupSection,
+                server);
 
             var timerDurations = new[]
             {
@@ -77,9 +108,16 @@ namespace ServerBackupTool.Tests.Services
             TimerCollection timers = new();
 
             MethodInfo baseAdd = timers.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
-            baseAdd.Invoke(timers, new object[] { new TimerElement()
+            baseAdd.Invoke(
+                timers,
+                new object[] { new TimerElement()
             {
                 Name = "Warning One",
                 Time = "01:00:00",
@@ -92,9 +130,16 @@ namespace ServerBackupTool.Tests.Services
             };
 
             baseAdd = notifications.Emails.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
-            baseAdd.Invoke(notifications.Emails, new object[] { new EmailElement()
+            baseAdd.Invoke(
+                notifications.Emails,
+                new object[] { new EmailElement()
             {
                 Trigger = "Heartbeat",
                 SystemEmail = true
@@ -102,13 +147,21 @@ namespace ServerBackupTool.Tests.Services
 
             serverBackupSection.Notifications = notifications;
 
-            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
+            TimerService _timerService = new(
+                _mockApplicationService.Object,
+                _mockServerService.Object,
+                _mockLogger.Object,
+                serverBackupSection);
 
             string expected = "Completed";
 
-            string actual = _timerService.SetTimers(timers, timerDurations);
+            string actual = _timerService.SetTimers(
+                timers,
+                timerDurations);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Failed to set up")),
@@ -116,7 +169,9 @@ namespace ServerBackupTool.Tests.Services
                 Times.Never);
         }
 
-        // Checks whether the SetTimers method creates only the system timers.
+        /// <summary>
+        /// Checks whether the SetTimers method creates only the system timers.
+        /// </summary>
         [TestMethod]
         public void TestSetTimersOnlySystem()
         {
@@ -125,9 +180,15 @@ namespace ServerBackupTool.Tests.Services
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IFileSystem> _mockFileSystem = new();
-            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
+            PidFileService _pidFileService = new(
+                _mockLogger.Object,
+                _mockFileSystem.Object);
             Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
-            Mock<ServerService> _mockServerService = new(_mockLogger.Object, _pidFileService, serverBackupSection, server);
+            Mock<ServerService> _mockServerService = new(
+                _mockLogger.Object,
+                _pidFileService,
+                serverBackupSection,
+                server);
 
             var timerDurations = new[]
             {
@@ -140,9 +201,16 @@ namespace ServerBackupTool.Tests.Services
             };
 
             MethodInfo baseAdd = notifications.Emails.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
-            baseAdd.Invoke(notifications.Emails, new object[] { new EmailElement()
+            baseAdd.Invoke(
+                notifications.Emails,
+                new object[] { new EmailElement()
             {
                 Trigger = "Heartbeat",
                 SystemEmail = true
@@ -150,13 +218,21 @@ namespace ServerBackupTool.Tests.Services
 
             serverBackupSection.Notifications = notifications;
 
-            TimerService _timerService = new(_mockApplicationService.Object, _mockServerService.Object, _mockLogger.Object, serverBackupSection);
+            TimerService _timerService = new(
+                _mockApplicationService.Object,
+                _mockServerService.Object,
+                _mockLogger.Object,
+                serverBackupSection);
 
             string expected = "Completed";
 
-            string actual = _timerService.SetTimers(new(), timerDurations);
+            string actual = _timerService.SetTimers(
+                new(),
+                timerDurations);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Failed to set up")),

@@ -4,7 +4,9 @@ using System.Net.Mail;
 
 namespace ServerBackupTool.Abstractions
 {
-    // Interface for the email send operation.
+    /// <summary>
+    /// Interface for the email send operation.
+    /// </summary>
     public interface IEmailSender
     {
         void Send(MailMessage message, string host, int port, bool enableSsl, NetworkCredential credentials);

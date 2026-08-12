@@ -15,7 +15,11 @@ namespace ServerBackupTool.Services
         private readonly bool ServerRunning = false;
 
         // Sets the class's global variables.
-        public EmailService(ILoggerService _logger, IEmailSender _emailSender, IFileSystem _fileSystem, bool serverRunning = false)
+        public EmailService(
+            ILoggerService _logger,
+            IEmailSender _emailSender,
+            IFileSystem _fileSystem,
+            bool serverRunning = false)
         {
             _Logger = _logger;
             _EmailSender = _emailSender;
@@ -23,17 +27,27 @@ namespace ServerBackupTool.Services
             ServerRunning = serverRunning;
         }
 
-        // Configures and emails out a given email configuration.
-        public void SendEmail(NotificationElement notifications, EmailElement email)
+        /// <summary>
+        /// Configures and emails out a given email configuration.
+        /// </summary>
+        public void SendEmail(
+            NotificationElement notifications,
+            EmailElement email)
         {
             if (notifications.Enabled)
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Trying to send \"{email.Subject.Value}\" email.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Info,
+                    $"Trying to send \"{email.Subject.Value}\" email.");
 
                 try
                 {
-                    NetworkCredential credentials = new(notifications.FromAddress.Email, notifications.Provider.Password);
-                    MailAddress fromAddress = new(notifications.FromAddress.Email, notifications.FromAddress.Name);
+                    NetworkCredential credentials = new(
+                        notifications.FromAddress.Email,
+                        notifications.Provider.Password);
+                    MailAddress fromAddress = new(
+                        notifications.FromAddress.Email,
+                        notifications.FromAddress.Name);
                     MailMessage message = new()
                     {
                         From = fromAddress,
@@ -44,7 +58,9 @@ namespace ServerBackupTool.Services
 
                     foreach (ToAddressElement toAddressElement in email.Addresses)
                     {
-                        MailAddress toAddress = new(toAddressElement.Email, toAddressElement.Name);
+                        MailAddress toAddress = new(
+                            toAddressElement.Email,
+                            toAddressElement.Name);
                         message.To.Add(toAddress);
                     }
 
@@ -61,19 +77,32 @@ namespace ServerBackupTool.Services
                         }
                     }
 
-                    _EmailSender.Send(message, notifications.Provider.Name, notifications.Port, notifications.EnableSSL, credentials);
-                    _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
+                    _EmailSender.Send(
+                        message,
+                        notifications.Provider.Name,
+                        notifications.Port,
+                        notifications.EnableSSL,
+                        credentials);
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Info,
+                        $"\"{email.Subject.Value}\" email sent successfully.", ServerRunning);
                 }
 
                 catch (Exception ex)
                 {
-                    _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, $"Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
-                    _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Warning,
+                        $"Failed to send \"{email.Subject.Value}\" email.", ServerRunning);
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Error,
+                        ex.ToString());
                 }
             }
         }
 
-        // Checks if the body is a .HTML file.
+        /// <summary>
+        /// Checks if the body is a .HTML file.
+        /// </summary>
         private string GetEmailBody(string configurationValue)
         {
             string emailBody = configurationValue;
@@ -92,7 +121,10 @@ namespace ServerBackupTool.Services
         }
 
         // Checks if the given trigger word or message exists in the email configurations.
-        public void CheckForEmail(NotificationElement notifications, string? trigger = null, string? message = null)
+        public void CheckForEmail(
+            NotificationElement notifications,
+            string? trigger = null,
+            string? message = null)
         {
             if (notifications.Emails.Count != 0)
             {
@@ -102,7 +134,9 @@ namespace ServerBackupTool.Services
                     {
                         if (email.Trigger == trigger)
                         {
-                            SendEmail(notifications, email);
+                            SendEmail(
+                                notifications,
+                                email);
                         }
                     }
 
@@ -110,7 +144,9 @@ namespace ServerBackupTool.Services
                     {
                         if (message.Contains(email.Trigger) && !email.SystemEmail)
                         {
-                            SendEmail(notifications, email);
+                            SendEmail(
+                                notifications,
+                                email);
                         }
                     }
                 }

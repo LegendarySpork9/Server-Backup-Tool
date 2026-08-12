@@ -5,7 +5,9 @@ namespace ServerBackupTool.Implementations
 {
     public class SystemClock : IClock
     {
-        // Returns the current UTC date and time.
+        /// <summary>
+        /// Returns the current UTC date and time.
+        /// </summary>
         public DateTime UtcNow => DateTime.UtcNow;
     }
 }

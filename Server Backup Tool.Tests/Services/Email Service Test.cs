@@ -12,7 +12,9 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class EmailServiceTest
     {
-        // Checks whether the SendEmail method sends the email as expected.
+        /// <summary>
+        /// Checks whether the SendEmail method sends the email as expected.
+        /// </summary>
         [TestMethod]
         public void TestSendEmailMock()
         {
@@ -25,11 +27,19 @@ namespace ServerBackupTool.Tests.Services
 
             Mock<ILoggerService> _mockLogger = new();
             Mock<IEmailSender> _mockEmailSender = new();
-            _mockEmailSender.Setup(es => es.Send(It.IsAny<MailMessage>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<bool>(), It.IsAny<NetworkCredential>())).Throws(new InvalidOperationException("Failed to send email."));
+            _mockEmailSender.Setup(es => es.Send(
+                It.IsAny<MailMessage>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<NetworkCredential>())).Throws(new InvalidOperationException("Failed to send email."));
             Mock<IFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).Returns(testEmail);
 
-            EmailService _emailService = new(_mockLogger.Object, _mockEmailSender.Object, _mockFileSystem.Object);
+            EmailService _emailService = new(
+                _mockLogger.Object,
+                _mockEmailSender.Object,
+                _mockFileSystem.Object);
 
             NotificationElement notifications = new()
             {
@@ -47,7 +57,6 @@ namespace ServerBackupTool.Tests.Services
                     Name = "Test Sender"
                 }
             };
-
             EmailElement email = new()
             {
                 Subject = new() { Value = "SBT Open Notification (Testing)" },
@@ -55,7 +64,12 @@ namespace ServerBackupTool.Tests.Services
             };
 
             MethodInfo baseAdd = email.Addresses.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
             baseAdd.Invoke(email.Addresses, new object[] { new ToAddressElement()
             {
@@ -63,7 +77,9 @@ namespace ServerBackupTool.Tests.Services
                 Name = "Test Recipient"
             } });
 
-            _emailService.SendEmail(notifications, email);
+            _emailService.SendEmail(
+                notifications,
+                email);
 
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.Is<string>(lvl => lvl.Contains("Warn") || lvl.Contains("Warning")),
@@ -78,7 +94,9 @@ namespace ServerBackupTool.Tests.Services
                 Times.Once);
         }
 
-        // Checks whether the SendEmail method sends the email as expected.
+        /// <summary>
+        /// Checks whether the SendEmail method sends the email as expected.
+        /// </summary>
         [TestCategory("Integration")]
         [TestMethod]
         public void TestSendEmail()
@@ -95,7 +113,10 @@ namespace ServerBackupTool.Tests.Services
             Mock<IFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).Returns(testEmail);
 
-            EmailService _emailService = new(_mockLogger.Object, _smtpEmailSender, _mockFileSystem.Object);
+            EmailService _emailService = new(
+                _mockLogger.Object,
+                _smtpEmailSender,
+                _mockFileSystem.Object);
 
             NotificationElement notifications = new()
             {
@@ -113,7 +134,6 @@ namespace ServerBackupTool.Tests.Services
                     Name = "Test Sender"
                 }
             };
-
             EmailElement email = new()
             {
                 Subject = new() { Value = "SBT Open Notification (Testing)" },
@@ -121,7 +141,12 @@ namespace ServerBackupTool.Tests.Services
             };
 
             MethodInfo baseAdd = email.Addresses.GetType().BaseType!
-                .GetMethod("BaseAdd", BindingFlags.Instance | BindingFlags.NonPublic, null, new[] { typeof(System.Configuration.ConfigurationElement) }, null)!;
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    null)!;
 
             baseAdd.Invoke(email.Addresses, new object[] { new ToAddressElement()
             {
@@ -129,7 +154,9 @@ namespace ServerBackupTool.Tests.Services
                 Name = "Test Recipient"
             } });
 
-            _emailService.SendEmail(notifications, email);
+            _emailService.SendEmail(
+                notifications,
+                email);
 
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.Is<string>(lvl => lvl.Contains("Info")),
