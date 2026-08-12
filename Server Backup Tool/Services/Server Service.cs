@@ -16,7 +16,11 @@ namespace ServerBackupTool.Services
         private readonly ServerModel Server;
 
         // Sets the class's global variables.
-        public ServerService(ILoggerService _logger, PidFileService pidFileService, SBTSection serverBackupSection, ServerModel _server)
+        public ServerService(
+            ILoggerService _logger,
+            PidFileService pidFileService,
+            SBTSection serverBackupSection,
+            ServerModel _server)
         {
             _Logger = _logger;
             _PidFileService = pidFileService;
@@ -24,7 +28,9 @@ namespace ServerBackupTool.Services
             Server = _server;
         }
 
-        // Activates the server.
+        /// <summary>
+        /// Activates the server.
+        /// </summary>
         public async Task<string> StartServer()
         {
             string result = "Completed";
@@ -45,22 +51,31 @@ namespace ServerBackupTool.Services
 
             catch (Exception ex)
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to start the server.");
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to start the server.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
                 result = "Errored";
             }
 
             return result;
         }
 
-        // Executes a command through the server.
-        public void SendCommand(string command, bool isTimer = false)
+        /// <summary>
+        /// Executes a command through the server.
+        /// </summary>
+        public void SendCommand(
+            string command,
+            bool isTimer = false)
         {
-            ServerConverter _serverConverter = new();
-
             if (isTimer)
             {
-                Server.ServerProcess.StandardInput.WriteLine(_serverConverter.GetMessageCommand(Server.Game, command));
+                Server.ServerProcess.StandardInput.WriteLine(ServerConverter.GetMessageCommand(
+                    Server.Game,
+                    command));
                 Server.ServerProcess.StandardInput.Flush();
             }
 
@@ -71,11 +86,18 @@ namespace ServerBackupTool.Services
             }
         }
 
-        // Logs the output from the server.
-        private void ServerResponseData(object sender, DataReceivedEventArgs e)
+        /// <summary>
+        /// Logs the output from the server.
+        /// </summary>
+        private void ServerResponseData(
+            object sender,
+            DataReceivedEventArgs e)
         {
-            ServerConverter _serverConverter = new();
-            EmailService _emailService = new(_Logger, new SMTPEmailSender(), new FileSystem(), true);
+            EmailService _emailService = new(
+                _Logger,
+                new SMTPEmailSender(),
+                new FileSystem(),
+                true);
 
             if (!string.IsNullOrEmpty(e.Data))
             {
@@ -83,9 +105,16 @@ namespace ServerBackupTool.Services
                 {
                     _Logger.LogServerMessage(e.Data);
 
-                    _emailService.CheckForEmail(ServerBackupSection.Notifications, null, e.Data);
+                    _emailService.CheckForEmail(
+                        ServerBackupSection.Notifications,
+                        null,
+                        e.Data);
 
-                    if (e.Data.IndexOf(_serverConverter.GetFinalMessage(Server.Game, Server.ServerProcess.StartInfo.WorkingDirectory), StringComparison.OrdinalIgnoreCase) >= 0)
+                    if (e.Data.IndexOf(
+                        ServerConverter.GetFinalMessage(
+                            Server.Game,
+                            Server.ServerProcess.StartInfo.WorkingDirectory),
+                        StringComparison.OrdinalIgnoreCase) >= 0)
                     {
                         StopServer();
                     }
@@ -93,13 +122,20 @@ namespace ServerBackupTool.Services
 
                 catch (Exception ex)
                 {
-                    _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Failed to capture server output or the server produced an error.", true);
-                    _Logger.LogToolMessage(StandardValues.LoggerValues.Error, ex.ToString());
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Warning,
+                        "Failed to capture server output or the server produced an error.",
+                        true);
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Error,
+                        ex.ToString());
                 }
             }
         }
 
-        // Shuts down the server.
+        /// <summary>
+        /// Shuts down the server.
+        /// </summary>
         private void StopServer()
         {
             Server.ServerProcess.StandardInput.WriteLine();

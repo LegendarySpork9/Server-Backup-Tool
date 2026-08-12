@@ -3,7 +3,9 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
-    // Stores the information about an email recipient.
+    /// <summary>
+    /// Stores the information about an email recipient.
+    /// </summary>
     public class ToAddressElement : ConfigurationElement
     {
         [ConfigurationProperty("email", IsRequired = true)]

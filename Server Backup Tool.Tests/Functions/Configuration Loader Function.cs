@@ -6,15 +6,22 @@ namespace ServerBackupTool.Tests.Functions
 {
     public static class ConfigurationLoaderFunction
     {
-        // Returns the SBTSection for the given configuration file.
+        /// <summary>
+        /// Returns the SBTSection for the given configuration file.
+        /// </summary>
         public static SBTSection? LoadConfig(string file)
         {
             ExeConfigurationFileMap configMap = new()
             {
-                ExeConfigFilename = Path.Combine(DirectoryFunction.GetBaseDirectory(), @"Mocks\Configs", file)
+                ExeConfigFilename = Path.Combine(
+                    DirectoryFunction.GetBaseDirectory(),
+                    @"Mocks\Configs",
+                    file)
             };
 
-            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(configMap, ConfigurationUserLevel.None);
+            Configuration config = ConfigurationManager.OpenMappedExeConfiguration(
+                configMap,
+                ConfigurationUserLevel.None);
 
             return config.GetSection("serverBackup") as SBTSection;
         }

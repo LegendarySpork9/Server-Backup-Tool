@@ -28,84 +28,132 @@ namespace ServerBackupTool.Services
                 Name = serverBackupSection.ServerDetails.Name,
                 Game = serverBackupSection.ServerDetails.Game
             };
-            _PidFileService = new(_Logger, new FileSystem());
+            _PidFileService = new(
+                _Logger,
+                new FileSystem());
             _PidFileService.Delete(Server.Name);
-            _ServerService = new(_Logger, _PidFileService, ServerBackupSection, Server);
-            _TimerService = new(this, _ServerService, _Logger, ServerBackupSection);
+            _ServerService = new(
+                _Logger,
+                _PidFileService,
+                ServerBackupSection,
+                Server);
+            _TimerService = new(
+                this,
+                _ServerService,
+                _Logger,
+                ServerBackupSection);
         }
 
-        // Executes the methods to run the application.
+        /// <summary>
+        /// Executes the methods to run the application.
+        /// </summary>
         public async Task RunApplication()
         {
             TimeConverter _timeConverter = new(Clock);
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Current Time: {Clock.UtcNow}");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                $"Current Time: {Clock.UtcNow}");
 
             TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
             TimeSpan duration = _timeConverter.GetDuration(ServerBackupSection.TimerDetails.BackupTime);
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before backup: {duration:hh\\:mm\\:ss}");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Debug,
+                $"Time before backup: {duration:hh\\:mm\\:ss}");
 
-            timerDurations = timerDurations.Append(duration).ToArray();
+            timerDurations = timerDurations.Append(duration)
+                .ToArray();
 
             foreach (TimerElement timer in ServerBackupSection.TimerDetails.Timers)
             {
                 duration = _timeConverter.GetDuration(timer.Time);
 
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Time before {timer.Name.ToLower()}: {duration:hh\\:mm\\:ss}");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Debug,
+                    $"Time before {timer.Name.ToLower()}: {duration:hh\\:mm\\:ss}");
 
-                timerDurations = timerDurations.Append(duration).ToArray();
+                timerDurations = timerDurations.Append(duration)
+                    .ToArray();
             }
 
-            string result = _TimerService.SetTimers(ServerBackupSection.TimerDetails.Timers, timerDurations);
+            string result = _TimerService.SetTimers(
+                ServerBackupSection.TimerDetails.Timers,
+                timerDurations);
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Setting Timers: {result}");
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Starting Timers");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                $"Setting Timers: {result}");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Starting Timers");
 
             _TimerService.StartTimers();
 
             result = await _ServerService.StartServer();
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, $"Starting Server: {result}", true);
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                $"Starting Server: {result}",
+                true);
 
             await UserInput();
         }
 
-        // Executes the methods to take a backup of the server and log data.
+        /// <summary>
+        /// Executes the methods to take a backup of the server and log data.
+        /// </summary>
         public async Task RunBackup(TimerService _timerService)
         {
-            ServerConverter _serverConverter = new();
-            JobService _jobService = new(_Logger, new FileSystem(), Clock, ServerBackupSection);
+            JobService _jobService = new(
+                _Logger,
+                new FileSystem(),
+                Clock,
+                ServerBackupSection);
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Stopping Server");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Stopping Server");
 
-            _ServerService.SendCommand(_serverConverter.GetStopCommand(Server.Game));
+            _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Waiting for 30 Seconds");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Waiting for 30 Seconds");
 
             _timerService.WaitForClose();
 
             WaitForServerClose.WaitOne();
             WaitForServerClose.Reset();
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Creating Backup");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Creating Backup");
 
             _jobService.RunJobs("backup");
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Archiving Logs");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Archiving Logs");
 
             _jobService.RunJobs("archive");
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Removing Old Backups and Logs");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Removing Old Backups and Logs");
 
             _jobService.RunJobs("clean");
 
-            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Restarting Process");
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Restarting Process");
 
             await RunApplication();
         }
 
-        // Handles inputs from the user.
+        /// <summary>
+        /// Handles inputs from the user.
+        /// </summary>
         private async Task UserInput()
         {
             while (true)
@@ -116,16 +164,20 @@ namespace ServerBackupTool.Services
                 {
                     if (command.ToLower() == "exit app")
                     {
-                        _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Exit Command Triggered");
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Info,
+                            "Exit Command Triggered");
 
                         if (Server.ServerRunning)
                         {
-                            ServerConverter _serverConverter = new();
+                            _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
-                            _ServerService.SendCommand(_serverConverter.GetStopCommand(Server.Game));
-
-                            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, "Stop Command Sent to Server");
-                            _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, "Waiting for 30 seconds");
+                            _Logger.LogToolMessage(
+                                StandardValues.LoggerValues.Debug,
+                                "Stop Command Sent to Server");
+                            _Logger.LogToolMessage(
+                                StandardValues.LoggerValues.Debug,
+                                "Waiting for 30 seconds");
 
                             Thread.Sleep(30000);
                         }
@@ -137,7 +189,10 @@ namespace ServerBackupTool.Services
                     {
                         if (!Server.ServerRunning)
                         {
-                            _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Starting Server");
+                            _Logger.LogToolMessage(
+                                StandardValues.LoggerValues.Info,
+                                "Starting Server");
+                            
                             await _ServerService.StartServer();
 
                             Console.WriteLine("\n----Server Commands----");
@@ -146,7 +201,9 @@ namespace ServerBackupTool.Services
 
                     else if (command.ToLower() == "reset heartbeat")
                     {
-                        _Logger.LogToolMessage(StandardValues.LoggerValues.Info, "Restarting Heartbeat Timer");
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Info,
+                            "Restarting Heartbeat Timer");
 
                         _TimerService.RestartHeartbeat();
                     }
@@ -154,7 +211,10 @@ namespace ServerBackupTool.Services
                     else
                     {
                         _ServerService.SendCommand(command);
-                        _Logger.LogToolMessage(StandardValues.LoggerValues.Debug, $"Command Sent to Server: {command}");
+
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Debug,
+                            $"Command Sent to Server: {command}");
                     }
                 }
             }

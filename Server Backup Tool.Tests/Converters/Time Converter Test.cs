@@ -7,7 +7,9 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class TimeConverterTest
     {
-        // Checks whether the method GetDuration returns the expected duration.
+        /// <summary>
+        /// Checks whether the method GetDuration returns the expected duration.
+        /// </summary>
         [TestMethod]
         public void TestGetDuration()
         {
@@ -22,7 +24,9 @@ namespace ServerBackupTool.Tests.Converters
 
             TimeSpan actual = _timeConverter.GetDuration(triggerTime);
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
         }
     }
 }

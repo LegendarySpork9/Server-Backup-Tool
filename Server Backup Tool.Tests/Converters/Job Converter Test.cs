@@ -8,7 +8,9 @@ namespace ServerBackupTool.Tests.Converters
     [TestClass]
     public class JobConverterTest
     {
-        // Checks whether the GetBackPaths method returns the expected values for Minecraft.
+        /// <summary>
+        /// Checks whether the GetBackPaths method returns the expected values for Minecraft.
+        /// </summary>
         [TestMethod]
         public void TestGetBackupPathsMinecraft()
         {
@@ -23,13 +25,21 @@ namespace ServerBackupTool.Tests.Converters
             string expectedSource = @"C:\GameServer\world";
             string expectedDestination = @$"C:\GameServer\Backups\world 01-01-2025.zip";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, filePath);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(
+                game,
+                filePath);
 
-            Assert.AreEqual(expectedSource, actualSource);
-            Assert.AreEqual(expectedDestination, actualDestination);
+            Assert.AreEqual(
+                expectedSource,
+                actualSource);
+            Assert.AreEqual(
+                expectedDestination,
+                actualDestination);
         }
 
-        // Checks whether the GetBackPaths method returns the empty strings when the game isn't registered.
+        /// <summary>
+        /// Checks whether the GetBackPaths method returns the empty strings when the game isn't registered.
+        /// </summary>
         [TestMethod]
         public void TestGetBackupPathsUnregisteredGame()
         {
@@ -38,13 +48,21 @@ namespace ServerBackupTool.Tests.Converters
             string game = "UnknownGame";
             string filePath = @"C:\GameServer";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(game, filePath);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(
+                game,
+                filePath);
 
-            Assert.AreEqual("", actualSource);
-            Assert.AreEqual("", actualDestination);
+            Assert.AreEqual(
+                "",
+                actualSource);
+            Assert.AreEqual(
+                "",
+                actualDestination);
         }
 
-        // Checks whether the GetBackPaths method returns the empty strings when the game is null.
+        /// <summary>
+        /// Checks whether the GetBackPaths method returns the empty strings when the game is null.
+        /// </summary>
         [TestMethod]
         public void TestGetBackupPathsNoGame()
         {
@@ -52,10 +70,16 @@ namespace ServerBackupTool.Tests.Converters
 
             string filePath = @"C:\GameServer";
 
-            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(null, filePath);
+            (string actualSource, string actualDestination) = _jobConverter.GetBackPaths(
+                null,
+                filePath);
 
-            Assert.AreEqual("", actualSource);
-            Assert.AreEqual("", actualDestination);
+            Assert.AreEqual(
+                "",
+                actualSource);
+            Assert.AreEqual(
+                "",
+                actualDestination);
         }
     }
 }

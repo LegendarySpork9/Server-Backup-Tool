@@ -13,8 +13,12 @@ namespace ServerBackupTool.Converters
             _Clock = _clock;
         }
 
-        // Returns the paths of the world data and where the data should be backed up to.
-        public (string, string) GetBackPaths(string? game, string filePath)
+        /// <summary>
+        /// Returns the paths of the world data and where the data should be backed up to.
+        /// </summary>
+        public (string, string) GetBackPaths(
+            string? game,
+            string filePath)
         {
             return game switch
             {

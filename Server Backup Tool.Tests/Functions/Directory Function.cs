@@ -3,10 +3,16 @@ namespace ServerBackupTool.Tests.Functions
 {
     public static class DirectoryFunction
     {
-        // Returns the base directory of the running application.
+        /// <summary>
+        /// Returns the base directory of the running application.
+        /// </summary>
+        /// <returns></returns>
         public static string GetBaseDirectory()
         {
-            return Directory.GetCurrentDirectory().Replace(@"bin\Debug\net6.0", "");
+            return Directory.GetCurrentDirectory()
+                .Replace(
+                    @"bin\Debug\net6.0",
+                    "");
         }
     }
 }

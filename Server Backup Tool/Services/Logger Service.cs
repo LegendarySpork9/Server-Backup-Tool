@@ -3,13 +3,18 @@ using log4net;
 
 namespace ServerBackupTool.Services
 {
-    internal class LoggerService
+    public class LoggerService
     {
         private readonly ILog ToolLogger = LogManager.GetLogger("ToolLogs");
         private readonly ILog ServerLogger = LogManager.GetLogger("ServerLogs");
 
-        // Outputs a message to the tool logs.
-        public void LogToolMessage(string level, string message, bool serverRunning = false)
+        /// <summary>
+        /// Outputs a message to the tool logs.
+        /// </summary>
+        public void LogToolMessage(
+            string level,
+            string message,
+            bool serverRunning = false)
         {
             switch (level)
             {
@@ -20,7 +25,9 @@ namespace ServerBackupTool.Services
             }
         }
 
-        // Outputs a message to the server logs.
+        /// <summary>
+        /// Outputs a message to the server logs.
+        /// </summary>
         public void LogServerMessage(string logEntry)
         {
             switch (logEntry)
@@ -33,7 +40,9 @@ namespace ServerBackupTool.Services
             }
         }
 
-        // Displays the server commands message on the console.
+        /// <summary>
+        /// Displays the server commands message on the console.
+        /// </summary>
         private void DisplayCommandsMessage(bool serverRunning)
         {
             switch (serverRunning)

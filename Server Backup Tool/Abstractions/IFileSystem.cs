@@ -1,7 +1,9 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 namespace ServerBackupTool.Abstractions
 {
-    // Interface for the file system operations.
+    /// <summary>
+    /// Interface for the file system operations.
+    /// </summary>
     public interface IFileSystem
     {
         bool DirectoryExists(string path);

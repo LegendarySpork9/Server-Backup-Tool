@@ -3,7 +3,9 @@ using System.Configuration;
 
 namespace ServerBackupTool.Models.Configuration
 {
-    // Stores the subject of an email in the configuration file.
+    /// <summary>
+    /// Stores the subject of an email in the configuration file.
+    /// </summary>
     public class SubjectElement : ConfigurationElement
     {
         [ConfigurationProperty("value")]

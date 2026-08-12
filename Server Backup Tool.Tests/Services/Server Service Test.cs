@@ -9,7 +9,9 @@ namespace ServerBackupTool.Tests.Services
     [TestClass]
     public class ServerServiceTest
     {
-        // Checks whether the StartServer starts the server as expected.
+        /// <summary>
+        /// Checks whether the StartServer starts the server as expected.
+        /// </summary>
         [TestMethod]
         public async Task TestStartServer()
         {
@@ -18,26 +20,35 @@ namespace ServerBackupTool.Tests.Services
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             _mockFileSystem.Setup(fs => fs.WriteAllText(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 
-            PidFileService _pidFileService = new(_mockLogger.Object, _mockFileSystem.Object);
+            PidFileService _pidFileService = new(
+                _mockLogger.Object,
+                _mockFileSystem.Object);
 
             ServerModel server = new(new()
             {
                 Name = "Test Server",
                 Game = "Minecraft",
-                Location = Path.Combine(DirectoryFunction.GetBaseDirectory(), @"Mocks\Server"),
+                Location = Path.Combine(
+                    DirectoryFunction.GetBaseDirectory(),
+                    @"Mocks\Server"),
                 StartFile = "Start.bat"
             })
             {
                 Name = "Test Server"
             };
 
-            ServerService _serverService = new(_mockLogger.Object, _pidFileService, new(), server);
+            ServerService _serverService = new(
+                _mockLogger.Object,
+                _pidFileService, new(),
+                server);
 
             string expected = "Completed";
 
             string actual = await _serverService.StartServer();
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(
+                expected,
+                actual);
 
             _mockFileSystem.Verify(fs => fs.WriteAllText(
                 It.Is<string>(path => path.EndsWith("Test Server.pid")),
