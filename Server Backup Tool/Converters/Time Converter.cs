@@ -21,13 +21,14 @@ namespace ServerBackupTool.Converters
             DateTime currentTime = _Clock.UtcNow;
             string elapsedTime = GetElapsedTime(
                 currentTime,
-                DateTime.Parse(triggerTime)
-                    .ToUniversalTime(),
+                DateTime.SpecifyKind(
+                    DateTime.Parse(triggerTime),
+                    DateTimeKind.Utc),
                 triggerTime);
 
-            TimeSpan timerDuration = DateTime.Parse(elapsedTime)
-                .ToUniversalTime()
-                .Subtract(currentTime);
+            TimeSpan timerDuration = DateTime.SpecifyKind(
+                DateTime.Parse(elapsedTime),
+                DateTimeKind.Utc).Subtract(currentTime);
 
             return timerDuration;
         }
