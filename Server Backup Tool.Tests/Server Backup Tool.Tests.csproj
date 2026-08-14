@@ -22,10 +22,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Server Backup Tool\Server Backup Tool.csproj" />
+    <ProjectReference Include="..\Server Backup Tool.API\Server Backup Tool.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Mocks\Server\" />
+    <Folder Include="Tool\Mocks\Server\" />
   </ItemGroup>
 
 </Project>

@@ -1,9 +1,9 @@
-// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright ï¿½ - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
 
-namespace ServerBackupTool.Tests.Services
+namespace ServerBackupTool.Tests.Tool.Services
 {
     [TestClass]
     public class JobServiceTest

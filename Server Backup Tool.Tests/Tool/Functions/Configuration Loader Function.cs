@@ -2,7 +2,7 @@
 using ServerBackupTool.Models.Configuration;
 using System.Configuration;
 
-namespace ServerBackupTool.Tests.Functions
+namespace ServerBackupTool.Tests.Tool.Functions
 {
     public static class ConfigurationLoaderFunction
     {
@@ -15,7 +15,7 @@ namespace ServerBackupTool.Tests.Functions
             {
                 ExeConfigFilename = Path.Combine(
                     DirectoryFunction.GetBaseDirectory(),
-                    @"Mocks\Configs",
+                    @"Tool\Mocks\Configs",
                     file)
             };
 
