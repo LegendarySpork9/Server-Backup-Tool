@@ -1,16 +1,55 @@
 // Copyright © - Unpublished - Toby Hunter
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
+using ServerBackupTool.API.Abstractions;
+using ServerBackupTool.API.Implementations;
+using ServerBackupTool.API.Models;
+using ServerBackupTool.API.Values;
 
 namespace ServerBackupTool.API
 {
     public class Program
     {
+        /// <summary>
+        /// Configures the application at startup.
+        /// </summary>
         public static void Main(string[] args)
         {
+            log4net.Config.XmlConfigurator.Configure(new FileInfo(Path.Combine(
+                AppContext.BaseDirectory,
+                "log4net.config")));
+
+            ILoggerService _logger = new LoggerServiceWrapper("System");
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Info,
+                "Starting API");
+
             WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Created Builder");
+
             builder.Services.AddControllers();
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Added Controllers");
+
+            builder.Services.AddAuthentication("ClientAuth")
+                .AddScheme<ClientAuthOptions, ClientAuthHandler>(
+                    "ClientAuth",
+                    null);
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Added Authentication");
+
+            builder.Services.AddAuthorization();
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Added Authorisation");
 
             builder.Services.AddOpenApi(options =>
             {
@@ -76,9 +115,36 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 });
             });
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Added OpenAPI Documentaion");
+
+            AuthenticationModel authModel = builder.Configuration.GetSection("Authentication")
+                .Get<AuthenticationModel>()!;
+
+            builder.Services.AddSingleton(authModel);
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Loaded Configuration");
+
+            builder.Services.AddSingleton<ILoggerService>(_logger);
+
+            _logger.LogMessage(
+               StandardValues.LoggerValues.Debug,
+               "Configured Services");
+
             WebApplication app = builder.Build();
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Built Application");
+
             app.MapOpenApi(pattern: "api/{document}.json");
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Mapped OpenAPI Documentation");
 
             app.MapScalarApiReference("/docs", options =>
             {
@@ -91,13 +157,36 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 options.HideTestRequestButton();
             });
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Mapped Scalar Reference");
+
             app.UseHttpsRedirection();
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Configured HTTPS Redirection");
 
             app.UseAuthorization();
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Configured Authorisation");
+
             app.MapControllers();
 
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Configured Controllers");
+
             app.MapStaticAssets();
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Configured Static Assets");
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Info,
+                "Running API");
 
             app.Run();
         }

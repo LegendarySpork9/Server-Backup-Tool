@@ -2,7 +2,7 @@
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Services;
 
-namespace ServerBackupTool.Tests.Services
+namespace ServerBackupTool.Tests.Tool.Services
 {
     [TestClass]
     public class PidFileServiceTest

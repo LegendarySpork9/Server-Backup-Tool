@@ -1,9 +1,9 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
-using ServerBackupTool.Tests.Functions;
+using ServerBackupTool.Tests.Tool.Functions;
 using ServerBackupTool.Models.Configuration;
 using System.Configuration;
 
-namespace ServerBackupTool.Tests
+namespace ServerBackupTool.Tests.Tool
 {
     [TestClass]
     public class ConfigurationTest

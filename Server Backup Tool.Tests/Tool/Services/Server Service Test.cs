@@ -2,9 +2,9 @@
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Models;
 using ServerBackupTool.Services;
-using ServerBackupTool.Tests.Functions;
+using ServerBackupTool.Tests.Tool.Functions;
 
-namespace ServerBackupTool.Tests.Services
+namespace ServerBackupTool.Tests.Tool.Services
 {
     [TestClass]
     public class ServerServiceTest
@@ -30,7 +30,7 @@ namespace ServerBackupTool.Tests.Services
                 Game = "Minecraft",
                 Location = Path.Combine(
                     DirectoryFunction.GetBaseDirectory(),
-                    @"Mocks\Server"),
+                    @"Tool\Mocks\Server"),
                 StartFile = "Start.bat"
             })
             {

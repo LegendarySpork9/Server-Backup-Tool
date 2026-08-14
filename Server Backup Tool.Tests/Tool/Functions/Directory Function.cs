@@ -1,5 +1,5 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
-namespace ServerBackupTool.Tests.Functions
+namespace ServerBackupTool.Tests.Tool.Functions
 {
     public static class DirectoryFunction
     {

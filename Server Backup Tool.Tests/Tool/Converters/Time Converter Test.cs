@@ -1,8 +1,8 @@
-// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright ï¿½ - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
 
-namespace ServerBackupTool.Tests.Converters
+namespace ServerBackupTool.Tests.Tool.Converters
 {
     [TestClass]
     public class TimeConverterTest

@@ -7,7 +7,7 @@ using System.Net;
 using System.Net.Mail;
 using System.Reflection;
 
-namespace ServerBackupTool.Tests.Services
+namespace ServerBackupTool.Tests.Tool.Services
 {
     [TestClass]
     public class EmailServiceTest
