@@ -101,7 +101,7 @@ namespace ServerBackupTool.Services
             string[] files = _FileSystem.GetFiles(@".\Logs")
                 .ToArray();
 
-            CheckDirectory(@$".\Archived Logs");
+            CheckDirectory(@".\Archived Logs");
 
             try
             {
@@ -144,7 +144,7 @@ namespace ServerBackupTool.Services
         {
             string result = "Complete";
 
-            CheckDirectory(@$".\Archived Logs");
+            CheckDirectory(@".\Archived Logs");
 
             string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs")
                 .ToArray();

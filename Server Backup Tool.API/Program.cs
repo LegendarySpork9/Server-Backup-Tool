@@ -5,6 +5,7 @@ using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Values;
+using ServerBackupTool.Common.Models;
 
 namespace ServerBackupTool.API
 {
@@ -119,10 +120,20 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 StandardValues.LoggerValues.Debug,
                 "Added OpenAPI Documentaion");
 
-            AuthenticationModel authModel = builder.Configuration.GetSection("Authentication")
+            AuthenticationModel authentication = builder.Configuration.GetSection("Authentication")
                 .Get<AuthenticationModel>()!;
 
-            builder.Services.AddSingleton(authModel);
+            builder.Services.AddSingleton(authentication);
+
+            DatabaseOptionsModel options = builder.Configuration.GetSection("Database")
+                .Get<DatabaseOptionsModel>()!;
+
+            builder.Services.AddSingleton(options);
+
+            ArchiveSettingsModel archiveSettings = builder.Configuration.GetSection("ArchiveSettings")
+                .Get<ArchiveSettingsModel>()!;
+
+            builder.Services.AddSingleton(archiveSettings);
 
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
