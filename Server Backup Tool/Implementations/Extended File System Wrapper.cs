@@ -1,11 +1,14 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.Abstractions;
+using ServerBackupTool.Common.Implementations;
 using System.IO.Compression;
 
 namespace ServerBackupTool.Implementations
 {
-    public class FileSystem : IFileSystem
+    public class ExtendedFileSystemWrapper : FileSystem, IExtendedFileSystem
     {
+        // Directory Operations
+
         /// <summary>
         /// Returns whether the directory exists for a given path.
         /// </summary>
@@ -16,10 +19,7 @@ namespace ServerBackupTool.Implementations
         /// </summary>
         public void CreateDirectory(string path) => Directory.CreateDirectory(path);
 
-        /// <summary>
-        /// Returns all the files in a given path.
-        /// </summary>
-        public IEnumerable<string> GetFiles(string path) => Directory.GetFiles(path);
+        // File Operations
 
         /// <summary>
         /// Deletes the given file.
@@ -27,9 +27,20 @@ namespace ServerBackupTool.Implementations
         public void DeleteFile(string file) => File.Delete(file);
 
         /// <summary>
-        /// Returns the UTC date and time for when the given file was created.
+        /// Returns all the text in a given file.
         /// </summary>
-        public DateTime GetCreationTime(string file) => File.GetCreationTimeUtc(file);
+        public Task<string> ReadAllText(string file) => File.ReadAllTextAsync(file);
+
+        /// <summary>
+        /// Writes text to a given file asynchronously.
+        /// </summary>
+        public Task WriteAllText(
+            string path,
+            string content) => File.WriteAllTextAsync(
+                path,
+                content);
+
+        // ZIP Operations
 
         /// <summary>
         /// Creates a ZIP file from the given directory.
@@ -69,24 +80,5 @@ namespace ServerBackupTool.Implementations
                     CompressionLevel.Optimal);
             }
         }
-
-        /// <summary>
-        /// Returns all the text in a given file.
-        /// </summary>
-        public Task<string> ReadAllText(string file) => File.ReadAllTextAsync(file);
-
-        /// <summary>
-        /// Writes text to a given file asynchronously.
-        /// </summary>
-        public Task WriteAllText(
-            string path,
-            string content) => File.WriteAllTextAsync(
-                path,
-                content);
-
-        /// <summary>
-        /// Returns whether the file exists for a given path.
-        /// </summary>
-        public bool FileExists(string path) => File.Exists(path);
     }
 }

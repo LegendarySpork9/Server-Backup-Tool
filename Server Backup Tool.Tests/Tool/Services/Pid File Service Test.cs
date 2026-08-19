@@ -14,7 +14,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public async Task TestWrite()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(false);
             _mockFileSystem.Setup(fs => fs.CreateDirectory(It.IsAny<string>()));
             _mockFileSystem.Setup(fs => fs.WriteAllText(
@@ -46,7 +46,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public async Task TestWriteDirectoryExists()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             _mockFileSystem.Setup(fs => fs.WriteAllText(
                 It.IsAny<string>(),
@@ -77,7 +77,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestDelete()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(true);
             _mockFileSystem.Setup(fs => fs.DeleteFile(It.IsAny<string>()));
 
@@ -99,7 +99,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestDeleteFileNotFound()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.FileExists(It.IsAny<string>())).Returns(false);
 
             PidFileService _pidFileService = new(

@@ -15,7 +15,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestRunJobsBackup()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             _mockFileSystem.Setup(fs => fs.CreateZIPFromDirectory(
                 It.IsAny<string>(),
@@ -58,7 +58,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestRunJobsArchive()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.GetFiles(It.IsAny<string>())).Returns(new[] { "Server.log", "Backup.log" });
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             Mock<IClock> _mockClock = new();
@@ -100,7 +100,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestRunJobsCleanUp()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.GetFiles(@".\Archived Logs")).Returns(new[] { "old.zip" });
             _mockFileSystem.Setup(fs => fs.GetFiles(@"C:\Server\Backups")).Returns(new[] { "oldbackup.zip" });
             _mockFileSystem.Setup(fs => fs.GetCreationTime(It.IsAny<string>())).Returns(new DateTime(2025, 01, 01).AddDays(-11));
@@ -140,7 +140,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public void TestRunJobsUnknown()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             Mock<IClock> _mockClock = new();
 
             SBTSection serverBackupSection = new();

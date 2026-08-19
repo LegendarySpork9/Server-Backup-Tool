@@ -6,25 +6,25 @@ namespace ServerBackupTool.API.Functions
         /// <summary>
         /// Returns the IP address for logging.
         /// </summary>
-        public static string FetchIpAddress(IHttpContextAccessor contextAccessor)
+        public static string FetchIpAddress(HttpContext context)
         {
             string ipAddress = string.Empty;
 
-            if (contextAccessor?.HttpContext?.Request.Headers.ContainsKey("CF-Connecting-IP") == true)
+            if (context.Request.Headers.ContainsKey("CF-Connecting-IP"))
             {
-                ipAddress = contextAccessor.HttpContext.Request.Headers["CF-Connecting-IP"].ToString();
+                ipAddress = context.Request.Headers["CF-Connecting-IP"].ToString();
             }
 
-            else if (contextAccessor?.HttpContext?.Request.Headers.ContainsKey("X-Forwarded-For") == true)
+            else if (context.Request.Headers.ContainsKey("X-Forwarded-For"))
             {
-                ipAddress = contextAccessor.HttpContext.Request.Headers["X-Forwarded-For"].ToString()
+                ipAddress = context.Request.Headers["X-Forwarded-For"].ToString()
                     .Split(',')[0]
                     .Trim();
             }
 
-            else if (contextAccessor?.HttpContext?.Connection?.RemoteIpAddress != null)
+            else if (context.Connection.RemoteIpAddress != null)
             {
-                ipAddress = contextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+                ipAddress = context.Connection.RemoteIpAddress.ToString();
             }
 
             return ipAddress;

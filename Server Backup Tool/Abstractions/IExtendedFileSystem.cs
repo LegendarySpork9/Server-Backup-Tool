@@ -4,22 +4,20 @@ namespace ServerBackupTool.Abstractions
     /// <summary>
     /// Interface for the file system operations.
     /// </summary>
-    public interface IFileSystem
+    public interface IExtendedFileSystem : Common.Abstractions.IFileSystem
     {
+        // Directory Operations
         bool DirectoryExists(string path);
         void CreateDirectory(string path);
-        IEnumerable<string> GetFiles(string path);
 
+        // File Operations
         void DeleteFile(string file);
-        DateTime GetCreationTime(string file);
+        Task<string> ReadAllText(string file);
+        Task WriteAllText(string path, string content);
 
+        // ZIP Operations
         void CreateZIPFromDirectory(string sourceDirectory, string destinationFile);
         void CreateZIPFile(string path);
         void CreateZIPEntryFromFile(string zipFilePath, string sourceFilePath, string entryName);
-
-        Task<string> ReadAllText(string file);
-
-        Task WriteAllText(string path, string content);
-        bool FileExists(string path);
     }
 }

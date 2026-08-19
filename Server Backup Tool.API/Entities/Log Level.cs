@@ -8,7 +8,7 @@ namespace ServerBackupTool.API.Entities
     {
         Info,
         Debug,
-        Warning,
+        Warn,
         Error,
         All
     }

@@ -244,7 +244,7 @@ namespace ServerBackupTool.Services
             EmailService _emailService = new(
                 _Logger,
                 new SMTPEmailSender(),
-                new FileSystem(),
+                new ExtendedFileSystemWrapper(),
                 true);
 
             Ping pingSender = new();

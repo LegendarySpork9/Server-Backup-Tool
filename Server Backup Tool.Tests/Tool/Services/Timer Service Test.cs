@@ -24,7 +24,7 @@ namespace ServerBackupTool.Tests.Tool.Services
             };
 
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);
@@ -96,7 +96,7 @@ namespace ServerBackupTool.Tests.Tool.Services
             };
 
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);
@@ -191,7 +191,7 @@ namespace ServerBackupTool.Tests.Tool.Services
             };
 
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);

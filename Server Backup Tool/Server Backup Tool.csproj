@@ -26,6 +26,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Server Backup Tool.Common\Server Backup Tool.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Content\HI Tech Logo.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

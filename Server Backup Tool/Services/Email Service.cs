@@ -12,14 +12,14 @@ namespace ServerBackupTool.Services
     {
         private readonly ILoggerService _Logger;
         private readonly IEmailSender _EmailSender;
-        private readonly IFileSystem _FileSystem;
+        private readonly IExtendedFileSystem _FileSystem;
         private readonly bool ServerRunning = false;
 
         // Sets the class's global variables.
         public EmailService(
             ILoggerService _logger,
             IEmailSender _emailSender,
-            IFileSystem _fileSystem,
+            IExtendedFileSystem _fileSystem,
             bool serverRunning = false)
         {
             _Logger = _logger;

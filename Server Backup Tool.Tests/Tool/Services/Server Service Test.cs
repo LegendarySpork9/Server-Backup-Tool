@@ -16,7 +16,7 @@ namespace ServerBackupTool.Tests.Tool.Services
         public async Task TestStartServer()
         {
             Mock<ILoggerService> _mockLogger = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>())).Returns(true);
             _mockFileSystem.Setup(fs => fs.WriteAllText(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.CompletedTask);
 

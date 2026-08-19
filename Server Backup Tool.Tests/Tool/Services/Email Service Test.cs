@@ -33,7 +33,7 @@ namespace ServerBackupTool.Tests.Tool.Services
                 It.IsAny<int>(),
                 It.IsAny<bool>(),
                 It.IsAny<NetworkCredential>())).ThrowsAsync(new InvalidOperationException("Failed to send email."));
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync(testEmail);
 
             EmailService _emailService = new(
@@ -110,7 +110,7 @@ namespace ServerBackupTool.Tests.Tool.Services
 
             Mock<ILoggerService> _mockLogger = new();
             SMTPEmailSender _smtpEmailSender = new();
-            Mock<IFileSystem> _mockFileSystem = new();
+            Mock<IExtendedFileSystem> _mockFileSystem = new();
             _mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync(testEmail);
 
             EmailService _emailService = new(

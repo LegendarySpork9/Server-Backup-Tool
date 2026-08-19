@@ -30,7 +30,7 @@ namespace ServerBackupTool.Services
             };
             _PidFileService = new(
                 _Logger,
-                new FileSystem());
+                new ExtendedFileSystemWrapper());
             _PidFileService.Delete(Server.Name);
             _ServerService = new(
                 _Logger,
@@ -107,7 +107,7 @@ namespace ServerBackupTool.Services
         {
             JobService _jobService = new(
                 _Logger,
-                new FileSystem(),
+                new ExtendedFileSystemWrapper(),
                 Clock,
                 ServerBackupSection);
 
