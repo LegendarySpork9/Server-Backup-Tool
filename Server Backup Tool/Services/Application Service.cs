@@ -1,9 +1,9 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Models;
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Implementations;
-using ServerBackupTool.Abstractions;
+using ServerBackupTool.Models;
+using ServerBackupTool.Models.Configuration;
 
 namespace ServerBackupTool.Services
 {
@@ -30,7 +30,7 @@ namespace ServerBackupTool.Services
             };
             _PidFileService = new(
                 _Logger,
-                new FileSystem());
+                new ExtendedFileSystemWrapper());
             _PidFileService.Delete(Server.Name);
             _ServerService = new(
                 _Logger,
@@ -107,7 +107,7 @@ namespace ServerBackupTool.Services
         {
             JobService _jobService = new(
                 _Logger,
-                new FileSystem(),
+                new ExtendedFileSystemWrapper(),
                 Clock,
                 ServerBackupSection);
 
@@ -192,7 +192,7 @@ namespace ServerBackupTool.Services
                             _Logger.LogToolMessage(
                                 StandardValues.LoggerValues.Info,
                                 "Starting Server");
-                            
+
                             await _ServerService.StartServer();
 
                             Console.WriteLine("\n----Server Commands----");

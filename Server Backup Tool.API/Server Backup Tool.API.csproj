@@ -14,4 +14,8 @@
     <PackageReference Include="Scalar.AspNetCore" Version="2.16.18" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Server Backup Tool.Common\Server Backup Tool.Common.csproj" />
+  </ItemGroup>
+
 </Project>

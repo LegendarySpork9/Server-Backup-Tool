@@ -1,9 +1,9 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using System.Configuration;
 using ServerBackupTool.Functions;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
+using System.Configuration;
 
 namespace ServerBackupTool
 {
@@ -19,7 +19,7 @@ namespace ServerBackupTool
             EmailService _emailService = new(
                 new LoggerServiceWrapper(),
                 new SMTPEmailSender(),
-                new FileSystem());
+                new ExtendedFileSystemWrapper());
 
             Console.SetOut(new FilterConsoleFunction(Console.Out));
 
@@ -53,10 +53,10 @@ namespace ServerBackupTool
             EmailService _emailService = new(
                 new LoggerServiceWrapper(),
                 new SMTPEmailSender(),
-                new FileSystem());
+                new ExtendedFileSystemWrapper());
             PidFileService _pidFileService = new(
                 new LoggerServiceWrapper(),
-                new FileSystem());
+                new ExtendedFileSystemWrapper());
 
             if (ServerBackupSection != null)
             {

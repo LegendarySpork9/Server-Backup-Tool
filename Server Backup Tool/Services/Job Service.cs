@@ -8,7 +8,7 @@ namespace ServerBackupTool.Services
     public class JobService
     {
         private readonly ILoggerService _Logger;
-        private readonly IFileSystem _FileSystem;
+        private readonly IExtendedFileSystem _FileSystem;
         private readonly IClock _Clock;
         private readonly string ServerPath;
         private readonly string Game;
@@ -16,7 +16,7 @@ namespace ServerBackupTool.Services
         // Sets the class's global variables.
         public JobService(
             ILoggerService _logger,
-            IFileSystem _fileSystem,
+            IExtendedFileSystem _fileSystem,
             IClock _clock,
             SBTSection serverBackupSection)
         {
@@ -101,14 +101,14 @@ namespace ServerBackupTool.Services
             string[] files = _FileSystem.GetFiles(@".\Logs")
                 .ToArray();
 
-            CheckDirectory(@$".\Archived Logs");
+            CheckDirectory(@".\Archived Logs");
 
             try
             {
                 string zipPath = @$".\Archived Logs\Server {_Clock.UtcNow:dd-MM-yyyy}.zip";
 
                 _FileSystem.CreateZIPFile(zipPath);
-                
+
                 foreach (string logFile in files)
                 {
                     if (!logFile.Contains("Backup.log"))
@@ -144,7 +144,7 @@ namespace ServerBackupTool.Services
         {
             string result = "Complete";
 
-            CheckDirectory(@$".\Archived Logs");
+            CheckDirectory(@".\Archived Logs");
 
             string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs")
                 .ToArray();

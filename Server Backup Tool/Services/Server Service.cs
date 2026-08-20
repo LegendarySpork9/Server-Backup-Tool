@@ -96,7 +96,7 @@ namespace ServerBackupTool.Services
             EmailService _emailService = new(
                 _Logger,
                 new SMTPEmailSender(),
-                new FileSystem(),
+                new ExtendedFileSystemWrapper(),
                 true);
 
             if (!string.IsNullOrEmpty(e.Data))

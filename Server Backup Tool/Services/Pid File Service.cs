@@ -7,7 +7,7 @@ namespace ServerBackupTool.Services
     public class PidFileService
     {
         private readonly ILoggerService _Logger;
-        private readonly IFileSystem _FileSystem;
+        private readonly IExtendedFileSystem _FileSystem;
 
         private static readonly string PidDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
@@ -17,7 +17,7 @@ namespace ServerBackupTool.Services
         // Sets the class's global variables.
         public PidFileService(
             ILoggerService logger,
-            IFileSystem fileSystem)
+            IExtendedFileSystem fileSystem)
         {
             _Logger = logger;
             _FileSystem = fileSystem;

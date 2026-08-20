@@ -2,9 +2,13 @@
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using ServerBackupTool.API.Abstractions;
+using ServerBackupTool.API.Filters;
 using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Values;
+using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Implementations;
+using ServerBackupTool.Common.Models;
 
 namespace ServerBackupTool.API
 {
@@ -30,7 +34,16 @@ namespace ServerBackupTool.API
                 StandardValues.LoggerValues.Debug,
                 "Created Builder");
 
-            builder.Services.AddControllers();
+            builder.Services.AddControllers(options =>
+                {
+                    options.Filters.Add<RequestLoggingFilter>();
+                    options.Filters.Add<ResponseLoggingFilter>();
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(
+                        new System.Text.Json.Serialization.JsonStringEnumConverter());
+                });
 
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
@@ -106,8 +119,8 @@ Each instance of the tool is identified by the name of the server it manages. Th
                     {
                         new()
                         {
-                            Name = "WeatherForecast",
-                            Description = "Randomly generates some weather data as an example for how the API controller works."
+                            Name = "Logs",
+                            Description = "The calls allowing the user to access the live/archived logs for the tool and server."
                         }
                     };
 
@@ -119,16 +132,29 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 StandardValues.LoggerValues.Debug,
                 "Added OpenAPI Documentaion");
 
-            AuthenticationModel authModel = builder.Configuration.GetSection("Authentication")
+            AuthenticationModel authentication = builder.Configuration.GetSection("Authentication")
                 .Get<AuthenticationModel>()!;
 
-            builder.Services.AddSingleton(authModel);
+            builder.Services.AddSingleton(authentication);
+
+            DatabaseOptionsModel options = builder.Configuration.GetSection("Database")
+                .Get<DatabaseOptionsModel>()!;
+
+            builder.Services.AddSingleton(options);
+
+            ArchiveSettingsModel archiveSettings = builder.Configuration.GetSection("ArchiveSettings")
+                .Get<ArchiveSettingsModel>()!;
+
+            builder.Services.AddSingleton(archiveSettings);
 
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
                 "Loaded Configuration");
 
-            builder.Services.AddSingleton<ILoggerService>(_logger);
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<ILoggerService, LoggerServiceWrapper>();
+            builder.Services.AddSingleton<IDatabase, DatabaseWrapper>();
+            builder.Services.AddSingleton<IExtendedFileSystem, ExtendedFileSystemWrapper>();
 
             _logger.LogMessage(
                StandardValues.LoggerValues.Debug,

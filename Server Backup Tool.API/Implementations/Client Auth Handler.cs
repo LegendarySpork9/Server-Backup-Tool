@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Options;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Models;
+using ServerBackupTool.API.Models.Responses;
 using ServerBackupTool.API.Values;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -152,10 +153,9 @@ namespace ServerBackupTool.API.Implementations
                 message = result.Failure.Message;
             }
 
-            await Response.WriteAsync(JsonSerializer.Serialize(new
+            await Response.WriteAsync(JsonSerializer.Serialize(new FailureModel()
             {
-                status = 401,
-                error = message
+                Error = message
             }));
         }
 

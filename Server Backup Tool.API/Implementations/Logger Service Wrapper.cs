@@ -1,22 +1,35 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
-using ServerBackupTool.API.Services;
+using Microsoft.AspNetCore.Http;
 using ServerBackupTool.API.Abstractions;
+using ServerBackupTool.API.Functions;
+using ServerBackupTool.API.Services;
 
 namespace ServerBackupTool.API.Implementations
 {
     public class LoggerServiceWrapper : ILoggerService
     {
-        private string IPAddress;
+        private readonly IHttpContextAccessor? _ContextAccessor;
+        private string _Identifier;
 
-        public LoggerServiceWrapper(string ipAddress)
+        public Guid RequestId { get; }
+
+        public LoggerServiceWrapper(string identifier)
         {
-            IPAddress = ipAddress;
+            _Identifier = identifier;
+            RequestId = Guid.Empty;
+        }
+
+        public LoggerServiceWrapper(IHttpContextAccessor contextAccessor)
+        {
+            _ContextAccessor = contextAccessor;
+            _Identifier = "Unknown";
+            RequestId = Guid.NewGuid();
         }
 
         /// <summary>
         /// Changes the identifier of the logger.
         /// </summary>
-        public void ChangeIdentifier(string value) => IPAddress = value;
+        public void ChangeIdentifier(string value) => _Identifier = value;
 
         /// <summary>
         /// Logs the given message to the log file.
@@ -25,8 +38,25 @@ namespace ServerBackupTool.API.Implementations
             string level,
             string message)
         {
+            string id = _Identifier;
+
+            if (_ContextAccessor?.HttpContext != null)
+            {
+                string ip = IPAddressFunction.FetchIpAddress(_ContextAccessor.HttpContext);
+
+                if (!string.IsNullOrEmpty(ip))
+                {
+                    id = ip;
+                }
+            }
+
+            if (RequestId != Guid.Empty)
+            {
+                id = $"{id} [{RequestId}]";
+            }
+
             LoggerService _logger = new(
-                IPAddress,
+                id,
                 "Logs");
             _logger.LogMessage(
                 level,

@@ -6,6 +6,7 @@ namespace ServerBackupTool.API.Abstractions
     /// </summary>
     public interface ILoggerService
     {
+        Guid RequestId { get; }
         void ChangeIdentifier(string value);
         void LogMessage(string level, string message);
     }

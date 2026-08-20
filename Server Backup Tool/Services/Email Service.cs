@@ -1,9 +1,9 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using ServerBackupTool.Models.Configuration;
-using System.Net.Mail;
-using System.Net;
-using ServerBackupTool.Converters;
 using ServerBackupTool.Abstractions;
+using ServerBackupTool.Converters;
+using ServerBackupTool.Models.Configuration;
+using System.Net;
+using System.Net.Mail;
 using System.Runtime.CompilerServices;
 
 namespace ServerBackupTool.Services
@@ -12,14 +12,14 @@ namespace ServerBackupTool.Services
     {
         private readonly ILoggerService _Logger;
         private readonly IEmailSender _EmailSender;
-        private readonly IFileSystem _FileSystem;
+        private readonly IExtendedFileSystem _FileSystem;
         private readonly bool ServerRunning = false;
 
         // Sets the class's global variables.
         public EmailService(
             ILoggerService _logger,
             IEmailSender _emailSender,
-            IFileSystem _fileSystem,
+            IExtendedFileSystem _fileSystem,
             bool serverRunning = false)
         {
             _Logger = _logger;
