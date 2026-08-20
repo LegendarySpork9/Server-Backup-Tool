@@ -10,11 +10,6 @@ namespace ServerBackupTool.Implementations
         // Directory Operations
 
         /// <summary>
-        /// Returns whether the directory exists for a given path.
-        /// </summary>
-        public bool DirectoryExists(string path) => Directory.Exists(path);
-
-        /// <summary>
         /// Creates the directory for a given path.
         /// </summary>
         public void CreateDirectory(string path) => Directory.CreateDirectory(path);

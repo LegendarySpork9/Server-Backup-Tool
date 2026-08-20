@@ -5,7 +5,7 @@ using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
 using System.Reflection;
 
-namespace ServerBackupTool.Tests.Tool.Services
+namespace ServerBackupTool.UnitTests.Tool.Services
 {
     [TestClass]
     public class TimerServiceTest
@@ -35,7 +35,7 @@ namespace ServerBackupTool.Tests.Tool.Services
                 serverBackupSection,
                 server);
 
-            var timerDurations = new[]
+            TimeSpan[] timerDurations = new[]
             {
                 new TimeSpan(2, 0, 0),
                 new TimeSpan(1, 0, 0)
@@ -48,17 +48,17 @@ namespace ServerBackupTool.Tests.Tool.Services
                     "BaseAdd",
                     BindingFlags.Instance | BindingFlags.NonPublic,
                     null,
-                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    [typeof(System.Configuration.ConfigurationElement)],
                     null)!;
 
             baseAdd.Invoke(
                 timers,
-                new object[] { new TimerElement()
+                [ new TimerElement()
             {
                 Name = "Warning One",
                 Time = "01:00:00",
                 Message = "Server will shutdown for a backup in an hour."
-            } });
+            } ]);
 
             TimerService _timerService = new(
                 _mockApplicationService.Object,
@@ -107,11 +107,11 @@ namespace ServerBackupTool.Tests.Tool.Services
                 serverBackupSection,
                 server);
 
-            var timerDurations = new[]
-            {
+            TimeSpan[] timerDurations =
+            [
                 new TimeSpan(2, 0, 0),
                 new TimeSpan(1, 0, 0)
-            };
+            ];
 
             TimerCollection timers = new();
 
@@ -120,17 +120,17 @@ namespace ServerBackupTool.Tests.Tool.Services
                     "BaseAdd",
                     BindingFlags.Instance | BindingFlags.NonPublic,
                     null,
-                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    [typeof(System.Configuration.ConfigurationElement)],
                     null)!;
 
             baseAdd.Invoke(
                 timers,
-                new object[] { new TimerElement()
+                [ new TimerElement()
             {
                 Name = "Warning One",
                 Time = "01:00:00",
                 Message = "Server will shutdown for a backup in an hour."
-            } });
+            } ]);
 
             NotificationElement notifications = new()
             {
@@ -142,16 +142,16 @@ namespace ServerBackupTool.Tests.Tool.Services
                     "BaseAdd",
                     BindingFlags.Instance | BindingFlags.NonPublic,
                     null,
-                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    [typeof(System.Configuration.ConfigurationElement)],
                     null)!;
 
             baseAdd.Invoke(
                 notifications.Emails,
-                new object[] { new EmailElement()
+                [ new EmailElement()
             {
                 Trigger = "Heartbeat",
                 SystemEmail = true
-            } });
+            } ]);
 
             serverBackupSection.Notifications = notifications;
 
@@ -202,7 +202,7 @@ namespace ServerBackupTool.Tests.Tool.Services
                 serverBackupSection,
                 server);
 
-            var timerDurations = new[]
+            TimeSpan[] timerDurations = new[]
             {
                 new TimeSpan(2, 0, 0)
             };
@@ -217,16 +217,16 @@ namespace ServerBackupTool.Tests.Tool.Services
                     "BaseAdd",
                     BindingFlags.Instance | BindingFlags.NonPublic,
                     null,
-                    new[] { typeof(System.Configuration.ConfigurationElement) },
+                    [typeof(System.Configuration.ConfigurationElement)],
                     null)!;
 
             baseAdd.Invoke(
                 notifications.Emails,
-                new object[] { new EmailElement()
+                [ new EmailElement()
             {
                 Trigger = "Heartbeat",
                 SystemEmail = true
-            } });
+            } ]);
 
             serverBackupSection.Notifications = notifications;
 

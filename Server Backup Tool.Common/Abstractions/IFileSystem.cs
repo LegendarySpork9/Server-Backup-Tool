@@ -8,6 +8,7 @@ namespace ServerBackupTool.Common.Abstractions
     {
         // Directory Operations
         IEnumerable<string> GetFiles(string path);
+        bool DirectoryExists(string path);
 
         // File Operations
         DateTime GetCreationTime(string file);

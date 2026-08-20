@@ -20,7 +20,7 @@ namespace ServerBackupTool.Services
         private readonly List<TimerModel> Timers = [];
 
         // Sets the class's global variables.
-        public TimerService (
+        public TimerService(
             ApplicationService _applicationService,
             ServerService _serverService,
             ILoggerService _logger,

@@ -8,6 +8,11 @@ namespace ServerBackupTool.Common.Implementations
         // Directory Operations
 
         /// <summary>
+        /// Returns whether the directory exists for a given path.
+        /// </summary>
+        public bool DirectoryExists(string path) => Directory.Exists(path);
+
+        /// <summary>
         /// Returns all the files in a given path.
         /// </summary>
         public IEnumerable<string> GetFiles(string path) => Directory.GetFiles(path);

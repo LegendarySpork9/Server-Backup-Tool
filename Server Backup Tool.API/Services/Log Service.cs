@@ -69,14 +69,14 @@ where ServerName = @serverName";
                 {
                     sql += @"
 and Level = @level";
-                    parameterList.Add(new("@level", SqliteType.Text) { Value = nameof(level) });
+                    parameterList.Add(new("@level", SqliteType.Text) { Value = level.ToString() });
                 }
 
                 if (type != LogType.All)
                 {
                     sql += @"
 and Logger = @type";
-                    parameterList.Add(new("@type", SqliteType.Text) { Value = nameof(type) });
+                    parameterList.Add(new("@type", SqliteType.Text) { Value = type.ToString() });
                 }
 
                 if (afterId > 0)
@@ -291,7 +291,7 @@ limit @limit";
                 ex = cex;
             }
 
-            if (!string.IsNullOrWhiteSpace(extractPath))
+            if (!string.IsNullOrWhiteSpace(extractPath) && _FileSystem.DirectoryExists(extractPath))
             {
                 _FileSystem.DeleteDirectory(extractPath);
             }

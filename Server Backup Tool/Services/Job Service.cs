@@ -108,7 +108,7 @@ namespace ServerBackupTool.Services
                 string zipPath = @$".\Archived Logs\Server {_Clock.UtcNow:dd-MM-yyyy}.zip";
 
                 _FileSystem.CreateZIPFile(zipPath);
-                
+
                 foreach (string logFile in files)
                 {
                     if (!logFile.Contains("Backup.log"))

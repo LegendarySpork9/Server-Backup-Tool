@@ -7,7 +7,6 @@ namespace ServerBackupTool.Abstractions
     public interface IExtendedFileSystem : Common.Abstractions.IFileSystem
     {
         // Directory Operations
-        bool DirectoryExists(string path);
         void CreateDirectory(string path);
 
         // File Operations

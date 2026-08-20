@@ -1,7 +1,7 @@
 // Copyright � - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Converters;
 
-namespace ServerBackupTool.Tests.Tool.Converters
+namespace ServerBackupTool.UnitTests.Tool.Converters
 {
     [TestClass]
     public class ServerConverterTest

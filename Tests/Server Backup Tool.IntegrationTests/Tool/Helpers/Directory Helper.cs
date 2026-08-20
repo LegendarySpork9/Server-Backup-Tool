@@ -1,20 +1,19 @@
-﻿// Copyright © - 31/10/2024 - Toby Hunter
-namespace ServerBackupTool.Tests.Tool.Functions
+// Copyright © - Unpublished - Toby Hunter
+namespace ServerBackupTool.IntegrationTests.Tool.Helpers
 {
-    public static class DirectoryFunction
+    public static class DirectoryHelper
     {
         /// <summary>
         /// Returns the base directory of the running application.
         /// </summary>
-        /// <returns></returns>
         public static string GetBaseDirectory()
         {
             string directory = Directory.GetCurrentDirectory();
-            int binIndex = directory.IndexOf(@"\bin\");
+            int binIndex = directory.IndexOf(@"\bin\", StringComparison.OrdinalIgnoreCase);
 
             if (binIndex >= 0)
             {
-                directory = directory[..binIndex] + @"\";
+                directory = directory[..binIndex];
             }
 
             return directory;

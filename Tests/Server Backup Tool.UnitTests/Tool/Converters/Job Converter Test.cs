@@ -3,7 +3,7 @@ using ServerBackupTool.Abstractions;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Implementations;
 
-namespace ServerBackupTool.Tests.Tool.Converters
+namespace ServerBackupTool.UnitTests.Tool.Converters
 {
     [TestClass]
     public class JobConverterTest

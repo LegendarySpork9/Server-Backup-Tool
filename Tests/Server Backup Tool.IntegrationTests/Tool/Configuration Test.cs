@@ -1,9 +1,9 @@
-﻿// Copyright © - 31/10/2024 - Toby Hunter
-using ServerBackupTool.Tests.Tool.Functions;
+// Copyright © - Unpublished - Toby Hunter
+using ServerBackupTool.IntegrationTests.Tool.Helpers;
 using ServerBackupTool.Models.Configuration;
 using System.Configuration;
 
-namespace ServerBackupTool.Tests.Tool
+namespace ServerBackupTool.IntegrationTests.Tool
 {
     [TestClass]
     public class ConfigurationTest
@@ -14,7 +14,7 @@ namespace ServerBackupTool.Tests.Tool
         [TestMethod]
         public void ParseFullConfiguration()
         {
-            SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Full Configuration.config");
+            SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Full Configuration.config");
 
             Assert.IsNotNull(serverBackupSection);
         }
@@ -27,7 +27,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Name.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Name.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'name' not found."));
@@ -41,7 +41,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Game.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Game.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'game' not found."));
@@ -55,7 +55,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Location.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Location.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'location' not found."));
@@ -69,7 +69,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Start File.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Start File.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'startFile' not found."));
@@ -83,7 +83,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Backup Time.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Backup Time.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'backupTime' not found."));
@@ -97,7 +97,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing Notification Enabled.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Notification Enabled.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'enabled' not found."));
@@ -111,7 +111,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing From Address Email.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing From Address Email.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'email' not found."));
@@ -125,7 +125,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing To Address Email.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing To Address Email.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'email' not found."));
@@ -139,7 +139,7 @@ namespace ServerBackupTool.Tests.Tool
         {
             ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
             {
-                SBTSection? serverBackupSection = ConfigurationLoaderFunction.LoadConfig("Configuration Missing IP Address.config");
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing IP Address.config");
             });
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'ipAddress' not found."));
