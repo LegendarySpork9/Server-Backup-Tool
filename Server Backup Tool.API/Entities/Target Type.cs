@@ -2,14 +2,11 @@
 namespace ServerBackupTool.API.Entities
 {
     /// <summary>
-    /// Log Levels.
+    /// Types of command target.
     /// </summary>
-    public enum LogLevel
+    public enum TargetType
     {
-        Info,
-        Debug,
-        Warn,
-        Error,
-        All
+        Tool,
+        Server
     }
 }

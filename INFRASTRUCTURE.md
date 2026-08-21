@@ -2,7 +2,7 @@
 
 ## Overview
 
-Server Backup Tool is a self-hosted console application for managing game server processes. It provides scheduled backups, log archival, email notifications, and health monitoring via ICMP heartbeat pings. Currently supports Minecraft servers.
+Server Backup Tool is a self-hosted console application for managing game server processes. It provides scheduled backups, log archival, email notifications, and health monitoring via ICMP heartbeat pings. Currently supports Minecraft servers. A companion Web API provides HTTP access to log data and a command queue.
 
 - **Author:** Hunter Industries / Toby Hunter
 - **Version:** 2.0.2
@@ -12,10 +12,14 @@ Server Backup Tool is a self-hosted console application for managing game server
 
 | Component | Technology | Version |
 |---|---|---|
-| Framework | .NET | 6.0 |
+| Framework | .NET | 10.0 |
 | Language | C# | Latest |
-| Application Type | Console Application | - |
-| Logging | log4net | 3.3.1 |
+| Application Type | Console Application + Web API | - |
+| Logging | log4net | 3.3.2 |
+| Database | Microsoft.Data.Sqlite | 10.0.11 |
+| API Documentation | Scalar.AspNetCore | 2.16.18 |
+| OpenAPI | Microsoft.AspNetCore.OpenApi | 10.0.10 |
+| Authentication | Basic (custom handler) | - |
 | Configuration | System.Configuration (App.config) | - |
 | Testing | MSTest | 3.6.3 |
 | Test SDK | Microsoft.NET.Test.Sdk | 17.12.0 |
@@ -26,42 +30,89 @@ Server Backup Tool is a self-hosted console application for managing game server
 
 ```
 Server-Backup-Tool/
-+-- Server Backup Tool/                 # Main console application
-|   +-- Abstractions/                   # Interface definitions
-|   +-- Converters/                     # Value formatting and game-specific logic
-|   +-- Functions/                      # Utility functions
-|   +-- Implementations/               # Interface implementations (wrappers)
-|   +-- Models/                         # Data models
-|   |   +-- Configuration/              # App.config section models
-|   +-- Properties/                     # Publish profiles
-|   +-- Services/                       # Business logic services
-|   +-- Content/                        # Static assets (Logo.ico)
-+-- Server Backup Tool.Tests/           # Unit test project
-|   +-- Converters/                     # Converter tests
-|   +-- Functions/                      # Test helper functions
-|   +-- Mocks/                          # Mock data
-|   |   +-- Configs/                    # Mock configuration files
-|   |   +-- Server/                     # Mock server files
-|   +-- Services/                       # Service tests
-+-- .github/workflows/                  # CI/CD pipeline definitions
+├── Server Backup Tool/                     # Console application (game server management)
+│   ├── Abstractions/                       # ILoggerService, IEmailSender, IExtendedFileSystem
+│   ├── Converters/                         # ServerConverter, JobConverter, TimeConverter
+│   ├── Functions/                          # FilterConsoleFunction
+│   ├── Implementations/                    # LoggerServiceWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
+│   ├── Models/
+│   │   └── Configuration/                  # App.config section models
+│   ├── Properties/                         # Publish profiles
+│   ├── Services/                           # ApplicationService, TimerService, ServerService, etc.
+│   └── Content/                            # Static assets (Logo.ico)
+├── Server Backup Tool.API/                 # REST API (log access + command queue)
+│   ├── Abstractions/                       # ILoggerService, IExtendedFileSystem (API-specific)
+│   ├── Controllers/                        # LogsController, CommandsController
+│   ├── Entities/                           # LogLevel, LogType, TargetType enums
+│   ├── Filters/                            # RequestLoggingFilter, ResponseLoggingFilter
+│   ├── Functions/                          # IPAddressFunction, ParameterFunction
+│   ├── Implementations/                    # ClientAuthHandler, LoggerServiceWrapper, etc.
+│   ├── Models/
+│   │   ├── Requests/                       # CommandRequestModel
+│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, etc.
+│   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
+│   ├── Services/                           # LogService, CommandService, LoggerService
+│   └── Values/                             # StandardValues
+├── Server Backup Tool.Common/              # Shared library
+│   ├── Abstractions/                       # IClock, IDatabase, IFileSystem
+│   ├── Implementations/                    # SystemClockProvider, DatabaseWrapper, FileSystemWrapper
+│   └── Models/                             # DatabaseOptionsModel
+├── Tests/
+│   ├── Server Backup Tool.UnitTests/       # Unit tests (no I/O, no HTTP)
+│   │   ├── API/Functions/                  # IPAddressFunctionTest, ParameterFunctionTest
+│   │   └── Tool/
+│   │       ├── Converters/                 # JobConverterTest, ServerConverterTest, TimeConverterTest
+│   │       └── Services/                   # TimerServiceTest
+│   ├── Server Backup Tool.IntegrationTests/ # Integration tests (HTTP + file system)
+│   │   ├── API/
+│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, etc.
+│   │   │   ├── Fixtures/                   # CustomWebApplicationFactory
+│   │   │   ├── Helpers/                    # AuthHelper, TestDataSeeder
+│   │   │   └── Implementations/            # ClientAuthHandlerTest
+│   │   └── Tool/
+│   │       ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
+│   │       ├── Mocks/                      # Mock data (Configs/, Server/)
+│   │       └── Services/                   # JobServiceTest, EmailServiceTest, etc.
+│   └── Server Backup Tool.PersistenceTests/ # Database persistence tests (in-memory SQLite)
+│       ├── API/Services/                   # LogServiceTest, CommandServiceTest
+│       └── Common/                         # DatabaseWrapperTest
+└── .github/workflows/                      # CI/CD pipeline definitions
 ```
 
 ## Application Architecture
 
 ### Application Type
 
-The application is a **.NET 6.0 console application** that runs as a long-lived process alongside a game server. It launches the game server as a child process with redirected I/O, monitors its output, and manages scheduled operations.
+The application is a **.NET 10.0 console application** that runs as a long-lived process alongside a game server. It launches the game server as a child process with redirected I/O, monitors its output, and manages scheduled operations.
+
+The solution also includes a .NET 10.0 Web API (Server Backup Tool.API) that provides HTTP access to the tool's log data and a command queue. It uses SQLite for persistence, Basic authentication, and Scalar for API documentation. A shared library (Server Backup Tool.Common) contains abstractions and implementations used by both the console app and the API.
 
 ### Dependency Injection
 
 External dependencies are wrapped behind interfaces to support testability. Services are instantiated manually rather than through a DI container.
 
+**Console App (Server Backup Tool):**
+
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `ILoggerService` | `LoggerServiceWrapper` | Application and server logging via log4net |
-| `IFileSystem` | `FileSystem` | File system and ZIP archive operations |
+| `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
-| `IClock` | `SystemClock` | UTC time operations |
+
+**Common (Server Backup Tool.Common):**
+
+| Abstraction | Implementation | Purpose |
+|---|---|---|
+| `IClock` | `SystemClockProvider` | UTC time operations |
+| `IDatabase` | `DatabaseWrapper` | SQLite database operations |
+| `IFileSystem` | `FileSystemWrapper` | Basic file system operations |
+
+**API (Server Backup Tool.API):**
+
+| Abstraction | Implementation | Purpose |
+|---|---|---|
+| `ILoggerService` | `LoggerServiceWrapper` | Request-scoped API logging via log4net |
+| `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | Archive file access |
 
 ### Services
 
@@ -74,6 +125,14 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `EmailService` | Email construction, trigger matching, and SMTP delivery |
 | `LoggerService` | Internal log4net adapter with dual loggers (tool and server) |
 | `PidFileService` | Process ID file management for server instance tracking |
+
+### API Services
+
+| Service | Responsibility |
+|---|---|
+| `LogService` | Log retrieval with filtering, pagination, and archive access |
+| `CommandService` | Command queue insertion |
+| `LoggerService` | log4net adapter with request-scoped log file management |
 
 ### Converters
 
@@ -88,6 +147,32 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Function | Responsibility |
 |---|---|
 | `FilterConsoleFunction` | TextWriter wrapper that intercepts console output, ensuring all messages pass through log4net |
+
+### API Controllers
+
+| Controller | Route | Methods | Description |
+|---|---|---|---|
+| `LogsController` | `/logs` | GET | Retrieve live and archived logs with filtering |
+| `CommandsController` | `/commands` | POST | Queue commands for the tool or server |
+
+### API Filters
+
+| Filter | Type | Purpose |
+|---|---|---|
+| `RequestLoggingFilter` | `IAsyncResourceFilter` | Logs incoming request method, path, body, and query parameters |
+| `ResponseLoggingFilter` | `IAsyncResultFilter` | Logs outgoing response status codes |
+
+### API Functions
+
+| Function | Purpose |
+|---|---|
+| `IPAddressFunction` | Extracts client IP from CF-Connecting-IP, X-Forwarded-For, or RemoteIpAddress |
+| `ParameterFunction` | Formats model properties into log-friendly strings via reflection |
+
+### API Authentication
+
+- Basic authentication via `ClientAuthHandler`
+- Credentials hashed with SHA512 and compared against configured values
 
 ### Application Lifecycle
 
@@ -151,7 +236,16 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 
 ## Data Persistence
 
-The application uses **file-based persistence** with no database dependency.
+The API uses **SQLite** for structured data persistence. The console app continues to use **file-based persistence**.
+
+### SQLite Tables
+
+| Table | Columns | Purpose |
+|---|---|---|
+| `Logs` | Id, ServerName, Timestamp, Level, Logger, Message | Stores tool and server log entries |
+| `Commands` | Id, ServerName, Target, Command, CreatedAt | Command queue for tool/server actions |
+
+### File-Based Persistence
 
 | Data | Storage Format | Location |
 |---|---|---|
@@ -244,9 +338,35 @@ The application uses **file-based persistence** with no database dependency.
 </configuration>
 ```
 
+### appsettings.json Structure
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "Authentication": {
+    "ClientId": "<SHA-512 hash of the client ID>",
+    "ClientSecret": "<SHA-512 hash of the client secret>"
+  },
+  "Database": {
+    "Path": "<Location and name of the database>",
+    "ServerName": "<Name of the server the API is for>",
+    "PollingIntervalMs": 1000
+  },
+  "ArchiveSettings": {
+    "ArchiveDirectory": "<Location of .zip log files>"
+  }
+}
+```
+
 ## Logging
 
-- **Framework:** log4net 3.3.1
+- **Framework:** log4net 3.3.2
 - **Configuration:** Embedded in App.config
 
 ### Appenders
@@ -291,12 +411,12 @@ Server output log levels are parsed from the message content:
 
 ### GitHub Actions Workflows
 
-All workflows run on `windows-latest` using .NET 6.0.x SDK.
+All workflows run on `windows-latest` using .NET 10.0 SDK.
 
 | Workflow | Trigger | Steps |
 |---|---|---|
 | **CI on Commit** (`Commit.yml`) | Push to any branch | Checkout, Restore, Build (Release) |
-| **CI on Pull Request** (`Pull Request.yml`) | PR to any branch | Download and start Papercut SMTP, Checkout, Restore, Build (Release), Run Tests, Stop Papercut SMTP |
+| **CI on Pull Request** (`Pull Request.yml`) | PR to any branch | Download and start Papercut SMTP, Checkout, Restore, Build (Release), Run Tests with Coverage (Coverlet), Generate Coverage Report (ReportGenerator), Post Coverage Status to GitHub, Output Coverage to Job Summary, Stop Papercut SMTP |
 | **Check for Linked Issue** (`PR Linked Issue.yml`) | PR opened/edited/reopened/synchronised | Verifies PR has linked GitHub issues via description, comments, or Development section |
 
 ### Pull Request Test Infrastructure
@@ -305,7 +425,7 @@ The Pull Request workflow downloads and starts [Papercut SMTP](https://github.co
 
 ### Build Configuration
 
-- **SDK:** .NET 6.0.x
+- **SDK:** .NET 10.0
 - **Configuration:** Release
 - **Test Runner:** `dotnet test` (MSTest)
 
@@ -313,13 +433,14 @@ The Pull Request workflow downloads and starts [Papercut SMTP](https://github.co
 
 ### Runtime Prerequisites
 
-- .NET 6.0 Runtime
+- .NET 10.0 Runtime
 - Windows (required for game server process management)
 
 ### Network Requirements
 
 - ICMP access to the game server IP address (for heartbeat pings)
 - Outbound SMTP (configurable port, default 587) for email notifications
+- HTTP port access for the API
 
 ### File System Requirements
 
@@ -327,3 +448,4 @@ The Pull Request workflow downloads and starts [Papercut SMTP](https://github.co
 - Read/write access to the `Logs/` directory
 - Read/write access to the `Archived Logs/` directory
 - Read/write access to `%PROGRAMDATA%\Hunter Industries\Server Backup Tool` (for PID files)
+- SQLite file read/write access

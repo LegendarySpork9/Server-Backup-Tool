@@ -2,7 +2,7 @@
 namespace ServerBackupTool.API.Entities
 {
     /// <summary>
-    /// Types of Log
+    /// Types of Log.
     /// </summary>
     public enum LogType
     {

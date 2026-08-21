@@ -44,8 +44,8 @@ namespace ServerBackupTool.API.Services
         {
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
-                $"LogService.GetLogs called with the parameters \"{nameof(level)}\", \"{nameof(type)}\", \"{limit}\", \"{afterId}\".");
-
+                $"LogService.GetLogs called with the parameters \"{level}\", \"{type}\", \"{limit}\", \"{afterId}\".");
+            
             List<LogModel>? logs = null;
             Exception? ex = null;
 

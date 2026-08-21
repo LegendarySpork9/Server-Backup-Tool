@@ -1,5 +1,7 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
+using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
@@ -15,7 +17,7 @@ namespace ServerBackupTool.Services
         private readonly TimerService _TimerService;
         private readonly SBTSection ServerBackupSection;
         private readonly ServerModel Server;
-        private readonly SystemClock Clock = new();
+        private readonly SystemClockProvider Clock = new();
 
         public static ManualResetEvent WaitForServerClose = new(false);
 

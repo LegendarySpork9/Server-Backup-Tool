@@ -50,6 +50,19 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                 cmd.ExecuteNonQuery();
             }
 
+            using (SqliteCommand cmd = _KeepAliveConnection.CreateCommand())
+            {
+                cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Commands (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ServerName TEXT,
+                    Target TEXT,
+                    Command TEXT,
+                    CreatedAt TEXT
+                )";
+
+                cmd.ExecuteNonQuery();
+            }
+
             string hashedClientId = HashValue(TestClientId);
             string hashedClientSecret = HashValue(TestClientSecret);
 

@@ -1,5 +1,5 @@
-﻿// Copyright © - Unpublished - Toby Hunter
-namespace ServerBackupTool.Abstractions
+// Copyright © - Unpublished - Toby Hunter
+namespace ServerBackupTool.Common.Abstractions
 {
     /// <summary>
     /// Interface for the DateTime object.
