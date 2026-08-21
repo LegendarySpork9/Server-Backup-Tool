@@ -58,6 +58,11 @@ jobs:
         print(round(data['summary']['linecoverage'], 1))
         ")
 
+        echo "coverage=$COVERAGE" >> "$GITHUB_OUTPUT"
+
+        echo "### Code Coverage" >> "$GITHUB_STEP_SUMMARY"
+        echo "Line coverage: **${COVERAGE}%**" >> "$GITHUB_STEP_SUMMARY"
+
         gh api repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha }} \
           -f state="success" \
           -f context="code-coverage" \

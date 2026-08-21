@@ -1,7 +1,7 @@
 // Copyright � - 31/10/2024 - Toby Hunter
-using ServerBackupTool.Abstractions;
+using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Converters;
-using ServerBackupTool.Implementations;
 
 namespace ServerBackupTool.UnitTests.Tool.Converters
 {
@@ -43,7 +43,7 @@ namespace ServerBackupTool.UnitTests.Tool.Converters
         [TestMethod]
         public void TestGetBackupPathsUnregisteredGame()
         {
-            JobConverter _jobConverter = new(new SystemClock());
+            JobConverter _jobConverter = new(new SystemClockProvider());
 
             string game = "UnknownGame";
             string filePath = @"C:\GameServer";
@@ -66,7 +66,7 @@ namespace ServerBackupTool.UnitTests.Tool.Converters
         [TestMethod]
         public void TestGetBackupPathsNoGame()
         {
-            JobConverter _jobConverter = new(new SystemClock());
+            JobConverter _jobConverter = new(new SystemClockProvider());
 
             string filePath = @"C:\GameServer";
 

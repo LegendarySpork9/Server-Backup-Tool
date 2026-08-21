@@ -63,7 +63,7 @@ namespace ServerBackupTool.API.Controllers
             if (!Enum.TryParse<Entities.LogLevel>(
                 level,
                 true,
-                out var logLevel))
+                out Entities.LogLevel logLevel))
             {
                 return StatusCode(
                     400,
@@ -76,7 +76,7 @@ namespace ServerBackupTool.API.Controllers
             if (!Enum.TryParse<LogType>(
                 type,
                 true,
-                out var logType))
+                out LogType logType))
             {
                 return StatusCode(
                     400,

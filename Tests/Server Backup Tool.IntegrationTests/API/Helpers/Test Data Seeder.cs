@@ -59,6 +59,55 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
         }
 
         /// <summary>
+        /// Inserts the given number of command rows into the Commands table.
+        /// </summary>
+        public static void SeedCommands(
+            string dbConnStr,
+            int count,
+            string serverName = "TestServer",
+            string target = "Tool",
+            string command = "stop")
+        {
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            for (int i = 0; i < count; i++)
+            {
+                using SqliteCommand cmd = connection.CreateCommand();
+                cmd.CommandText = @"INSERT INTO Commands (ServerName, Target, Command, CreatedAt)
+                    VALUES (@serverName, @target, @command, @createdAt)";
+
+                cmd.Parameters.AddWithValue(
+                    "@serverName",
+                    serverName);
+                cmd.Parameters.AddWithValue(
+                    "@target",
+                    target);
+                cmd.Parameters.AddWithValue(
+                    "@command",
+                    command);
+                cmd.Parameters.AddWithValue(
+                    "@createdAt",
+                    DateTime.UtcNow.AddMinutes(-count + i).ToString("o"));
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        /// <summary>
+        /// Deletes all rows from the Commands table.
+        /// </summary>
+        public static void ClearCommands(string dbConnStr)
+        {
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "DELETE FROM Commands";
+            cmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
         /// Creates a test archive ZIP file containing the given log files.
         /// </summary>
         public static void CreateTestArchive(

@@ -5,6 +5,7 @@ using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Filters;
 using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
+using ServerBackupTool.API.Models.Responses;
 using ServerBackupTool.API.Values;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Implementations;
@@ -44,6 +45,25 @@ namespace ServerBackupTool.API
                     options.JsonSerializerOptions.Converters.Add(
                         new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
+
+            builder.Services.Configure<Microsoft.AspNetCore.Mvc.ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    string errors = string.Join(
+                        " ",
+                        context.ModelState.Values
+                            .SelectMany(v => v.Errors)
+                            .Select(e => e.ErrorMessage)
+                            .Where(m => !string.IsNullOrWhiteSpace(m)));
+
+                    return new Microsoft.AspNetCore.Mvc.BadRequestObjectResult(
+                        new FailureModel()
+                        {
+                            Error = errors
+                        });
+                };
+            });
 
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
@@ -121,6 +141,11 @@ Each instance of the tool is identified by the name of the server it manages. Th
                         {
                             Name = "Logs",
                             Description = "The calls allowing the user to access the live/archived logs for the tool and server."
+                        },
+                        new()
+                        {
+                            Name = "Commands",
+                            Description = "The calls allowing the user to send commands to the tool and server."
                         }
                     };
 
@@ -152,9 +177,15 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 "Loaded Configuration");
 
             builder.Services.AddHttpContextAccessor();
+
+            _logger.LogMessage(
+                StandardValues.LoggerValues.Debug,
+                "Added HTTP Context Accessor");
+
             builder.Services.AddScoped<ILoggerService, LoggerServiceWrapper>();
             builder.Services.AddSingleton<IDatabase, DatabaseWrapper>();
             builder.Services.AddSingleton<IExtendedFileSystem, ExtendedFileSystemWrapper>();
+            builder.Services.AddSingleton<IClock, SystemClockProvider>();
 
             _logger.LogMessage(
                StandardValues.LoggerValues.Debug,
