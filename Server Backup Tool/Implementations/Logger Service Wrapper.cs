@@ -6,7 +6,13 @@ namespace ServerBackupTool.Implementations
 {
     public class LoggerServiceWrapper : ILoggerService
     {
-        private readonly LoggerService _Logger = new();
+        private readonly LoggerService _Logger;
+
+        // Set's the class's global variables.
+        public LoggerServiceWrapper(LogService _logService)
+        {
+            _Logger = new(_logService);
+        }
 
         /// <summary>
         /// Logs the given message to the tool logs.
@@ -14,12 +20,12 @@ namespace ServerBackupTool.Implementations
         public void LogToolMessage(
             string level,
             string message,
-            bool verbose = false)
+            bool serverRunning = false)
         {
             _Logger.LogToolMessage(
                 level,
                 message,
-                verbose);
+                serverRunning);
         }
 
         /// <summary>

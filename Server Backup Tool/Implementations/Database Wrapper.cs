@@ -1,16 +1,14 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 using Microsoft.Data.Sqlite;
-using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Models;
 
-namespace ServerBackupTool.Common.Implementations
+namespace ServerBackupTool.Implementations
 {
     public class DatabaseWrapper : IDatabase
     {
         private readonly DatabaseOptionsModel _Options;
 
-        /// <summary>
-        /// </summary>
         // Sets the class's global variables.
         public DatabaseWrapper(
             DatabaseOptionsModel _options)
@@ -19,51 +17,7 @@ namespace ServerBackupTool.Common.Implementations
         }
 
         /// <summary>
-        /// Returns a list of the given model from the database.
-        /// </summary>
-        public async Task<(List<T>, Exception?)> Query<T>(
-            string sql,
-            Func<SqliteDataReader, T> map,
-            params SqliteParameter[] parameters)
-        {
-            List<T> results = [];
-            Exception? exception = null;
-
-            try
-            {
-                using (SqliteConnection connection = new($"Data Source={_Options.Path}"))
-                {
-                    await connection.OpenAsync();
-
-                    using (SqliteCommand command = new(
-                        sql,
-                        connection))
-                    {
-                        command.Parameters.AddRange(parameters);
-
-                        using (SqliteDataReader dataReader = await command.ExecuteReaderAsync())
-                        {
-                            while (await dataReader.ReadAsync())
-                            {
-                                results.Add(map(dataReader));
-                            }
-                        }
-                    }
-                }
-            }
-
-            catch (Exception ex)
-            {
-                exception = ex;
-            }
-
-            return (
-                results,
-                exception);
-        }
-
-        /// <summary>
-        /// Returns the given field from the database.
+        /// Returns the given model from the database.
         /// </summary>
         public async Task<(T?, Exception?)> QuerySingle<T>(
             string sql,
@@ -107,7 +61,7 @@ namespace ServerBackupTool.Common.Implementations
         }
 
         /// <summary>
-        /// Returns the result of the execution for given query.
+        /// Returns the number of rows affected for the given query.
         /// </summary>
         public async Task<(int, Exception?)> Execute(
             string sql,

@@ -1,9 +1,8 @@
-﻿// Copyright © - 31/10/2024 - Toby Hunter
-namespace ServerBackupTool.Converters
+﻿// Copyright © - Unpublished - Toby Hunter
+namespace ServerBackupTool.Common.Values
 {
-    internal static class StandardValues
+    public static class StandardValues
     {
-        // Standard Logger Values.
         public static class LoggerValues
         {
             public const string Debug = "Debug";

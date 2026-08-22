@@ -3,7 +3,7 @@ using Microsoft.Data.Sqlite;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Functions;
 using ServerBackupTool.API.Models.Requests;
-using ServerBackupTool.API.Values;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Models;
 
@@ -44,8 +44,18 @@ namespace ServerBackupTool.API.Services
 
             try
             {
-                string sql = @"insert into Commands (ServerName, Target, Command, CreatedAt)
-values (@serverName, @target, @command, @createdAt)";
+                string sql = @"insert into Commands (
+    ServerName,
+    Target,
+    Command,
+    CreatedAt
+)
+values (
+    @serverName,
+    @target,
+    @command,
+    @createdAt
+)";
                 List<SqliteParameter> parameterList =
                 [
                     new("@serverName", SqliteType.Text) { Value = Options.ServerName },
@@ -54,7 +64,7 @@ values (@serverName, @target, @command, @createdAt)";
                     new("@createdAt", SqliteType.Text) { Value = createdAt }
                 ];
 
-                (int result, Exception? qex) = await _Database.Execute(
+                (object? result, Exception? qex) = await _Database.ExecuteScalar(
                     sql,
                     [.. parameterList]);
 
@@ -70,9 +80,9 @@ values (@serverName, @target, @command, @createdAt)";
                     ex = qex;
                 }
 
-                if (result > 0)
+                if (result != null)
                 {
-                    commandId = result;
+                    commandId = int.Parse(result.ToString() ?? "0");
                 }
             }
 

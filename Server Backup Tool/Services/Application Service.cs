@@ -1,7 +1,8 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
-using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Implementations;
+using ServerBackupTool.Common.Models;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
@@ -11,7 +12,9 @@ namespace ServerBackupTool.Services
 {
     public class ApplicationService
     {
-        private readonly ILoggerService _Logger = new LoggerServiceWrapper();
+        private readonly ILoggerService _Logger;
+        private readonly CommandService _CommandService;
+        private readonly LogService _LogService;
         private readonly PidFileService _PidFileService;
         private readonly ServerService _ServerService;
         private readonly TimerService _TimerService;
@@ -24,6 +27,13 @@ namespace ServerBackupTool.Services
         // Sets the class's global variables.
         public ApplicationService(SBTSection serverBackupSection)
         {
+            DatabaseOptionsModel options = new()
+            {
+                Path = serverBackupSection.DatabaseDetails.Path,
+                ServerName = serverBackupSection.ServerDetails.Name,
+                PollingIntervalMs = serverBackupSection.DatabaseDetails.PollingInterval
+            };
+
             ServerBackupSection = serverBackupSection;
             Server = new(serverBackupSection.ServerDetails)
             {

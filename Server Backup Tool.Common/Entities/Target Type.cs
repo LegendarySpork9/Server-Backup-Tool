@@ -1,5 +1,5 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
-namespace ServerBackupTool.API.Entities
+namespace ServerBackupTool.Common.Entities
 {
     /// <summary>
     /// Types of command target.

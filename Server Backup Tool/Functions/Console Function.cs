@@ -1,16 +1,16 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using ServerBackupTool.Converters;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Services;
 using System.Text;
 
 namespace ServerBackupTool.Functions
 {
-    public class FilterConsoleFunction : TextWriter
+    public class ConsoleFunction : TextWriter
     {
         private readonly TextWriter Console;
 
         // Sets the class's global variables.
-        public FilterConsoleFunction(TextWriter console)
+        public ConsoleFunction(TextWriter console)
         {
             Console = console;
         }

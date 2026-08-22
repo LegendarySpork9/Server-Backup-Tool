@@ -6,7 +6,7 @@ namespace ServerBackupTool.Abstractions
     /// </summary>
     public interface ILoggerService
     {
-        void LogToolMessage(string level, string message, bool verbose = false);
+        void LogToolMessage(string level, string message, bool serverRunning = false);
 
         void LogServerMessage(string message);
     }

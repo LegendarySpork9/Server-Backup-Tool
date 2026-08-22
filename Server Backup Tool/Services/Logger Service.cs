@@ -1,5 +1,6 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
 using log4net;
+using ServerBackupTool.Common.Values;
 
 namespace ServerBackupTool.Services
 {
@@ -7,6 +8,13 @@ namespace ServerBackupTool.Services
     {
         private readonly ILog ToolLogger = LogManager.GetLogger("ToolLogs");
         private readonly ILog ServerLogger = LogManager.GetLogger("ServerLogs");
+        private readonly LogService _LogService;
+
+        // Set's the class's global variables.
+        public LoggerService(LogService _logService)
+        {
+            _LogService = _logService;
+        }
 
         /// <summary>
         /// Outputs a message to the tool logs.
@@ -18,10 +26,45 @@ namespace ServerBackupTool.Services
         {
             switch (level)
             {
-                case "Info": ToolLogger.Info(message); DisplayCommandsMessage(serverRunning); break;
-                case "Debug": ToolLogger.Debug(message); DisplayCommandsMessage(serverRunning); break;
-                case "Warn": ToolLogger.Warn(message); DisplayCommandsMessage(serverRunning); break;
-                case "Error": ToolLogger.Error(message); break;
+                case "Info":
+                    ToolLogger.Info(message);
+                    _LogService.LogMessage(
+                            level,
+                            "Tool",
+                            message)
+                        .GetAwaiter()
+                        .GetResult();
+                    DisplayCommandsMessage(serverRunning);
+                    break;
+                case "Debug":
+                    ToolLogger.Debug(message);
+                    _LogService.LogMessage(
+                            level,
+                            "Tool",
+                            message)
+                        .GetAwaiter()
+                        .GetResult();
+                    DisplayCommandsMessage(serverRunning);
+                    break;
+                case "Warn":
+                    ToolLogger.Warn(message);
+                    _LogService.LogMessage(
+                            level,
+                            "Tool",
+                            message)
+                        .GetAwaiter()
+                        .GetResult();
+                    DisplayCommandsMessage(serverRunning);
+                    break;
+                case "Error":
+                    ToolLogger.Error(message);
+                    _LogService.LogMessage(
+                            level,
+                            "Tool",
+                            message)
+                        .GetAwaiter()
+                        .GetResult();
+                    break;
             }
         }
 
@@ -32,10 +75,42 @@ namespace ServerBackupTool.Services
         {
             switch (logEntry)
             {
-                case String when logEntry.Contains("/INFO]"): ServerLogger.Info(logEntry); break;
-                case String when logEntry.Contains("/WARN]"): ServerLogger.Warn(logEntry); break;
-                case String when logEntry.Contains("/ERROR]"): ServerLogger.Error(logEntry); break;
-                case String when logEntry.Contains("/DEBUG]"): ServerLogger.Debug(logEntry); break;
+                case String when logEntry.Contains("/INFO]"):
+                    ServerLogger.Info(logEntry);
+                    _LogService.LogMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Server",
+                        logEntry)
+                    .GetAwaiter()
+                    .GetResult();
+                    break;
+                case String when logEntry.Contains("/WARN]"):
+                    ServerLogger.Warn(logEntry);
+                    _LogService.LogMessage(
+                        StandardValues.LoggerValues.Warning,
+                        "Server",
+                        logEntry)
+                    .GetAwaiter()
+                    .GetResult();
+                    break;
+                case String when logEntry.Contains("/ERROR]"):
+                    ServerLogger.Error(logEntry);
+                    _LogService.LogMessage(
+                        StandardValues.LoggerValues.Error,
+                        "Server",
+                        logEntry)
+                    .GetAwaiter()
+                    .GetResult();
+                    break;
+                case String when logEntry.Contains("/DEBUG]"):
+                    ServerLogger.Debug(logEntry);
+                    _LogService.LogMessage(
+                        StandardValues.LoggerValues.Debug,
+                        "Server",
+                        logEntry)
+                    .GetAwaiter()
+                    .GetResult();
+                    break;
                 default: ServerLogger.Info(logEntry); break;
             }
         }
