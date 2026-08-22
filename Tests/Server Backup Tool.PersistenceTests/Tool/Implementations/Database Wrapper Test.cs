@@ -1,10 +1,9 @@
 // Copyright © - Unpublished - Toby Hunter
 using Microsoft.Data.Sqlite;
-using ServerBackupTool.API.Implementations;
-using ServerBackupTool.Common.Implementations;
+using ServerBackupTool.Implementations;
 using ServerBackupTool.Common.Models;
 
-namespace ServerBackupTool.PersistenceTests.Common
+namespace ServerBackupTool.PersistenceTests.Tool.Implementations
 {
     [TestClass]
     public class DatabaseWrapperTest
@@ -36,7 +35,7 @@ namespace ServerBackupTool.PersistenceTests.Common
         [TestInitialize]
         public async Task Setup()
         {
-            string dbName = $"DatabaseWrapperTest_{Guid.NewGuid():N}";
+            string dbName = $"ToolDatabaseWrapperTest_{Guid.NewGuid():N}";
             string connectionString = $"{dbName};Mode=Memory;Cache=Shared";
 
             _KeepAlive = new SqliteConnection($"Data Source={connectionString}");
@@ -186,158 +185,6 @@ namespace ServerBackupTool.PersistenceTests.Common
             Assert.AreEqual(
                 -1,
                 result);
-            Assert.IsNotNull(exception);
-        }
-
-        /// <summary>
-        /// Checks that querying inserted rows returns the correct count.
-        /// </summary>
-        [TestMethod]
-        public async Task Query_ReturnsInsertedRows()
-        {
-            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message) VALUES (@serverName, @timestamp, @level, @logger, @message)";
-
-            for (int i = 1; i <= 3; i++)
-            {
-                SqliteParameter[] parameters =
-                [
-                    new("@serverName", SqliteType.Text) { Value = "TestServer" },
-                    new("@timestamp", SqliteType.Text) { Value = DateTime.UtcNow.ToString("O") },
-                    new("@level", SqliteType.Text) { Value = "Info" },
-                    new("@logger", SqliteType.Text) { Value = "Tool" },
-                    new("@message", SqliteType.Text) { Value = $"Message {i}" }
-                ];
-
-                await _Wrapper.Execute(
-                    insertSql,
-                    parameters);
-            }
-
-            string querySql = "SELECT Id, ServerName, Timestamp, Level, Logger, Message FROM Logs";
-
-            (List<LogRecord> results, Exception? exception) = await _Wrapper.Query(
-                querySql,
-                reader => new LogRecord(
-                    reader.GetInt32(0),
-                    reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetString(3),
-                    reader.GetString(4),
-                    reader.GetString(5)));
-
-            Assert.AreEqual(
-                3,
-                results.Count);
-            Assert.IsNull(exception);
-        }
-
-        /// <summary>
-        /// Checks that querying an empty table returns an empty list.
-        /// </summary>
-        [TestMethod]
-        public async Task Query_EmptyTable_ReturnsEmptyList()
-        {
-            string querySql = "SELECT Id, ServerName, Timestamp, Level, Logger, Message FROM Logs";
-
-            (List<LogRecord> results, Exception? exception) = await _Wrapper.Query(
-                querySql,
-                reader => new LogRecord(
-                    reader.GetInt32(0),
-                    reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetString(3),
-                    reader.GetString(4),
-                    reader.GetString(5)));
-
-            Assert.AreEqual(
-                0,
-                results.Count);
-            Assert.IsNull(exception);
-        }
-
-        /// <summary>
-        /// Checks that querying with parameters filters correctly.
-        /// </summary>
-        [TestMethod]
-        public async Task Query_WithParameters_FiltersCorrectly()
-        {
-            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message) VALUES (@serverName, @timestamp, @level, @logger, @message)";
-
-            for (int i = 1; i <= 3; i++)
-            {
-                SqliteParameter[] parameters =
-                [
-                    new("@serverName", SqliteType.Text) { Value = "Server1" },
-                    new("@timestamp", SqliteType.Text) { Value = DateTime.UtcNow.ToString("O") },
-                    new("@level", SqliteType.Text) { Value = "Info" },
-                    new("@logger", SqliteType.Text) { Value = "Tool" },
-                    new("@message", SqliteType.Text) { Value = $"Server1 message {i}" }
-                ];
-
-                await _Wrapper.Execute(
-                    insertSql,
-                    parameters);
-            }
-
-            for (int i = 1; i <= 2; i++)
-            {
-                SqliteParameter[] parameters =
-                [
-                    new("@serverName", SqliteType.Text) { Value = "Server2" },
-                    new("@timestamp", SqliteType.Text) { Value = DateTime.UtcNow.ToString("O") },
-                    new("@level", SqliteType.Text) { Value = "Debug" },
-                    new("@logger", SqliteType.Text) { Value = "Server" },
-                    new("@message", SqliteType.Text) { Value = $"Server2 message {i}" }
-                ];
-
-                await _Wrapper.Execute(
-                    insertSql,
-                    parameters);
-            }
-
-            string querySql = "SELECT Id, ServerName, Timestamp, Level, Logger, Message FROM Logs WHERE ServerName = @name";
-
-            SqliteParameter[] queryParameters =
-            [
-                new("@name", SqliteType.Text) { Value = "Server1" }
-            ];
-
-            (List<LogRecord> results, Exception? exception) = await _Wrapper.Query(
-                querySql,
-                reader => new LogRecord(
-                    reader.GetInt32(0),
-                    reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetString(3),
-                    reader.GetString(4),
-                    reader.GetString(5)),
-                queryParameters);
-
-            Assert.AreEqual(
-                3,
-                results.Count);
-            Assert.IsNull(exception);
-            Assert.IsTrue(results.TrueForAll(r => r.ServerName == "Server1"));
-        }
-
-        /// <summary>
-        /// Checks that querying with invalid SQL returns an exception.
-        /// </summary>
-        [TestMethod]
-        public async Task Query_InvalidSql_ReturnsException()
-        {
-            string querySql = "SELECT * FROM NonExistentTable";
-
-            (List<LogRecord> results, Exception? exception) = await _Wrapper.Query(
-                querySql,
-                reader => new LogRecord(
-                    reader.GetInt32(0),
-                    reader.GetString(1),
-                    reader.GetString(2),
-                    reader.GetString(3),
-                    reader.GetString(4),
-                    reader.GetString(5)));
-
             Assert.IsNotNull(exception);
         }
 

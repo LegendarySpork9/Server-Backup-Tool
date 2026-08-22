@@ -1,4 +1,4 @@
-﻿// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright © - 31/10/2024 - Toby Hunter
 using log4net;
 using ServerBackupTool.Common.Values;
 
@@ -8,12 +8,15 @@ namespace ServerBackupTool.Services
     {
         private readonly ILog ToolLogger = LogManager.GetLogger("ToolLogs");
         private readonly ILog ServerLogger = LogManager.GetLogger("ServerLogs");
-        private readonly LogService _LogService;
+        private LogService? _LogService;
+        private bool _IsPersisting;
 
-        // Set's the class's global variables.
-        public LoggerService(LogService _logService)
+        /// <summary>
+        /// Sets the log service for database persistence.
+        /// </summary>
+        public void SetLogService(LogService logService)
         {
-            _LogService = _logService;
+            _LogService = logService;
         }
 
         /// <summary>
@@ -28,42 +31,34 @@ namespace ServerBackupTool.Services
             {
                 case "Info":
                     ToolLogger.Info(message);
-                    _LogService.LogMessage(
-                            level,
-                            "Tool",
-                            message)
-                        .GetAwaiter()
-                        .GetResult();
+                    PersistMessage(
+                        level,
+                        "Tool",
+                        message);
                     DisplayCommandsMessage(serverRunning);
                     break;
                 case "Debug":
                     ToolLogger.Debug(message);
-                    _LogService.LogMessage(
-                            level,
-                            "Tool",
-                            message)
-                        .GetAwaiter()
-                        .GetResult();
+                    PersistMessage(
+                        level,
+                        "Tool",
+                        message);
                     DisplayCommandsMessage(serverRunning);
                     break;
                 case "Warn":
                     ToolLogger.Warn(message);
-                    _LogService.LogMessage(
-                            level,
-                            "Tool",
-                            message)
-                        .GetAwaiter()
-                        .GetResult();
+                    PersistMessage(
+                        level,
+                        "Tool",
+                        message);
                     DisplayCommandsMessage(serverRunning);
                     break;
                 case "Error":
                     ToolLogger.Error(message);
-                    _LogService.LogMessage(
-                            level,
-                            "Tool",
-                            message)
-                        .GetAwaiter()
-                        .GetResult();
+                    PersistMessage(
+                        level,
+                        "Tool",
+                        message);
                     break;
             }
         }
@@ -77,41 +72,62 @@ namespace ServerBackupTool.Services
             {
                 case String when logEntry.Contains("/INFO]"):
                     ServerLogger.Info(logEntry);
-                    _LogService.LogMessage(
+                    PersistMessage(
                         StandardValues.LoggerValues.Info,
                         "Server",
-                        logEntry)
-                    .GetAwaiter()
-                    .GetResult();
+                        logEntry);
                     break;
                 case String when logEntry.Contains("/WARN]"):
                     ServerLogger.Warn(logEntry);
-                    _LogService.LogMessage(
+                    PersistMessage(
                         StandardValues.LoggerValues.Warning,
                         "Server",
-                        logEntry)
-                    .GetAwaiter()
-                    .GetResult();
+                        logEntry);
                     break;
                 case String when logEntry.Contains("/ERROR]"):
                     ServerLogger.Error(logEntry);
-                    _LogService.LogMessage(
+                    PersistMessage(
                         StandardValues.LoggerValues.Error,
                         "Server",
-                        logEntry)
-                    .GetAwaiter()
-                    .GetResult();
+                        logEntry);
                     break;
                 case String when logEntry.Contains("/DEBUG]"):
                     ServerLogger.Debug(logEntry);
-                    _LogService.LogMessage(
+                    PersistMessage(
                         StandardValues.LoggerValues.Debug,
                         "Server",
-                        logEntry)
-                    .GetAwaiter()
-                    .GetResult();
+                        logEntry);
                     break;
                 default: ServerLogger.Info(logEntry); break;
+            }
+        }
+
+        /// <summary>
+        /// Persists the message to the database via the log service.
+        /// </summary>
+        private void PersistMessage(
+            string level,
+            string type,
+            string message)
+        {
+            if (_LogService != null && !_IsPersisting)
+            {
+                _IsPersisting = true;
+
+                try
+                {
+                    _LogService.LogMessage(
+                            level,
+                            type,
+                            message)
+                        .GetAwaiter()
+                        .GetResult();
+                }
+
+                finally
+                {
+                    _IsPersisting = false;
+                }
             }
         }
 

@@ -1,4 +1,4 @@
-﻿// Copyright © - Unpublished - Toby Hunter
+// Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Services;
 
@@ -9,9 +9,17 @@ namespace ServerBackupTool.Implementations
         private readonly LoggerService _Logger;
 
         // Set's the class's global variables.
-        public LoggerServiceWrapper(LogService _logService)
+        public LoggerServiceWrapper()
         {
-            _Logger = new(_logService);
+            _Logger = new();
+        }
+
+        /// <summary>
+        /// Sets the log service for database persistence.
+        /// </summary>
+        public void SetLogService(LogService logService)
+        {
+            _Logger.SetLogService(logService);
         }
 
         /// <summary>
