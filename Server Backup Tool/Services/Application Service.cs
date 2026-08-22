@@ -126,6 +126,8 @@ namespace ServerBackupTool.Services
                 $"Starting Server: {result}",
                 true);
 
+            _TimerService.StartQueuedCommandCheckTimer();
+
             await UserInput();
         }
 

@@ -144,5 +144,33 @@ namespace ServerBackupTool.IntegrationTests.Tool
 
             Assert.IsTrue(exception.Message.Contains("Required attribute 'ipAddress' not found."));
         }
+
+        /// <summary>
+        /// Checks whether the configuration file fails to load if missing a database path.
+        /// </summary>
+        [TestMethod]
+        public void ParseConfigurationMissingPathTag()
+        {
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            {
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Path.config");
+            });
+
+            Assert.IsTrue(exception.Message.Contains("Required attribute 'path' not found."));
+        }
+
+        /// <summary>
+        /// Checks whether the configuration file fails to load if missing a database polling interval.
+        /// </summary>
+        [TestMethod]
+        public void ParseConfigurationMissingPollingIntervalTag()
+        {
+            ConfigurationErrorsException exception = Assert.ThrowsException<ConfigurationErrorsException>(() =>
+            {
+                SBTSection? serverBackupSection = ConfigurationLoaderHelper.LoadConfig("Configuration Missing Polling Interval.config");
+            });
+
+            Assert.IsTrue(exception.Message.Contains("Required attribute 'pollingInterval' not found."));
+        }
     }
 }

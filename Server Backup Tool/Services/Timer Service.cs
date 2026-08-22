@@ -237,6 +237,7 @@ namespace ServerBackupTool.Services
 
             if (timer.TimerName == "Backup")
             {
+                StopQueuedCommandCheckTimer();
                 await _ApplicationService.RunBackup(this);
             }
 
