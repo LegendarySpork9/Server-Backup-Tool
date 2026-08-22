@@ -6,13 +6,7 @@ namespace ServerBackupTool.Implementations
 {
     public class LoggerServiceWrapper : ILoggerService
     {
-        private readonly LoggerService _Logger;
-
-        // Set's the class's global variables.
-        public LoggerServiceWrapper()
-        {
-            _Logger = new();
-        }
+        private readonly LoggerService _Logger = new();
 
         /// <summary>
         /// Sets the log service for database persistence.

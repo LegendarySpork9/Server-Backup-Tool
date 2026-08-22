@@ -1,7 +1,7 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 using System.ComponentModel.DataAnnotations;
 
-namespace ServerBackupTool.API.Models.Requests
+namespace ServerBackupTool.Common.Models.Requests
 {
     /// <summary>
     /// Stores the command request data.

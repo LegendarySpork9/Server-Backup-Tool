@@ -7,6 +7,7 @@ using ServerBackupTool.API.Services;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
+using ServerBackupTool.Common.Models.Requests;
 
 namespace ServerBackupTool.PersistenceTests.API.Services
 {

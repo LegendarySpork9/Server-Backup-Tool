@@ -2,12 +2,12 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServerBackupTool.API.Abstractions;
-using ServerBackupTool.API.Models.Requests;
 using ServerBackupTool.API.Models.Responses;
 using ServerBackupTool.API.Services;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Entities;
 using ServerBackupTool.Common.Models;
+using ServerBackupTool.Common.Models.Requests;
 using System.ComponentModel.DataAnnotations;
 
 namespace ServerBackupTool.API.Controllers

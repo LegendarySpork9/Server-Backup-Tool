@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Reflection;
 
-namespace ServerBackupTool.API.Functions
+namespace ServerBackupTool.Common.Functions
 {
     public static class ParameterFunction
     {

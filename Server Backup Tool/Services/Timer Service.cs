@@ -12,18 +12,21 @@ namespace ServerBackupTool.Services
 {
     public class TimerService
     {
+        private readonly ILoggerService _Logger;
         private readonly ApplicationService _ApplicationService;
         private readonly ServerService _ServerService;
-        private readonly ILoggerService _Logger;
+        private readonly CommandService _CommandService;
         private readonly SBTSection ServerBackupSection;
         private readonly bool DoHeartbeat = false;
         private readonly List<TimerModel> Timers = [];
+        private bool DoProcessQueuedCommands = false;
 
         // Sets the class's global variables.
         public TimerService(
+            ILoggerService _logger,
             ApplicationService _applicationService,
             ServerService _serverService,
-            ILoggerService _logger,
+            CommandService _commandService,
             SBTSection serverBackupSection)
         {
             if (serverBackupSection.Notifications.Emails.Count != 0)
@@ -37,9 +40,10 @@ namespace ServerBackupTool.Services
                 }
             }
 
+            _Logger = _logger;
             _ApplicationService = _applicationService;
             _ServerService = _serverService;
-            _Logger = _logger;
+            _CommandService = _commandService;
             ServerBackupSection = serverBackupSection;
         }
 
@@ -82,7 +86,22 @@ namespace ServerBackupTool.Services
                     });
                 }
 
-                Timers[Timers.Count() - 1].TimerData.Interval = timerDurations[0].TotalMilliseconds;
+                Timers[^1].TimerData.Interval = timerDurations[0].TotalMilliseconds;
+
+                Timer queuedCommandsCheckData = new()
+                {
+                    Interval = ServerBackupSection.DatabaseDetails.PollingInterval,
+                    AutoReset = false
+                };
+                queuedCommandsCheckData.Elapsed += async (sender, e) => await ProcessQueuedCommands(
+                    sender,
+                    e);
+
+                Timers.Add(new()
+                {
+                    TimerName = "QueuedCommandCheck",
+                    TimerData = queuedCommandsCheckData
+                });
 
                 for (int x = 0; x < timerDetails.Count; x++)
                 {
@@ -129,12 +148,26 @@ namespace ServerBackupTool.Services
         {
             foreach (TimerModel timer in Timers)
             {
-                if (timer.TimerName != "Wait")
+                if (timer.TimerName != "Wait" && timer.TimerName != "QueuedCommandCheck")
                 {
                     timer.TimerData.Start();
                 }
             }
         }
+
+        /// <summary>
+        /// Activates the QueuedCommandCheck timer.
+        /// </summary>
+        public void StartQueuedCommandCheckTimer()
+        {
+            DoProcessQueuedCommands = true;
+            Timers.First(t => t.TimerName == "QueuedCommandCheck").TimerData.Start();
+        }
+
+        /// <summary>
+        /// Stops the processing of queued commands.
+        /// </summary>
+        public void StopQueuedCommandCheckTimer() => DoProcessQueuedCommands = false;
 
         /// <summary>
         /// Activates the heartbeat timer.
@@ -257,6 +290,30 @@ namespace ServerBackupTool.Services
                 await _emailService.CheckForEmail(
                     ServerBackupSection.Notifications,
                     "Heartbeat");
+            }
+        }
+
+        /// <summary>
+        /// Runs when the QueuedCommandCheck timer has finished.
+        /// </summary>
+        private async Task ProcessQueuedCommands(
+            object? sender,
+            ElapsedEventArgs e)
+        {
+            Timer timer = Timers.First(t => t.TimerName == "QueuedCommandCheck").TimerData;
+            timer.Stop();
+
+            (CommandModel? command, Exception? ex) = await _CommandService.GetCommand();
+
+            if (command != null)
+            {
+                await _ApplicationService.ProcessCommand(command);
+                await _CommandService.DeleteCommand(command.Id);
+
+                if (DoProcessQueuedCommands)
+                {
+                    timer.Start();
+                }
             }
         }
     }
