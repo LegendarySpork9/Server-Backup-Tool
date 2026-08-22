@@ -1,0 +1,15 @@
+[
+  {
+    "Name": "Full Suite",
+    "Projects": [
+      {
+        "Path": "Server Backup Tool\\Server Backup Tool.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "Server Backup Tool.API\\Server Backup Tool.API.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
