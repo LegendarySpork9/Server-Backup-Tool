@@ -1,7 +1,7 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 using Microsoft.Data.Sqlite;
 using ServerBackupTool.API.Abstractions;
-using ServerBackupTool.API.Functions;
+using ServerBackupTool.Common.Functions;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Models;
@@ -55,7 +55,8 @@ values (
     @target,
     @command,
     @createdAt
-)";
+)
+RETURNING Id";
                 List<SqliteParameter> parameterList =
                 [
                     new("@serverName", SqliteType.Text) { Value = Options.ServerName },

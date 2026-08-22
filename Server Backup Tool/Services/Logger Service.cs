@@ -98,7 +98,13 @@ namespace ServerBackupTool.Services
                         "Server",
                         logEntry);
                     break;
-                default: ServerLogger.Info(logEntry); break;
+                default:
+                    ServerLogger.Info(logEntry);
+                    PersistMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Server",
+                        logEntry);
+                    break;
             }
         }
 

@@ -1,5 +1,7 @@
 // Copyright © - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
+using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Models;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
@@ -16,7 +18,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
         [TestMethod]
         public void TestSetTimers()
         {
-            SBTSection serverBackupSection = new();
+            SBTSection serverBackupSection = new()
+            {
+                DatabaseDetails = new() { PollingInterval = 1000 }
+            };
             ServerModel server = new(new())
             {
                 Name = "Test Server",
@@ -60,10 +65,25 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 Message = "Server will shutdown for a backup in an hour."
             } ]);
 
+            Mock<IDatabase> _mockDatabase = new();
+            Mock<IClock> _mockClock = new();
+            DatabaseOptionsModel dbOptions = new()
+            {
+                Path = "test",
+                ServerName = "TestServer",
+                PollingIntervalMs = 1000
+            };
+            CommandService _commandService = new(
+                _mockLogger.Object,
+                _mockDatabase.Object,
+                _mockClock.Object,
+                dbOptions);
+
             TimerService _timerService = new(
+                _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
-                _mockLogger.Object,
+                _commandService,
                 serverBackupSection);
 
             string expected = "Completed";
@@ -88,7 +108,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
         [TestMethod]
         public void TestSetTimersHeartbeat()
         {
-            SBTSection serverBackupSection = new();
+            SBTSection serverBackupSection = new()
+            {
+                DatabaseDetails = new() { PollingInterval = 1000 }
+            };
             ServerModel server = new(new())
             {
                 Name = "Test Server",
@@ -155,10 +178,25 @@ namespace ServerBackupTool.UnitTests.Tool.Services
 
             serverBackupSection.Notifications = notifications;
 
+            Mock<IDatabase> _mockDatabase = new();
+            Mock<IClock> _mockClock = new();
+            DatabaseOptionsModel dbOptions = new()
+            {
+                Path = "test",
+                ServerName = "TestServer",
+                PollingIntervalMs = 1000
+            };
+            CommandService _commandService = new(
+                _mockLogger.Object,
+                _mockDatabase.Object,
+                _mockClock.Object,
+                dbOptions);
+
             TimerService _timerService = new(
+                _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
-                _mockLogger.Object,
+                _commandService,
                 serverBackupSection);
 
             string expected = "Completed";
@@ -183,7 +221,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
         [TestMethod]
         public void TestSetTimersOnlySystem()
         {
-            SBTSection serverBackupSection = new();
+            SBTSection serverBackupSection = new()
+            {
+                DatabaseDetails = new() { PollingInterval = 1000 }
+            };
             ServerModel server = new(new())
             {
                 Name = "Test Server",
@@ -230,10 +271,25 @@ namespace ServerBackupTool.UnitTests.Tool.Services
 
             serverBackupSection.Notifications = notifications;
 
+            Mock<IDatabase> _mockDatabase = new();
+            Mock<IClock> _mockClock = new();
+            DatabaseOptionsModel dbOptions = new()
+            {
+                Path = "test",
+                ServerName = "TestServer",
+                PollingIntervalMs = 1000
+            };
+            CommandService _commandService = new(
+                _mockLogger.Object,
+                _mockDatabase.Object,
+                _mockClock.Object,
+                dbOptions);
+
             TimerService _timerService = new(
+                _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
-                _mockLogger.Object,
+                _commandService,
                 serverBackupSection);
 
             string expected = "Completed";

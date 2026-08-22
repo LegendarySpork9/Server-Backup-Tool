@@ -1,6 +1,8 @@
 // Copyright © - Unpublished - Toby Hunter
+using Microsoft.Data.Sqlite;
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Models;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
@@ -15,12 +17,14 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         private Mock<ILoggerService> _MockLogger = null!;
         private Mock<IClock> _MockClock = null!;
         private IExtendedFileSystem _FileSystem = null!;
+        private LogService _LogService = null!;
+        private SqliteConnection _KeepAlive = null!;
 
         /// <summary>
         /// Initialises the test dependencies.
         /// </summary>
         [TestInitialize]
-        public void TestInit()
+        public async Task TestInit()
         {
             TempBaseDir = Path.Combine(
                 Path.GetTempPath(),
@@ -33,14 +37,52 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
             _MockClock = new Mock<IClock>();
             _MockClock.Setup(c => c.UtcNow).Returns(new DateTime(2025, 6, 15, 12, 0, 0, DateTimeKind.Utc));
             _FileSystem = new ExtendedFileSystemWrapper();
+
+            string dbName = $"JobServiceTest_{Guid.NewGuid():N}";
+            string connectionString = $"{dbName};Mode=Memory;Cache=Shared";
+
+            _KeepAlive = new SqliteConnection($"Data Source={connectionString}");
+            await _KeepAlive.OpenAsync();
+
+            using (SqliteCommand command = new(
+                @"CREATE TABLE Logs (
+                    Id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    ServerName TEXT NOT NULL,
+                    Timestamp TEXT NOT NULL,
+                    Level TEXT NOT NULL,
+                    Logger TEXT NOT NULL,
+                    Message TEXT NOT NULL
+                );",
+                _KeepAlive))
+            {
+                await command.ExecuteNonQueryAsync();
+            }
+
+            DatabaseOptionsModel dbOptions = new()
+            {
+                Path = connectionString,
+                ServerName = "TestServer",
+                PollingIntervalMs = 1000
+            };
+
+            DatabaseWrapper database = new(dbOptions);
+
+            _LogService = new LogService(
+                _MockLogger.Object,
+                database,
+                _MockClock.Object,
+                dbOptions);
         }
 
         /// <summary>
         /// Cleans up the test environment.
         /// </summary>
         [TestCleanup]
-        public void TestCleanup()
+        public async Task TestCleanup()
         {
+            await _KeepAlive.CloseAsync();
+            await _KeepAlive.DisposeAsync();
+
             Directory.SetCurrentDirectory(OriginalDir);
 
             if (Directory.Exists(TempBaseDir))
@@ -81,7 +123,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         /// Checks that a backup job creates a ZIP file.
         /// </summary>
         [TestMethod]
-        public void RunJobs_Backup_CreatesZipFile()
+        public async Task RunJobs_Backup_CreatesZipFile()
         {
             string serverLocation = Path.Combine(
                 TempBaseDir,
@@ -106,9 +148,10 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
+                _LogService,
                 section);
 
-            string result = jobService.RunJobs("backup");
+            string result = await jobService.RunJobs("backup");
 
             Assert.AreEqual(
                 "Complete",
@@ -127,7 +170,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         /// Checks that an archive job creates a ZIP and deletes the originals.
         /// </summary>
         [TestMethod]
-        public void RunJobs_Archive_CreatesArchiveAndDeletesOriginals()
+        public async Task RunJobs_Archive_CreatesArchiveAndDeletesOriginals()
         {
             Directory.SetCurrentDirectory(TempBaseDir);
 
@@ -146,6 +189,11 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                     "tool.log"),
                 "test tool content");
 
+            await _LogService.LogMessage(
+                "Info",
+                "Server",
+                "Test server log");
+
             string serverLocation = Path.Combine(
                 TempBaseDir,
                 "Server");
@@ -157,9 +205,10 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
+                _LogService,
                 section);
 
-            string result = jobService.RunJobs("archive");
+            string result = await jobService.RunJobs("archive");
 
             Assert.AreEqual(
                 "Complete",
@@ -189,7 +238,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         /// Checks that a cleanup job deletes old files.
         /// </summary>
         [TestMethod]
-        public void RunJobs_CleanUp_DeletesOldFiles()
+        public async Task RunJobs_CleanUp_DeletesOldFiles()
         {
             Directory.SetCurrentDirectory(TempBaseDir);
 
@@ -234,9 +283,10 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
+                _LogService,
                 section);
 
-            string result = jobService.RunJobs("clean");
+            string result = await jobService.RunJobs("clean");
 
             Assert.AreEqual(
                 "Complete",
@@ -249,7 +299,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         /// Checks that a cleanup job keeps recent files.
         /// </summary>
         [TestMethod]
-        public void RunJobs_CleanUp_KeepsRecentFiles()
+        public async Task RunJobs_CleanUp_KeepsRecentFiles()
         {
             Directory.SetCurrentDirectory(TempBaseDir);
 
@@ -294,9 +344,10 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
+                _LogService,
                 section);
 
-            string result = jobService.RunJobs("clean");
+            string result = await jobService.RunJobs("clean");
 
             Assert.AreEqual(
                 "Complete",
@@ -309,7 +360,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         /// Checks that an unknown job returns Complete without error.
         /// </summary>
         [TestMethod]
-        public void RunJobs_Unknown_ReturnsComplete()
+        public async Task RunJobs_Unknown_ReturnsComplete()
         {
             string serverLocation = Path.Combine(
                 TempBaseDir,
@@ -322,9 +373,10 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
+                _LogService,
                 section);
 
-            string result = jobService.RunJobs("unknown");
+            string result = await jobService.RunJobs("unknown");
 
             Assert.AreEqual(
                 "Complete",

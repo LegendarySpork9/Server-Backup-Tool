@@ -214,5 +214,63 @@ namespace ServerBackupTool.PersistenceTests.API.Implementations
 
             Assert.IsNotNull(exception);
         }
+
+        /// <summary>
+        /// Checks that ExecuteScalar returns the inserted ID when successful.
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteScalar_ReturnsInsertedId_WhenSuccessful()
+        {
+            string sql = @"INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message)
+VALUES (@serverName, @timestamp, @level, @logger, @message)
+RETURNING Id";
+
+            SqliteParameter[] parameters =
+            [
+                new("@serverName", SqliteType.Text) { Value = "TestServer" },
+                new("@timestamp", SqliteType.Text) { Value = DateTime.UtcNow.ToString("O") },
+                new("@level", SqliteType.Text) { Value = "Info" },
+                new("@logger", SqliteType.Text) { Value = "Tool" },
+                new("@message", SqliteType.Text) { Value = "Test message" }
+            ];
+
+            (object? result, Exception? exception) = await _Wrapper.ExecuteScalar(
+                sql,
+                parameters);
+
+            Assert.IsNotNull(result);
+            Assert.AreEqual(
+                1L,
+                result);
+            Assert.IsNull(exception);
+        }
+
+        /// <summary>
+        /// Checks that ExecuteScalar returns null when no result is returned.
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteScalar_ReturnsNull_WhenNoResult()
+        {
+            string sql = "SELECT Id FROM Logs WHERE Id = 999";
+
+            (object? result, Exception? exception) = await _Wrapper.ExecuteScalar(sql);
+
+            Assert.IsNull(result);
+            Assert.IsNull(exception);
+        }
+
+        /// <summary>
+        /// Checks that ExecuteScalar returns an exception when the SQL is invalid.
+        /// </summary>
+        [TestMethod]
+        public async Task ExecuteScalar_ReturnsException_WhenInvalidSql()
+        {
+            string sql = "INSERT INTO NonExistent (Column1) VALUES ('test') RETURNING Id";
+
+            (object? result, Exception? exception) = await _Wrapper.ExecuteScalar(sql);
+
+            Assert.IsNull(result);
+            Assert.IsNotNull(exception);
+        }
     }
 }

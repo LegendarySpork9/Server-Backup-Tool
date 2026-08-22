@@ -309,11 +309,11 @@ namespace ServerBackupTool.Services
             {
                 await _ApplicationService.ProcessCommand(command);
                 await _CommandService.DeleteCommand(command.Id);
+            }
 
-                if (DoProcessQueuedCommands)
-                {
-                    timer.Start();
-                }
+            if (DoProcessQueuedCommands)
+            {
+                timer.Start();
             }
         }
     }

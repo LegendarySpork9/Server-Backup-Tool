@@ -1,8 +1,7 @@
 // Copyright © - Unpublished - Toby Hunter
-using ServerBackupTool.API.Functions;
 using ServerBackupTool.Common.Functions;
 
-namespace ServerBackupTool.UnitTests.API.Functions
+namespace ServerBackupTool.UnitTests.Common.Functions
 {
     [TestClass]
     public class ParameterFunctionTest
