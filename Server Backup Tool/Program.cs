@@ -1,4 +1,6 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
+using ServerBackupTool.Common.Implementations;
+using ServerBackupTool.Common.Models;
 using ServerBackupTool.Functions;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
@@ -21,7 +23,7 @@ namespace ServerBackupTool
                 new SMTPEmailSender(),
                 new ExtendedFileSystemWrapper());
 
-            Console.SetOut(new FilterConsoleFunction(Console.Out));
+            Console.SetOut(new ConsoleFunction(Console.Out));
 
             log4net.Config.XmlConfigurator.Configure();
 
@@ -60,12 +62,27 @@ namespace ServerBackupTool
 
             if (ServerBackupSection != null)
             {
+                DatabaseOptionsModel options = new()
+                {
+                    Path = ServerBackupSection.DatabaseDetails.Path,
+                    ServerName = ServerBackupSection.ServerDetails.Name,
+                    PollingIntervalMs = ServerBackupSection.DatabaseDetails.PollingInterval
+                };
+
+                LogService _logService = new(
+                    new LoggerServiceWrapper(),
+                    new DatabaseWrapper(options),
+                    new SystemClockProvider(),
+                    options);
+
                 _emailService.CheckForEmail(
                     ServerBackupSection.Notifications,
                     "Close").GetAwaiter()
                     .GetResult();
-
                 _pidFileService.Delete(ServerBackupSection.ServerDetails.Name);
+                _logService.ClearLogs("Tool")
+                    .GetAwaiter()
+                    .GetResult();
             }
         }
     }

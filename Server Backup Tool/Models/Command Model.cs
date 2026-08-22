@@ -1,17 +1,15 @@
 ﻿// Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.Common.Entities;
 
-namespace ServerBackupTool.API.Models.Responses
+namespace ServerBackupTool.Models
 {
     /// <summary>
-    /// Stores the command response data.
+    /// Stores the command data.
     /// </summary>
-    public class CommandResponseModel
+    public class CommandModel
     {
         public required int Id { get; set; }
-        public required string ServerName { get; set; }
         public required TargetType Target { get; set; }
         public required string Command { get; set; }
-        public required DateTime CreatedAt { get; set; }
     }
 }

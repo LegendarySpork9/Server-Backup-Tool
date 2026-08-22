@@ -1,6 +1,7 @@
 ﻿// Copyright © - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models.Configuration;
 
@@ -11,6 +12,7 @@ namespace ServerBackupTool.Services
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly IClock _Clock;
+        private readonly LogService _LogService;
         private readonly string ServerPath;
         private readonly string Game;
 
@@ -19,11 +21,13 @@ namespace ServerBackupTool.Services
             ILoggerService _logger,
             IExtendedFileSystem _fileSystem,
             IClock _clock,
+            LogService _logService,
             SBTSection serverBackupSection)
         {
             _Logger = _logger;
             _FileSystem = _fileSystem;
             _Clock = _clock;
+            _LogService = _logService;
             ServerPath = serverBackupSection.ServerDetails.Location;
             Game = serverBackupSection.ServerDetails.Game;
         }
@@ -31,14 +35,14 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Executes the given method.
         /// </summary>
-        public string RunJobs(string job)
+        public async Task<string> RunJobs(string job)
         {
             string result = "Complete";
 
             switch (job)
             {
                 case "backup": result = BackupServer(); break;
-                case "archive": result = ArchiveLogs(); break;
+                case "archive": result = await ArchiveLogs(); break;
                 case "clean": result = RemoveOldFiles(); break;
                 default: break;
             }
@@ -96,7 +100,7 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Creates a ZIP of the log files.
         /// </summary>
-        private string ArchiveLogs()
+        private async Task<string> ArchiveLogs()
         {
             string result = "Complete";
             string[] files = _FileSystem.GetFiles(@".\Logs")
@@ -120,6 +124,13 @@ namespace ServerBackupTool.Services
                             Path.GetFileName(logFile));
                         _FileSystem.DeleteFile(logFile);
                     }
+                }
+
+                (bool succes, Exception? lex) = await _LogService.ClearLogs("Server");
+
+                if (!succes)
+                {
+                    result = "Failed";
                 }
             }
 

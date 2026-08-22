@@ -19,5 +19,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Server Backup Tool.API\Server Backup Tool.API.csproj" />
     <ProjectReference Include="..\..\Server Backup Tool.Common\Server Backup Tool.Common.csproj" />
+    <ProjectReference Include="..\..\Server Backup Tool\Server Backup Tool.csproj" />
   </ItemGroup>
 </Project>

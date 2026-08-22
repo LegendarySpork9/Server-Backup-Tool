@@ -1,7 +1,11 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Entities;
 using ServerBackupTool.Common.Implementations;
+using ServerBackupTool.Common.Models;
+using ServerBackupTool.Common.Models.Requests;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
@@ -12,24 +16,46 @@ namespace ServerBackupTool.Services
     public class ApplicationService
     {
         private readonly ILoggerService _Logger = new LoggerServiceWrapper();
+        private readonly IClock _Clock = new SystemClockProvider();
+        private readonly LogService _LogService;
+        private readonly CommandService _CommandService;
         private readonly PidFileService _PidFileService;
         private readonly ServerService _ServerService;
         private readonly TimerService _TimerService;
         private readonly SBTSection ServerBackupSection;
         private readonly ServerModel Server;
-        private readonly SystemClockProvider Clock = new();
 
         public static ManualResetEvent WaitForServerClose = new(false);
 
         // Sets the class's global variables.
         public ApplicationService(SBTSection serverBackupSection)
         {
+            DatabaseOptionsModel options = new()
+            {
+                Path = serverBackupSection.DatabaseDetails.Path,
+                ServerName = serverBackupSection.ServerDetails.Name,
+                PollingIntervalMs = serverBackupSection.DatabaseDetails.PollingInterval
+            };
+
             ServerBackupSection = serverBackupSection;
             Server = new(serverBackupSection.ServerDetails)
             {
                 Name = serverBackupSection.ServerDetails.Name,
                 Game = serverBackupSection.ServerDetails.Game
             };
+            IDatabase _database = new DatabaseWrapper(options);
+            _LogService = new(
+                _Logger,
+                _database,
+                _Clock,
+                options
+                );
+            _Logger.SetLogService(_LogService);
+            _CommandService = new(
+                _Logger,
+                _database,
+                _Clock,
+                options);
             _PidFileService = new(
                 _Logger,
                 new ExtendedFileSystemWrapper());
@@ -40,9 +66,10 @@ namespace ServerBackupTool.Services
                 ServerBackupSection,
                 Server);
             _TimerService = new(
+                _Logger,
                 this,
                 _ServerService,
-                _Logger,
+                _CommandService,
                 ServerBackupSection);
         }
 
@@ -51,11 +78,11 @@ namespace ServerBackupTool.Services
         /// </summary>
         public async Task RunApplication()
         {
-            TimeConverter _timeConverter = new(Clock);
+            TimeConverter _timeConverter = new(_Clock);
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
-                $"Current Time: {Clock.UtcNow}");
+                $"Current Time: {_Clock.UtcNow}");
 
             TimeSpan[] timerDurations = Array.Empty<TimeSpan>();
             TimeSpan duration = _timeConverter.GetDuration(ServerBackupSection.TimerDetails.BackupTime);
@@ -99,6 +126,8 @@ namespace ServerBackupTool.Services
                 $"Starting Server: {result}",
                 true);
 
+            _TimerService.StartQueuedCommandCheckTimer();
+
             await UserInput();
         }
 
@@ -110,7 +139,8 @@ namespace ServerBackupTool.Services
             JobService _jobService = new(
                 _Logger,
                 new ExtendedFileSystemWrapper(),
-                Clock,
+                _Clock,
+                _LogService,
                 ServerBackupSection);
 
             _Logger.LogToolMessage(
@@ -132,19 +162,19 @@ namespace ServerBackupTool.Services
                 StandardValues.LoggerValues.Info,
                 "Creating Backup");
 
-            _jobService.RunJobs("backup");
+            await _jobService.RunJobs("backup");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Archiving Logs");
 
-            _jobService.RunJobs("archive");
+            await _jobService.RunJobs("archive");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Removing Old Backups and Logs");
 
-            _jobService.RunJobs("clean");
+            await _jobService.RunJobs("clean");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
@@ -166,58 +196,129 @@ namespace ServerBackupTool.Services
                 {
                     if (command.ToLower() == "exit app")
                     {
+                        CommandRequestModel commandRequest = new()
+                        {
+                            Target = "Tool",
+                            Command = command
+                        };
+
+                        await _CommandService.LogCommand(commandRequest);
+
                         _Logger.LogToolMessage(
                             StandardValues.LoggerValues.Info,
-                            "Exit Command Triggered");
-
-                        if (Server.ServerRunning)
-                        {
-                            await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
-
-                            _Logger.LogToolMessage(
-                                StandardValues.LoggerValues.Debug,
-                                "Stop Command Sent to Server");
-                            _Logger.LogToolMessage(
-                                StandardValues.LoggerValues.Debug,
-                                "Waiting for 30 seconds");
-
-                            Thread.Sleep(30000);
-                        }
+                            "Exit Command Queued");
 
                         break;
                     }
 
                     else if (command.ToLower() == "start server")
                     {
-                        if (!Server.ServerRunning)
+                        CommandRequestModel commandRequest = new()
                         {
-                            _Logger.LogToolMessage(
-                                StandardValues.LoggerValues.Info,
-                                "Starting Server");
+                            Target = "Tool",
+                            Command = command
+                        };
 
-                            await _ServerService.StartServer();
+                        await _CommandService.LogCommand(commandRequest);
 
-                            Console.WriteLine("\n----Server Commands----");
-                        }
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Info,
+                            "Start Server Queued");
+
+                        break;
                     }
 
                     else if (command.ToLower() == "reset heartbeat")
                     {
+                        CommandRequestModel commandRequest = new()
+                        {
+                            Target = "Tool",
+                            Command = command
+                        };
+
+                        await _CommandService.LogCommand(commandRequest);
+
                         _Logger.LogToolMessage(
                             StandardValues.LoggerValues.Info,
-                            "Restarting Heartbeat Timer");
-
-                        _TimerService.RestartHeartbeat();
+                            "Heartbeat Reset Queued");
                     }
 
                     else
                     {
-                        await _ServerService.SendCommand(command);
+                        CommandRequestModel commandRequest = new()
+                        {
+                            Target = "Server",
+                            Command = command
+                        };
+
+                        await _CommandService.LogCommand(commandRequest);
+
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Info,
+                            "Command Queued");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Processes the given command.
+        /// </summary>
+        public async Task ProcessCommand(CommandModel command)
+        {
+            if (command.Target == TargetType.Server)
+            {
+                await _ServerService.SendCommand(command.Command);
+
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Debug,
+                    $"Command Sent to Server: {command}");
+            }
+
+            else
+            {
+                if (command.Command.ToLower() == "exit app")
+                {
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Exit Command Triggered");
+
+                    if (Server.ServerRunning)
+                    {
+                        await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
                         _Logger.LogToolMessage(
                             StandardValues.LoggerValues.Debug,
-                            $"Command Sent to Server: {command}");
+                            "Stop Command Sent to Server");
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Debug,
+                            "Waiting for 30 seconds");
+
+                        Thread.Sleep(30000);
                     }
+                }
+
+                else if (command.Command.ToLower() == "start server")
+                {
+                    if (!Server.ServerRunning)
+                    {
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Info,
+                            "Starting Server");
+
+                        await _ServerService.StartServer();
+
+                        Console.WriteLine("\n----Server Commands----");
+                    }
+                }
+
+                else if (command.Command.ToLower() == "reset heartbeat")
+                {
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Restarting Heartbeat Timer");
+
+                    _TimerService.RestartHeartbeat();
                 }
             }
         }

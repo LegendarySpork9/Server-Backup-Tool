@@ -31,35 +31,38 @@ Server Backup Tool is a self-hosted console application for managing game server
 ```
 Server-Backup-Tool/
 ├── Server Backup Tool/                     # Console application (game server management)
-│   ├── Abstractions/                       # ILoggerService, IEmailSender, IExtendedFileSystem
+│   ├── Abstractions/                       # ILoggerService, IDatabase, IEmailSender, IExtendedFileSystem
 │   ├── Converters/                         # ServerConverter, JobConverter, TimeConverter
-│   ├── Functions/                          # FilterConsoleFunction
-│   ├── Implementations/                    # LoggerServiceWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
+│   ├── Functions/                          # ConsoleFunction
+│   ├── Implementations/                    # LoggerServiceWrapper, DatabaseWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
 │   ├── Models/
 │   │   └── Configuration/                  # App.config section models
 │   ├── Properties/                         # Publish profiles
-│   ├── Services/                           # ApplicationService, TimerService, ServerService, etc.
+│   ├── Services/                           # ApplicationService, TimerService, ServerService, CommandService, LogService, etc.
 │   └── Content/                            # Static assets (Logo.ico)
 ├── Server Backup Tool.API/                 # REST API (log access + command queue)
-│   ├── Abstractions/                       # ILoggerService, IExtendedFileSystem (API-specific)
+│   ├── Abstractions/                       # ILoggerService, IDatabase, IExtendedFileSystem (API-specific)
 │   ├── Controllers/                        # LogsController, CommandsController
-│   ├── Entities/                           # LogLevel, LogType, TargetType enums
+│   ├── Entities/                           # LogLevel, LogType enums
 │   ├── Filters/                            # RequestLoggingFilter, ResponseLoggingFilter
-│   ├── Functions/                          # IPAddressFunction, ParameterFunction
-│   ├── Implementations/                    # ClientAuthHandler, LoggerServiceWrapper, etc.
+│   ├── Functions/                          # IPAddressFunction
+│   ├── Implementations/                    # ClientAuthHandler, DatabaseWrapper, LoggerServiceWrapper, etc.
 │   ├── Models/
-│   │   ├── Requests/                       # CommandRequestModel
 │   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, etc.
 │   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
 │   ├── Services/                           # LogService, CommandService, LoggerService
-│   └── Values/                             # StandardValues
 ├── Server Backup Tool.Common/              # Shared library
-│   ├── Abstractions/                       # IClock, IDatabase, IFileSystem
-│   ├── Implementations/                    # SystemClockProvider, DatabaseWrapper, FileSystemWrapper
-│   └── Models/                             # DatabaseOptionsModel
+│   ├── Abstractions/                       # IClock, IFileSystem
+│   ├── Entities/                           # TargetType
+│   ├── Functions/                          # ParameterFunction
+│   ├── Implementations/                    # SystemClockProvider, FileSystemWrapper
+│   ├── Models/                             # DatabaseOptionsModel
+│   │   └── Requests/                       # CommandRequestModel
+│   └── Values/                             # StandardValues
 ├── Tests/
 │   ├── Server Backup Tool.UnitTests/       # Unit tests (no I/O, no HTTP)
-│   │   ├── API/Functions/                  # IPAddressFunctionTest, ParameterFunctionTest
+│   │   ├── API/Functions/                  # IPAddressFunctionTest
+│   │   ├── Common/Functions/               # ParameterFunctionTest
 │   │   └── Tool/
 │   │       ├── Converters/                 # JobConverterTest, ServerConverterTest, TimeConverterTest
 │   │       └── Services/                   # TimerServiceTest
@@ -74,8 +77,12 @@ Server-Backup-Tool/
 │   │       ├── Mocks/                      # Mock data (Configs/, Server/)
 │   │       └── Services/                   # JobServiceTest, EmailServiceTest, etc.
 │   └── Server Backup Tool.PersistenceTests/ # Database persistence tests (in-memory SQLite)
-│       ├── API/Services/                   # LogServiceTest, CommandServiceTest
-│       └── Common/                         # DatabaseWrapperTest
+│       ├── API/
+│       │   ├── Implementations/            # DatabaseWrapperTest
+│       │   └── Services/                   # LogServiceTest, CommandServiceTest
+│       └── Tool/
+│           ├── Implementations/            # DatabaseWrapperTest
+│           └── Services/                   # CommandServiceTest, LogServiceTest
 └── .github/workflows/                      # CI/CD pipeline definitions
 ```
 
@@ -96,6 +103,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `ILoggerService` | `LoggerServiceWrapper` | Application and server logging via log4net |
+| `IDatabase` | `DatabaseWrapper` | SQLite database operations (QuerySingle, Execute) |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
 
@@ -104,7 +112,6 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `IClock` | `SystemClockProvider` | UTC time operations |
-| `IDatabase` | `DatabaseWrapper` | SQLite database operations |
 | `IFileSystem` | `FileSystemWrapper` | Basic file system operations |
 
 **API (Server Backup Tool.API):**
@@ -112,18 +119,21 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `ILoggerService` | `LoggerServiceWrapper` | Request-scoped API logging via log4net |
+| `IDatabase` | `DatabaseWrapper` | SQLite database operations (Query, ExecuteScalar) |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | Archive file access |
 
 ### Services
 
 | Service | Responsibility |
 |---|---|
-| `ApplicationService` | Top-level orchestrator for server lifecycle, backup workflow, and user input |
-| `TimerService` | Manages heartbeat, backup, wait, and custom timers |
+| `ApplicationService` | Top-level orchestrator for server lifecycle, backup workflow, command processing, and user input |
+| `TimerService` | Manages heartbeat, backup, wait, queued command check, and custom timers |
 | `ServerService` | Game server process management and output monitoring |
 | `JobService` | Backup creation, log archival, and old file cleanup |
 | `EmailService` | Email construction, trigger matching, and SMTP delivery |
-| `LoggerService` | Internal log4net adapter with dual loggers (tool and server) |
+| `LoggerService` | Internal log4net adapter with dual loggers (tool and server) and database persistence |
+| `CommandService` | Command queue operations (get, log, delete) via SQLite |
+| `LogService` | Log message persistence and clearing via SQLite |
 | `PidFileService` | Process ID file management for server instance tracking |
 
 ### API Services
@@ -146,7 +156,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 
 | Function | Responsibility |
 |---|---|
-| `FilterConsoleFunction` | TextWriter wrapper that intercepts console output, ensuring all messages pass through log4net |
+| `ConsoleFunction` | TextWriter wrapper that intercepts console output, ensuring all messages pass through log4net |
 
 ### API Controllers
 
@@ -167,7 +177,18 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Function | Purpose |
 |---|---|
 | `IPAddressFunction` | Extracts client IP from CF-Connecting-IP, X-Forwarded-For, or RemoteIpAddress |
+
+### Common Functions
+
+| Function | Purpose |
+|---|---|
 | `ParameterFunction` | Formats model properties into log-friendly strings via reflection |
+
+### Common Values
+
+| Class | Purpose |
+|---|---|
+| `StandardValues` | Shared constant values (logger levels) used across projects |
 
 ### API Authentication
 
@@ -183,15 +204,16 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 3. Register process exit handler
 4. Load `serverBackup` configuration section
 5. Send "Open" notification email (if configured)
-6. Create `ApplicationService` and begin execution
+6. Create `ApplicationService` (initialises database connection, `LogService`, `CommandService`, and sets `LogService` on the logger for database persistence)
+7. Begin execution
 
 #### Runtime
 
 1. Calculate timer durations from configured trigger times
-2. Set and start all timers (heartbeat, backup, custom)
+2. Set and start all timers (heartbeat, backup, queued command check, custom)
 3. Launch game server process with redirected I/O
 4. Write PID file to `%PROGRAMDATA%`
-5. Enter user input loop for console commands
+5. Enter user input loop — commands are queued to the database and processed asynchronously via the queued command check timer
 
 #### Backup Workflow
 
@@ -205,10 +227,11 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 
 #### Shutdown
 
-1. User enters `exit app` command
-2. Stop command sent to the server (with 30-second wait if running)
-3. Process exit handler sends "Close" notification email
-4. PID file deleted
+1. User enters `exit app` command (queued to database)
+2. Queued command check timer picks up the exit command
+3. Stop command sent to the server (with 30-second wait if running)
+4. Process exit handler sends "Close" notification email, clears tool logs from database
+5. PID file deleted
 
 ### Timer System
 
@@ -217,16 +240,17 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Heartbeat | 5 seconds | Pings the server IP; sends heartbeat email and stops if unreachable |
 | Wait | 30 seconds | Delay before backup completion (activated on demand) |
 | Backup | Calculated from config | Triggers the backup workflow at the configured time |
+| QueuedCommandCheck | Configured (`PollingIntervalMs`) | Polls database for commands queued by the API or console input |
 | Custom Timers | Calculated from config | Sends configured messages to the server at scheduled times |
 
 ### Console Commands
 
 | Command | Action |
 |---|---|
-| `exit app` | Gracefully stops the server and exits the application |
-| `start server` | Starts the server if it is not currently running |
-| `reset heartbeat` | Restarts the heartbeat timer |
-| Any other input | Sent directly as a command to the server process |
+| `exit app` | Queued to database; processed by timer to gracefully stop the server and exit |
+| `start server` | Queued to database; processed by timer to start the server if not running |
+| `reset heartbeat` | Queued to database; processed by timer to restart the heartbeat timer |
+| Any other input | Queued to database as a server command; processed by timer and sent to the server process |
 
 ## Supported Games
 
@@ -236,7 +260,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 
 ## Data Persistence
 
-The API uses **SQLite** for structured data persistence. The console app continues to use **file-based persistence**.
+Both the console app and the API use **SQLite** for structured data persistence (logs and commands). The console app also uses file-based persistence for backups, archived logs, and PID files.
 
 ### SQLite Tables
 
@@ -300,6 +324,8 @@ The API uses **SQLite** for structured data persistence. The console app continu
                    location="<path to server directory>"
                    startFile="<server executable>"
                    ipAddress="<server IP for heartbeat>" />
+    <databaseDetails path="<path to SQLite database>"
+                     pollingInterval="<milliseconds between command queue polls>" />
     <timerDetails count="<number of custom timers>"
                   backupTime="<HH:mm:ss>">
       <timers>
@@ -393,7 +419,7 @@ The API uses **SQLite** for structured data persistence. The console app continu
 
 ### Console Output Filtering
 
-Console output is intercepted by `FilterConsoleFunction`, a custom `TextWriter` wrapper. It strips the `log4net - ` prefix from messages that pass through log4net, and flags any output that bypasses the logging pipeline as an error.
+Console output is intercepted by `ConsoleFunction`, a custom `TextWriter` wrapper. It strips the `log4net - ` prefix from messages that pass through log4net, and flags any output that bypasses the logging pipeline as an error.
 
 ### Server Log Level Detection
 

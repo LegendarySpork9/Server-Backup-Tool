@@ -1,4 +1,4 @@
-﻿// Copyright © - Unpublished - Toby Hunter
+// Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Services;
 
@@ -9,17 +9,25 @@ namespace ServerBackupTool.Implementations
         private readonly LoggerService _Logger = new();
 
         /// <summary>
+        /// Sets the log service for database persistence.
+        /// </summary>
+        public void SetLogService(LogService logService)
+        {
+            _Logger.SetLogService(logService);
+        }
+
+        /// <summary>
         /// Logs the given message to the tool logs.
         /// </summary>
         public void LogToolMessage(
             string level,
             string message,
-            bool verbose = false)
+            bool serverRunning = false)
         {
             _Logger.LogToolMessage(
                 level,
                 message,
-                verbose);
+                serverRunning);
         }
 
         /// <summary>

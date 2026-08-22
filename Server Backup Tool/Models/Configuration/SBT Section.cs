@@ -15,6 +15,13 @@ namespace ServerBackupTool.Models.Configuration
             set { this["serverDetails"] = value; }
         }
 
+        [ConfigurationProperty("databaseDetails")]
+        public DatabaseDetailsElement DatabaseDetails
+        {
+            get { return (DatabaseDetailsElement)this["databaseDetails"]; }
+            set { this["databaseDetails"] = value; }
+        }
+
         [ConfigurationProperty("timerDetails")]
         public TimerDetailsElement TimerDetails
         {

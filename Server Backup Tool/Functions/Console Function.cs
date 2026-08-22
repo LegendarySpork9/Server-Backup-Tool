@@ -1,16 +1,17 @@
 ﻿// Copyright © - 17/01/2024 - Toby Hunter
-using ServerBackupTool.Converters;
+using ServerBackupTool.Common.Values;
 using ServerBackupTool.Services;
 using System.Text;
 
 namespace ServerBackupTool.Functions
 {
-    public class FilterConsoleFunction : TextWriter
+    public class ConsoleFunction : TextWriter
     {
         private readonly TextWriter Console;
+        private readonly LoggerService _Logger = new();
 
         // Sets the class's global variables.
-        public FilterConsoleFunction(TextWriter console)
+        public ConsoleFunction(TextWriter console)
         {
             Console = console;
         }
@@ -22,14 +23,12 @@ namespace ServerBackupTool.Functions
         /// </summary>
         public override void WriteLine(string? message)
         {
-            LoggerService _logger = new();
-
             if (!string.IsNullOrWhiteSpace(message) && message != "\n----Server Commands----")
             {
-                _logger.LogToolMessage(
+                _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
                     "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
-                _logger.LogToolMessage(
+                _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     message);
             }
@@ -45,14 +44,12 @@ namespace ServerBackupTool.Functions
         /// </summary>
         public override void Write(string? message)
         {
-            LoggerService _logger = new();
-
             if (!string.IsNullOrWhiteSpace(message) && !message.Contains("log4net - "))
             {
-                _logger.LogToolMessage(
+                _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
                     "An unknown error has occured that hasn't passed through the LoggerService.cs class.");
-                _logger.LogToolMessage(
+                _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     message);
             }
