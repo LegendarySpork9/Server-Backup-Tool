@@ -18,14 +18,14 @@ namespace ServerBackupTool.API.Controllers
     public class CommandsController : ControllerBase
     {
         private readonly ILoggerService _Logger;
-        private readonly IDatabase _Database;
+        private readonly IExtendedDatabase _Database;
         private readonly IClock _Clock;
         private readonly DatabaseOptionsModel Options;
 
         // Set's the class's global variables.
         public CommandsController(
             ILoggerService _logger,
-            IDatabase _database,
+            IExtendedDatabase _database,
             IClock _clock,
             DatabaseOptionsModel options)
         {

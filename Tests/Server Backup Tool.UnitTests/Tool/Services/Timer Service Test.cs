@@ -65,7 +65,7 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 Message = "Server will shutdown for a backup in an hour."
             } ]);
 
-            Mock<IDatabase> _mockDatabase = new();
+            Mock<IExtendedDatabase> _mockDatabase = new();
             Mock<IClock> _mockClock = new();
             DatabaseOptionsModel dbOptions = new()
             {
@@ -178,7 +178,7 @@ namespace ServerBackupTool.UnitTests.Tool.Services
 
             serverBackupSection.Notifications = notifications;
 
-            Mock<IDatabase> _mockDatabase = new();
+            Mock<IExtendedDatabase> _mockDatabase = new();
             Mock<IClock> _mockClock = new();
             DatabaseOptionsModel dbOptions = new()
             {
@@ -271,7 +271,7 @@ namespace ServerBackupTool.UnitTests.Tool.Services
 
             serverBackupSection.Notifications = notifications;
 
-            Mock<IDatabase> _mockDatabase = new();
+            Mock<IExtendedDatabase> _mockDatabase = new();
             Mock<IClock> _mockClock = new();
             DatabaseOptionsModel dbOptions = new()
             {

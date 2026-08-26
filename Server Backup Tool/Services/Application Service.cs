@@ -43,7 +43,7 @@ namespace ServerBackupTool.Services
                 Name = serverBackupSection.ServerDetails.Name,
                 Game = serverBackupSection.ServerDetails.Game
             };
-            IDatabase _database = new DatabaseWrapper(options);
+            IExtendedDatabase _database = new ExtendedDatabaseWrapper(options);
             _LogService = new(
                 _Logger,
                 _database,

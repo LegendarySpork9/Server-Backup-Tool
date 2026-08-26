@@ -55,7 +55,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
                 PollingIntervalMs = 1000
             };
 
-            DatabaseWrapper database = new(dbOptions);
+            ExtendedDatabaseWrapper database = new(dbOptions);
 
             Mock<ILoggerService> mockLogger = new();
 
@@ -217,7 +217,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
                     PollingIntervalMs = 1000
                 };
 
-                DatabaseWrapper failDatabase = new(failDbOptions);
+                ExtendedDatabaseWrapper failDatabase = new(failDbOptions);
 
                 Mock<ILoggerService> failMockLogger = new();
 

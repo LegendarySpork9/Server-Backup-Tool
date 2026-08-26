@@ -1,30 +1,30 @@
-﻿// Copyright © - Unpublished - Toby Hunter
+// Copyright © - Unpublished - Toby Hunter
 using Microsoft.Data.Sqlite;
-using ServerBackupTool.Abstractions;
+using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.Common.Models;
 
-namespace ServerBackupTool.Implementations
+namespace ServerBackupTool.API.Implementations
 {
-    public class DatabaseWrapper : IDatabase
+    public class ExtendedDatabaseWrapper : Common.Implementations.DatabaseWrapper, IExtendedDatabase
     {
         private readonly DatabaseOptionsModel _Options;
 
         // Sets the class's global variables.
-        public DatabaseWrapper(
-            DatabaseOptionsModel _options)
+        public ExtendedDatabaseWrapper(
+            DatabaseOptionsModel _options) : base(_options)
         {
             _Options = _options;
         }
 
         /// <summary>
-        /// Returns the given model from the database.
+        /// Returns a list of the given model from the database.
         /// </summary>
-        public async Task<(T?, Exception?)> QuerySingle<T>(
+        public async Task<(List<T>, Exception?)> Query<T>(
             string sql,
             Func<SqliteDataReader, T> map,
             params SqliteParameter[] parameters)
         {
-            T? result = default;
+            List<T> results = [];
             Exception? exception = null;
 
             try
@@ -41,9 +41,9 @@ namespace ServerBackupTool.Implementations
 
                         using (SqliteDataReader dataReader = await command.ExecuteReaderAsync())
                         {
-                            if (await dataReader.ReadAsync())
+                            while (await dataReader.ReadAsync())
                             {
-                                result = map(dataReader);
+                                results.Add(map(dataReader));
                             }
                         }
                     }
@@ -56,18 +56,18 @@ namespace ServerBackupTool.Implementations
             }
 
             return (
-                result,
+                results,
                 exception);
         }
 
         /// <summary>
-        /// Returns the number of rows affected for the given query.
+        /// Returns the result of the execution for given query.
         /// </summary>
-        public async Task<(int, Exception?)> Execute(
+        public async Task<(object?, Exception?)> ExecuteScalar(
             string sql,
             params SqliteParameter[] parameters)
         {
-            int result = -1;
+            object? result = null;
             Exception? exception = null;
 
             try
@@ -82,7 +82,7 @@ namespace ServerBackupTool.Implementations
                     {
                         command.Parameters.AddRange(parameters);
 
-                        result = await command.ExecuteNonQueryAsync();
+                        result = await command.ExecuteScalarAsync();
                     }
                 }
             }

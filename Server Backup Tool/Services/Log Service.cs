@@ -10,14 +10,14 @@ namespace ServerBackupTool.Services
     public class LogService
     {
         private readonly ILoggerService _Logger;
-        private readonly IDatabase _Database;
+        private readonly IExtendedDatabase _Database;
         private readonly IClock _Clock;
         private readonly DatabaseOptionsModel Options;
 
         // Sets the class's global variables
         public LogService(
             ILoggerService _logger,
-            IDatabase _database,
+            IExtendedDatabase _database,
             IClock _clock,
             DatabaseOptionsModel options)
         {

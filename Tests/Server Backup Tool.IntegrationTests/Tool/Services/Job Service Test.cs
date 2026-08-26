@@ -65,7 +65,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 PollingIntervalMs = 1000
             };
 
-            DatabaseWrapper database = new(dbOptions);
+            ExtendedDatabaseWrapper database = new(dbOptions);
 
             _LogService = new LogService(
                 _MockLogger.Object,

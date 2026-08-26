@@ -20,3 +20,14 @@ CREATE TABLE IF NOT EXISTS Commands (
 CREATE INDEX IF NOT EXISTS IX_Logs_Server ON Logs (ServerName, Id);
 
 CREATE INDEX IF NOT EXISTS IX_Commands_Server ON Commands (ServerName);
+
+CREATE TABLE IF NOT EXISTS Webhooks (
+    Id          TEXT    PRIMARY KEY,
+    Url         TEXT    NOT NULL,
+    LogType     TEXT    NOT NULL,
+    LogLevel    TEXT    NOT NULL,
+    AfterId     INTEGER NOT NULL DEFAULT 0,
+    CreatedAt   TEXT    NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_Webhooks_Id ON Webhooks (Id);

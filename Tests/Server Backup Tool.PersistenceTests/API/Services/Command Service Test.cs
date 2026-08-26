@@ -54,7 +54,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                 PollingIntervalMs = 1000
             };
 
-            DatabaseWrapper database = new(dbOptions);
+            ExtendedDatabaseWrapper database = new(dbOptions);
 
             Mock<ILoggerService> mockLogger = new();
             mockLogger.Setup(l => l.RequestId).Returns(Guid.NewGuid());
@@ -147,7 +147,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                     PollingIntervalMs = 1000
                 };
 
-                DatabaseWrapper failDatabase = new(failDbOptions);
+                ExtendedDatabaseWrapper failDatabase = new(failDbOptions);
 
                 Mock<ILoggerService> failMockLogger = new();
                 failMockLogger.Setup(l => l.RequestId).Returns(Guid.NewGuid());

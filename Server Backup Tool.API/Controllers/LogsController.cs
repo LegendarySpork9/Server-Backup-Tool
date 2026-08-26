@@ -17,7 +17,7 @@ namespace ServerBackupTool.API.Controllers
     public class LogsController : ControllerBase
     {
         private readonly ILoggerService _Logger;
-        private readonly IDatabase _Database;
+        private readonly IExtendedDatabase _Database;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly DatabaseOptionsModel Options;
         private readonly ArchiveSettingsModel Archive;
@@ -25,7 +25,7 @@ namespace ServerBackupTool.API.Controllers
         // Set's the class's global variables.
         public LogsController(
             ILoggerService _logger,
-            IDatabase _database,
+            IExtendedDatabase _database,
             IExtendedFileSystem _fileSystem,
             DatabaseOptionsModel options,
             ArchiveSettingsModel archive)

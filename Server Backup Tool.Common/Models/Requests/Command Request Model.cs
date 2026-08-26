@@ -10,7 +10,6 @@ namespace ServerBackupTool.Common.Models.Requests
     {
         [Required(ErrorMessage = "The target field is required.")]
         public string? Target { get; set; }
-
         [Required(ErrorMessage = "The command field is required.")]
         public string? Command { get; set; }
     }

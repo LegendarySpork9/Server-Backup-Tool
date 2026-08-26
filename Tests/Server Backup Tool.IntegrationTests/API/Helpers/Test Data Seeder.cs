@@ -108,6 +108,62 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
         }
 
         /// <summary>
+        /// Inserts a webhook registration row into the Webhooks table.
+        /// </summary>
+        public static string SeedWebhook(
+            string dbConnStr,
+            string url = "https://example.com/webhook",
+            string logType = "All",
+            string logLevel = "All",
+            int afterId = 0)
+        {
+            string id = Guid.NewGuid().ToString();
+
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = @"INSERT INTO Webhooks (Id, Url, LogType, LogLevel, AfterId, CreatedAt)
+                    VALUES (@id, @url, @logType, @logLevel, @afterId, @createdAt)";
+
+            cmd.Parameters.AddWithValue(
+                "@id",
+                id);
+            cmd.Parameters.AddWithValue(
+                "@url",
+                url);
+            cmd.Parameters.AddWithValue(
+                "@logType",
+                logType);
+            cmd.Parameters.AddWithValue(
+                "@logLevel",
+                logLevel);
+            cmd.Parameters.AddWithValue(
+                "@afterId",
+                afterId);
+            cmd.Parameters.AddWithValue(
+                "@createdAt",
+                DateTime.UtcNow.ToString("o"));
+
+            cmd.ExecuteNonQuery();
+
+            return id;
+        }
+
+        /// <summary>
+        /// Deletes all rows from the Webhooks table.
+        /// </summary>
+        public static void ClearWebhooks(string dbConnStr)
+        {
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "DELETE FROM Webhooks";
+            cmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
         /// Creates a test archive ZIP file containing the given log files.
         /// </summary>
         public static void CreateTestArchive(

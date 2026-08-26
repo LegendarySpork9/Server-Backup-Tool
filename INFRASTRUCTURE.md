@@ -31,31 +31,32 @@ Server Backup Tool is a self-hosted console application for managing game server
 ```
 Server-Backup-Tool/
 ├── Server Backup Tool/                     # Console application (game server management)
-│   ├── Abstractions/                       # ILoggerService, IDatabase, IEmailSender, IExtendedFileSystem
+│   ├── Abstractions/                       # ILoggerService, IExtendedDatabase, IEmailSender, IExtendedFileSystem
 │   ├── Converters/                         # ServerConverter, JobConverter, TimeConverter
 │   ├── Functions/                          # ConsoleFunction
-│   ├── Implementations/                    # LoggerServiceWrapper, DatabaseWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
+│   ├── Implementations/                    # LoggerServiceWrapper, ExtendedDatabaseWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
 │   ├── Models/
 │   │   └── Configuration/                  # App.config section models
 │   ├── Properties/                         # Publish profiles
 │   ├── Services/                           # ApplicationService, TimerService, ServerService, CommandService, LogService, etc.
 │   └── Content/                            # Static assets (Logo.ico)
 ├── Server Backup Tool.API/                 # REST API (log access + command queue)
-│   ├── Abstractions/                       # ILoggerService, IDatabase, IExtendedFileSystem (API-specific)
-│   ├── Controllers/                        # LogsController, CommandsController
+│   ├── Abstractions/                       # ILoggerService, IExtendedDatabase, IExtendedFileSystem (API-specific)
+│   ├── Controllers/                        # LogsController, CommandsController, WebhooksController
 │   ├── Entities/                           # LogLevel, LogType enums
 │   ├── Filters/                            # RequestLoggingFilter, ResponseLoggingFilter
 │   ├── Functions/                          # IPAddressFunction
-│   ├── Implementations/                    # ClientAuthHandler, DatabaseWrapper, LoggerServiceWrapper, etc.
+│   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, etc.
 │   ├── Models/
-│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, etc.
+│   │   ├── Requests/                       # WebhookRegistrationRequestModel
+│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, WebhookRegistrationResponseModel, etc.
 │   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
-│   ├── Services/                           # LogService, CommandService, LoggerService
+│   ├── Services/                           # LogService, CommandService, LoggerService, WebhookRegistrationService, WebhookDispatchService, LogPollingService
 ├── Server Backup Tool.Common/              # Shared library
-│   ├── Abstractions/                       # IClock, IFileSystem
+│   ├── Abstractions/                       # IClock, IDatabase, IFileSystem
 │   ├── Entities/                           # TargetType
 │   ├── Functions/                          # ParameterFunction
-│   ├── Implementations/                    # SystemClockProvider, FileSystemWrapper
+│   ├── Implementations/                    # SystemClockProvider, DatabaseWrapper, FileSystemWrapper
 │   ├── Models/                             # DatabaseOptionsModel
 │   │   └── Requests/                       # CommandRequestModel
 │   └── Values/                             # StandardValues
@@ -68,7 +69,7 @@ Server-Backup-Tool/
 │   │       └── Services/                   # TimerServiceTest
 │   ├── Server Backup Tool.IntegrationTests/ # Integration tests (HTTP + file system)
 │   │   ├── API/
-│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, etc.
+│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, etc.
 │   │   │   ├── Fixtures/                   # CustomWebApplicationFactory
 │   │   │   ├── Helpers/                    # AuthHelper, TestDataSeeder
 │   │   │   └── Implementations/            # ClientAuthHandlerTest
@@ -78,10 +79,10 @@ Server-Backup-Tool/
 │   │       └── Services/                   # JobServiceTest, EmailServiceTest, etc.
 │   └── Server Backup Tool.PersistenceTests/ # Database persistence tests (in-memory SQLite)
 │       ├── API/
-│       │   ├── Implementations/            # DatabaseWrapperTest
-│       │   └── Services/                   # LogServiceTest, CommandServiceTest
+│       │   ├── Implementations/            # ExtendedDatabaseWrapperTest
+│       │   └── Services/                   # LogServiceTest, CommandServiceTest, WebhookRegistrationServiceTest
 │       └── Tool/
-│           ├── Implementations/            # DatabaseWrapperTest
+│           ├── Implementations/            # ExtendedDatabaseWrapperTest
 │           └── Services/                   # CommandServiceTest, LogServiceTest
 └── .github/workflows/                      # CI/CD pipeline definitions
 ```
@@ -103,7 +104,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `ILoggerService` | `LoggerServiceWrapper` | Application and server logging via log4net |
-| `IDatabase` | `DatabaseWrapper` | SQLite database operations (QuerySingle, Execute) |
+| `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (QuerySingle) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
 
@@ -112,6 +113,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `IClock` | `SystemClockProvider` | UTC time operations |
+| `IDatabase` | `DatabaseWrapper` | SQLite database operations (ExecuteNonQuery) |
 | `IFileSystem` | `FileSystemWrapper` | Basic file system operations |
 
 **API (Server Backup Tool.API):**
@@ -119,7 +121,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Abstraction | Implementation | Purpose |
 |---|---|---|
 | `ILoggerService` | `LoggerServiceWrapper` | Request-scoped API logging via log4net |
-| `IDatabase` | `DatabaseWrapper` | SQLite database operations (Query, ExecuteScalar) |
+| `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (Query, ExecuteScalar) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | Archive file access |
 
 ### Services
@@ -143,6 +145,9 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `LogService` | Log retrieval with filtering, pagination, and archive access |
 | `CommandService` | Command queue insertion |
 | `LoggerService` | log4net adapter with request-scoped log file management |
+| `WebhookRegistrationService` | Webhook registration CRUD (register, unregister, get all, update cursor) |
+| `WebhookDispatchService` | Sends webhook payloads via HTTP POST with HMAC-SHA256 signing and retry |
+| `LogPollingService` | Background service that polls for new logs and dispatches to registered webhooks |
 
 ### Converters
 
@@ -164,6 +169,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 |---|---|---|---|
 | `LogsController` | `/logs` | GET | Retrieve live and archived logs with filtering |
 | `CommandsController` | `/commands` | POST | Queue commands for the tool or server |
+| `WebhooksController` | `/webhooks` | POST, DELETE | Register and unregister webhook endpoints |
 
 ### API Filters
 
@@ -268,6 +274,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
 |---|---|---|
 | `Logs` | Id, ServerName, Timestamp, Level, Logger, Message | Stores tool and server log entries |
 | `Commands` | Id, ServerName, Target, Command, CreatedAt | Command queue for tool/server actions |
+| `Webhooks` | Id, Url, LogType, LogLevel, AfterId, CreatedAt | Registered webhook endpoints for log notifications |
 
 ### File-Based Persistence
 
@@ -386,6 +393,11 @@ Both the console app and the API use **SQLite** for structured data persistence 
   },
   "ArchiveSettings": {
     "ArchiveDirectory": "<Location of .zip log files>"
+  },
+  "Webhook": {
+    "Secret": "<HMAC-SHA256 secret key>",
+    "TimeoutSeconds": 10,
+    "MaxRetries": 3
   }
 }
 ```
@@ -467,6 +479,7 @@ The Pull Request workflow downloads and starts [Papercut SMTP](https://github.co
 - ICMP access to the game server IP address (for heartbeat pings)
 - Outbound SMTP (configurable port, default 587) for email notifications
 - HTTP port access for the API
+- Outbound HTTPS to registered webhook URLs (for log notifications)
 
 ### File System Requirements
 
