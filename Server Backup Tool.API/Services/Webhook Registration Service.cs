@@ -226,7 +226,7 @@ where Id = @id";
             {
                 string sql = @"select
     Id,
-    Url,
+    URL,
     ServerName,
     LogType,
     LogLevel,
@@ -241,7 +241,7 @@ where ServerName = @serverName";
                         return new WebhookRegistrationModel()
                         {
                             Id = reader.GetString(0),
-                            Url = reader.GetString(1),
+                            URL = reader.GetString(1),
                             ServerName = reader.GetString(2),
                             LogType = Enum.Parse<LogType>(reader.GetString(3), true),
                             LogLevel = Enum.Parse<Entities.LogLevel>(reader.GetString(4), true),
