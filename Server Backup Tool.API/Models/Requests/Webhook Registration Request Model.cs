@@ -10,6 +10,8 @@ namespace ServerBackupTool.API.Models.Requests
     {
         [Required(ErrorMessage = "The url field is required.")]
         public string? Url { get; set; }
+        [Required(ErrorMessage = "The serverName field is required.")]
+        public string? ServerName { get; set; }
         [Required(ErrorMessage = "The logType field is required.")]
         public string? LogType { get; set; }
         [Required(ErrorMessage = "The logLevel field is required.")]

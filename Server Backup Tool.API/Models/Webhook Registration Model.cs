@@ -10,6 +10,7 @@ namespace ServerBackupTool.API.Models
     {
         public required string Id { get; set; }
         public required string Url { get; set; }
+        public required string ServerName { get; set; }
         public required LogType LogType { get; set; }
         public required Entities.LogLevel LogLevel { get; set; }
         public required int AfterId { get; set; }

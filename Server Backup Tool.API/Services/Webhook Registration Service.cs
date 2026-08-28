@@ -86,6 +86,7 @@ where ServerName = @serverName";
                 string sql = @"insert into Webhooks (
     Id,
     Url,
+    ServerName,
     LogType,
     LogLevel,
     AfterId,
@@ -94,6 +95,7 @@ where ServerName = @serverName";
 values (
     @id,
     @url,
+    @serverName,
     @logType,
     @logLevel,
     @afterId,
@@ -103,6 +105,7 @@ values (
                 [
                     new("@id", SqliteType.Text) { Value = id },
                     new("@url", SqliteType.Text) { Value = registration.Url },
+                    new("@serverName", SqliteType.Text) { Value = registration.ServerName },
                     new("@logType", SqliteType.Text) { Value = registration.LogType },
                     new("@logLevel", SqliteType.Text) { Value = registration.LogLevel },
                     new("@afterId", SqliteType.Integer) { Value = afterId },
@@ -210,11 +213,11 @@ where Id = @id";
         /// <summary>
         /// Returns all active webhook registrations.
         /// </summary>
-        public async Task<(List<WebhookRegistrationModel>?, Exception?)> GetAll()
+        public async Task<(List<WebhookRegistrationModel>?, Exception?)> GetAll(string serverName)
         {
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
-                "WebhookRegistrationService.GetAll called.");
+                $"WebhookRegistrationService.GetAll called with the parameter \"{serverName}\".");
 
             List<WebhookRegistrationModel>? registrations = null;
             Exception? ex = null;
@@ -224,10 +227,12 @@ where Id = @id";
                 string sql = @"select
     Id,
     Url,
+    ServerName,
     LogType,
     LogLevel,
     AfterId
-from [Webhooks]";
+from [Webhooks]
+where ServerName = @serverName";
 
                 (List<WebhookRegistrationModel> results, Exception? qex) = await _Database.Query(
                     sql,
@@ -237,11 +242,13 @@ from [Webhooks]";
                         {
                             Id = reader.GetString(0),
                             Url = reader.GetString(1),
-                            LogType = Enum.Parse<LogType>(reader.GetString(2), true),
-                            LogLevel = Enum.Parse<Entities.LogLevel>(reader.GetString(3), true),
-                            AfterId = reader.GetInt32(4)
+                            ServerName = reader.GetString(2),
+                            LogType = Enum.Parse<LogType>(reader.GetString(3), true),
+                            LogLevel = Enum.Parse<Entities.LogLevel>(reader.GetString(4), true),
+                            AfterId = reader.GetInt32(5)
                         };
-                    });
+                    },
+                    new SqliteParameter("@serverName", SqliteType.Text) { Value = serverName });
 
                 if (qex != null)
                 {

@@ -104,7 +104,7 @@ namespace ServerBackupTool.API.Services
                 _Clock,
                 Options);
 
-            (List<WebhookRegistrationModel>? registrations, Exception? regEx) = await registrationService.GetAll();
+            (List<WebhookRegistrationModel>? registrations, Exception? regEx) = await registrationService.GetAll(Options.ServerName);
 
             if (regEx != null)
             {

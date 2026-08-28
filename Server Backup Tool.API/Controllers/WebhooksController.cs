@@ -108,7 +108,7 @@ namespace ServerBackupTool.API.Controllers
             WebhookRegistrationResponseModel response = new()
             {
                 Id = webhookId,
-                ServerName = Options.ServerName
+                ServerName = registration.ServerName!
             };
 
             return StatusCode(
