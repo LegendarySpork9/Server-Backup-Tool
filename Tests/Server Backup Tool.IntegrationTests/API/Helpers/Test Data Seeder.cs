@@ -113,6 +113,7 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
         public static string SeedWebhook(
             string dbConnStr,
             string url = "https://example.com/webhook",
+            string serverName = "TestServer",
             string logType = "All",
             string logLevel = "All",
             int afterId = 0)
@@ -123,8 +124,8 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             connection.Open();
 
             using SqliteCommand cmd = connection.CreateCommand();
-            cmd.CommandText = @"INSERT INTO Webhooks (Id, Url, LogType, LogLevel, AfterId, CreatedAt)
-                    VALUES (@id, @url, @logType, @logLevel, @afterId, @createdAt)";
+            cmd.CommandText = @"INSERT INTO Webhooks (Id, Url, ServerName, LogType, LogLevel, AfterId, CreatedAt)
+                    VALUES (@id, @url, @serverName, @logType, @logLevel, @afterId, @createdAt)";
 
             cmd.Parameters.AddWithValue(
                 "@id",
@@ -132,6 +133,9 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             cmd.Parameters.AddWithValue(
                 "@url",
                 url);
+            cmd.Parameters.AddWithValue(
+                "@serverName",
+                serverName);
             cmd.Parameters.AddWithValue(
                 "@logType",
                 logType);

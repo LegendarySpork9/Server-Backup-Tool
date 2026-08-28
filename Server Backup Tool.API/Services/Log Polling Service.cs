@@ -239,7 +239,7 @@ order by Id asc";
                     JsonOptions);
 
                 (bool sent, Exception? sendEx) = await dispatchService.Send(
-                    registration.Url,
+                    registration.URL,
                     payload);
 
                 if (sent)

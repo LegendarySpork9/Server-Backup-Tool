@@ -72,6 +72,7 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                 cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Webhooks (
                     Id TEXT PRIMARY KEY,
                     Url TEXT,
+                    ServerName TEXT,
                     LogType TEXT,
                     LogLevel TEXT,
                     AfterId INTEGER NOT NULL DEFAULT 0,

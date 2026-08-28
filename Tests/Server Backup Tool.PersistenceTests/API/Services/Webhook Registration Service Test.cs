@@ -31,6 +31,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             CREATE TABLE Webhooks (
                 Id TEXT PRIMARY KEY,
                 Url TEXT NOT NULL,
+                ServerName TEXT NOT NULL,
                 LogType TEXT NOT NULL,
                 LogLevel TEXT NOT NULL,
                 AfterId INTEGER NOT NULL DEFAULT 0,
@@ -106,6 +107,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration = new()
             {
                 Url = "https://example.com/webhook",
+                ServerName = "TestServer",
                 LogType = "All",
                 LogLevel = "All",
                 AfterId = 1
@@ -136,6 +138,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration = new()
             {
                 Url = "https://example.com/webhook",
+                ServerName = "TestServer",
                 LogType = "All",
                 LogLevel = "All",
                 AfterId = 0
@@ -170,6 +173,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration = new()
             {
                 Url = "https://example.com/webhook",
+                ServerName = "TestServer",
                 LogType = "All",
                 LogLevel = "All",
                 AfterId = 1
@@ -206,6 +210,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration1 = new()
             {
                 Url = "https://example.com/webhook1",
+                ServerName = "TestServer",
                 LogType = "Tool",
                 LogLevel = "Info",
                 AfterId = 1
@@ -214,6 +219,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration2 = new()
             {
                 Url = "https://example.com/webhook2",
+                ServerName = "TestServer",
                 LogType = "Server",
                 LogLevel = "Warn",
                 AfterId = 2
@@ -222,7 +228,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await _WebhookRegistrationService.Register(registration1);
             await _WebhookRegistrationService.Register(registration2);
 
-            (var registrations, Exception? ex) = await _WebhookRegistrationService.GetAll();
+            (var registrations, Exception? ex) = await _WebhookRegistrationService.GetAll(ServerName);
 
             Assert.IsNotNull(registrations);
             Assert.AreEqual(
@@ -240,6 +246,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             WebhookRegistrationRequestModel registration = new()
             {
                 Url = "https://example.com/webhook",
+                ServerName = "TestServer",
                 LogType = "All",
                 LogLevel = "All",
                 AfterId = 1

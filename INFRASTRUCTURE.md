@@ -272,9 +272,9 @@ Both the console app and the API use **SQLite** for structured data persistence 
 
 | Table | Columns | Purpose |
 |---|---|---|
-| `Logs` | Id, ServerName, Timestamp, Level, Logger, Message | Stores tool and server log entries |
+| `Logs` | Id, ServerName, Timestamp, Level, Type, Message | Stores tool and server log entries |
 | `Commands` | Id, ServerName, Target, Command, CreatedAt | Command queue for tool/server actions |
-| `Webhooks` | Id, Url, LogType, LogLevel, AfterId, CreatedAt | Registered webhook endpoints for log notifications |
+| `Webhooks` | Id, URL, ServerName, LogType, LogLevel, AfterId, CreatedAt | Registered webhook endpoints for log notifications |
 
 ### File-Based Persistence
 

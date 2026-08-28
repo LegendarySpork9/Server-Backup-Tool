@@ -60,7 +60,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 HttpMethod.Post,
                 "/webhooks");
             request.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -84,7 +84,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 "invalid",
                 "invalid");
             request.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -108,7 +108,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             request.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -144,7 +144,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             request.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"Invalid\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"Invalid\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -176,7 +176,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             request.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"All\",\"logLevel\":\"Invalid\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"Invalid\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -208,7 +208,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             request.Content = new StringContent(
-                "{\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -232,7 +232,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             request.Content = new StringContent(
-                "{\"url\":\"not-a-url\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"not-a-url\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
@@ -264,7 +264,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 CustomWebApplicationFactory.TestClientId,
                 CustomWebApplicationFactory.TestClientSecret);
             registerRequest.Content = new StringContent(
-                "{\"url\":\"https://example.com/webhook\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
                 Encoding.UTF8,
                 "application/json");
 
