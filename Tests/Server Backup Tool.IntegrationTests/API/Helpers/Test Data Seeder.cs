@@ -14,7 +14,7 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             int count,
             string serverName = "TestServer",
             string level = "Info",
-            string logger = "Tool")
+            string type = "Tool")
         {
             using SqliteConnection connection = new(dbConnStr);
             connection.Open();
@@ -22,8 +22,8 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             for (int i = 0; i < count; i++)
             {
                 using SqliteCommand cmd = connection.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message)
-                    VALUES (@serverName, @timestamp, @level, @logger, @message)";
+                cmd.CommandText = @"INSERT INTO Logs (ServerName, Timestamp, Level, Type, Message)
+                    VALUES (@serverName, @timestamp, @level, @type, @message)";
 
                 cmd.Parameters.AddWithValue(
                     "@serverName",
@@ -35,8 +35,8 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
                     "@level",
                     level);
                 cmd.Parameters.AddWithValue(
-                    "@logger",
-                    logger);
+                    "@type",
+                    type);
                 cmd.Parameters.AddWithValue(
                     "@message",
                     $"Test log message {i + 1}");

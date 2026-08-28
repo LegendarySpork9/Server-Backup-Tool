@@ -12,8 +12,8 @@ namespace ServerBackupTool.API.Services
     {
         private readonly ILoggerService _Logger;
         private readonly HttpClient _HttpClient;
-        private readonly WebhookSettingsModel _Settings;
-        private readonly JsonSerializerOptions _JsonOptions;
+        private readonly WebhookSettingsModel Settings;
+        private readonly JsonSerializerOptions JsonOptions;
 
         // Sets the class's global variables
         public WebhookDispatchService(
@@ -24,8 +24,8 @@ namespace ServerBackupTool.API.Services
         {
             _Logger = _logger;
             _HttpClient = httpClient;
-            _Settings = settings;
-            _JsonOptions = jsonOptions;
+            Settings = settings;
+            JsonOptions = jsonOptions;
         }
 
         /// <summary>
@@ -46,11 +46,11 @@ namespace ServerBackupTool.API.Services
             {
                 string json = JsonSerializer.Serialize(
                     payload,
-                    _JsonOptions);
+                    JsonOptions);
 
                 string signature = ComputeSignature(json);
 
-                for (int attempt = 0; attempt <= _Settings.MaxRetries; attempt++)
+                for (int attempt = 0; attempt <= Settings.MaxRetries; attempt++)
                 {
                     try
                     {
@@ -111,7 +111,7 @@ namespace ServerBackupTool.API.Services
                 {
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Warning,
-                        $"Webhook dispatch to \"{url}\" failed after {_Settings.MaxRetries + 1} attempt(s).");
+                        $"Webhook dispatch to \"{url}\" failed after {Settings.MaxRetries + 1} attempt(s).");
                 }
             }
 
@@ -140,7 +140,7 @@ namespace ServerBackupTool.API.Services
         /// </summary>
         private string ComputeSignature(string body)
         {
-            byte[] keyBytes = Encoding.UTF8.GetBytes(_Settings.Secret);
+            byte[] keyBytes = Encoding.UTF8.GetBytes(Settings.Secret);
             byte[] bodyBytes = Encoding.UTF8.GetBytes(body);
 
             using (HMACSHA256 hmac = new(keyBytes))

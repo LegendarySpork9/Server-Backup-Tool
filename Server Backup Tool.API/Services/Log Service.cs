@@ -55,7 +55,7 @@ namespace ServerBackupTool.API.Services
     Id,
     Timestamp,
     Level,
-    Logger,
+    Type,
     Message
 from [Logs]
 where ServerName = @serverName";
@@ -75,7 +75,7 @@ and Level = @level";
                 if (type != LogType.All)
                 {
                     sql += @"
-and Logger = @type";
+and Type = @type";
                     parameterList.Add(new("@type", SqliteType.Text) { Value = type.ToString() });
                 }
 
@@ -101,7 +101,7 @@ limit @limit";
                                 reader.GetDateTime(1),
                                 DateTimeKind.Utc),
                             Level = Enum.Parse<Entities.LogLevel>(reader.GetString(2), true),
-                            Logger = Enum.Parse<LogType>(reader.GetString(3), true),
+                            Type = Enum.Parse<LogType>(reader.GetString(3), true),
                             Message = reader.GetString(4)
                         };
                     },
@@ -266,7 +266,7 @@ limit @limit";
                                         Id = logId,
                                         Timestamp = DateTime.Parse(timestamp),
                                         Level = Enum.Parse<Entities.LogLevel>(level, true),
-                                        Logger = LogType.Server,
+                                        Type = LogType.Server,
                                         Message = message
                                     });
                                 }

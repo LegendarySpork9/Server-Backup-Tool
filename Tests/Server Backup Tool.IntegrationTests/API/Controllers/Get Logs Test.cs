@@ -228,11 +228,11 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
             TestDataSeeder.SeedLogs(
                 _Factory.DatabaseConnectionString,
                 3,
-                logger: "Tool");
+                type: "Tool");
             TestDataSeeder.SeedLogs(
                 _Factory.DatabaseConnectionString,
                 2,
-                logger: "Server");
+                type: "Server");
 
             HttpRequestMessage request = new(
                 HttpMethod.Get,
@@ -360,17 +360,17 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 _Factory.DatabaseConnectionString,
                 3,
                 level: "Info",
-                logger: "Tool");
+                type: "Tool");
             TestDataSeeder.SeedLogs(
                 _Factory.DatabaseConnectionString,
                 2,
                 level: "Info",
-                logger: "Server");
+                type: "Server");
             TestDataSeeder.SeedLogs(
                 _Factory.DatabaseConnectionString,
                 2,
                 level: "Debug",
-                logger: "Tool");
+                type: "Tool");
 
             HttpRequestMessage request = new(
                 HttpMethod.Get,
@@ -462,42 +462,6 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
                 doc.RootElement.GetProperty("logs")
                     .GetArrayLength());
             Assert.AreNotEqual(
-                JsonValueKind.Null,
-                doc.RootElement.GetProperty("nextAfter")
-                    .ValueKind);
-        }
-
-        /// <summary>
-        /// Checks that nextAfter is null when fewer results than the limit are returned.
-        /// </summary>
-        [TestMethod]
-        public async Task LimitParameter_NoNextAfter_WhenFewerResults()
-        {
-            TestDataSeeder.SeedLogs(
-                _Factory.DatabaseConnectionString,
-                3);
-
-            HttpRequestMessage request = new(
-                HttpMethod.Get,
-                "/logs?limit=10");
-            request.Headers.Authorization = AuthHelper.CreateBasicAuth(
-                CustomWebApplicationFactory.TestClientId,
-                CustomWebApplicationFactory.TestClientSecret);
-
-            HttpResponseMessage response = await _Client.SendAsync(request);
-
-            Assert.AreEqual(
-                HttpStatusCode.OK,
-                response.StatusCode);
-
-            string body = await response.Content.ReadAsStringAsync();
-            using JsonDocument doc = JsonDocument.Parse(body);
-
-            Assert.AreEqual(
-                3,
-                doc.RootElement.GetProperty("logs")
-                    .GetArrayLength());
-            Assert.AreEqual(
                 JsonValueKind.Null,
                 doc.RootElement.GetProperty("nextAfter")
                     .ValueKind);

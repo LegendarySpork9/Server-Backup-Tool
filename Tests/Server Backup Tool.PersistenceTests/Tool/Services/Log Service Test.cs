@@ -2,7 +2,6 @@
 using Microsoft.Data.Sqlite;
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Abstractions;
-using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Services;
@@ -22,7 +21,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
                 ServerName TEXT NOT NULL,
                 Timestamp TEXT NOT NULL,
                 Level TEXT NOT NULL,
-                Logger TEXT NOT NULL,
+                Type TEXT NOT NULL,
                 Message TEXT NOT NULL
             );";
 
@@ -84,9 +83,9 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
             int count,
             string serverName = "TestServer",
             string level = "Info",
-            string logger = "Tool")
+            string type = "Tool")
         {
-            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message) VALUES (@serverName, @timestamp, @level, @logger, @message)";
+            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Type, Message) VALUES (@serverName, @timestamp, @level, @type, @message)";
 
             for (int i = 1; i <= count; i++)
             {
@@ -103,8 +102,8 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
                     "@level",
                     level);
                 command.Parameters.AddWithValue(
-                    "@logger",
-                    logger);
+                    "@type",
+                    type);
                 command.Parameters.AddWithValue(
                     "@message",
                     $"Message {i}");
@@ -116,21 +115,21 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
         /// <summary>
         /// Gets the count of log rows in the database.
         /// </summary>
-        private async Task<long> GetLogCount(string? logger = null)
+        private async Task<long> GetLogCount(string? type = null)
         {
-            string sql = logger != null
-                ? "SELECT COUNT(*) FROM Logs WHERE Logger = @logger"
+            string sql = type != null
+                ? "SELECT COUNT(*) FROM Logs WHERE Type = @type"
                 : "SELECT COUNT(*) FROM Logs";
 
             using SqliteCommand command = new(
                 sql,
                 _KeepAlive);
 
-            if (logger != null)
+            if (type != null)
             {
                 command.Parameters.AddWithValue(
-                    "@logger",
-                    logger);
+                    "@type",
+                    type);
             }
 
             object? result = await command.ExecuteScalarAsync();
@@ -217,7 +216,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
         {
             await SeedLogs(
                 3,
-                logger: "Server");
+                type: "Server");
 
             (bool success, Exception? ex) = await _LogService.ClearLogs("Server");
 
@@ -250,10 +249,10 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
         {
             await SeedLogs(
                 3,
-                logger: "Tool");
+                type: "Tool");
             await SeedLogs(
                 2,
-                logger: "Server");
+                type: "Server");
 
             (bool success, Exception? ex) = await _LogService.ClearLogs("Server");
 

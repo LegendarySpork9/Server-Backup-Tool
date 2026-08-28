@@ -50,7 +50,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                     ServerName TEXT NOT NULL,
                     Timestamp TEXT NOT NULL,
                     Level TEXT NOT NULL,
-                    Logger TEXT NOT NULL,
+                    Type TEXT NOT NULL,
                     Message TEXT NOT NULL
                 );",
                 _KeepAlive))

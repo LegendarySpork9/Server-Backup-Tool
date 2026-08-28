@@ -47,7 +47,7 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                     ServerName TEXT,
                     Timestamp TEXT,
                     Level TEXT,
-                    Logger TEXT,
+                    Type TEXT,
                     Message TEXT
                 )";
 

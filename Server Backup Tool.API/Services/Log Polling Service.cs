@@ -137,7 +137,7 @@ namespace ServerBackupTool.API.Services
     Id,
     Timestamp,
     Level,
-    Logger,
+    Type,
     Message
 from [Logs]
 where ServerName = @serverName
@@ -157,7 +157,7 @@ order by Id asc";
                         Level = Enum.Parse<Entities.LogLevel>(
                             reader.GetString(2),
                             true),
-                        Logger = Enum.Parse<LogType>(
+                        Type = Enum.Parse<LogType>(
                             reader.GetString(3),
                             true),
                         Message = reader.GetString(4)
@@ -199,7 +199,7 @@ order by Id asc";
                 }
 
                 List<LogModel> filteredLogs = [.. allLogs.Where(l => l.Id > registration.AfterId)
-                    .Where(l => registration.LogType == LogType.All || l.Logger == registration.LogType)
+                    .Where(l => registration.LogType == LogType.All || l.Type == registration.LogType)
                     .Where(l => registration.LogLevel == Entities.LogLevel.All || l.Level == registration.LogLevel)];
 
                 if (filteredLogs.Count == 0)
@@ -220,7 +220,7 @@ order by Id asc";
                         Id = l.Id,
                         Timestamp = l.Timestamp,
                         Level = l.Level.ToString(),
-                        Type = l.Logger.ToString(),
+                        Type = l.Type.ToString(),
                         Message = l.Message
                     })];
 

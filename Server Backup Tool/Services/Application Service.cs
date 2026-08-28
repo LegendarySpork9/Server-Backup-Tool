@@ -271,8 +271,8 @@ namespace ServerBackupTool.Services
                 await _ServerService.SendCommand(command.Command);
 
                 _Logger.LogToolMessage(
-                    StandardValues.LoggerValues.Debug,
-                    $"Command Sent to Server: {command}");
+                    StandardValues.LoggerValues.Info,
+                    $"Command Sent to Server: {command.Command}");
             }
 
             else
@@ -288,10 +288,10 @@ namespace ServerBackupTool.Services
                         await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
                         _Logger.LogToolMessage(
-                            StandardValues.LoggerValues.Debug,
+                            StandardValues.LoggerValues.Info,
                             "Stop Command Sent to Server");
                         _Logger.LogToolMessage(
-                            StandardValues.LoggerValues.Debug,
+                            StandardValues.LoggerValues.Info,
                             "Waiting for 30 seconds");
 
                         Thread.Sleep(30000);

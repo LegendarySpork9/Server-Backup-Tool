@@ -6,7 +6,6 @@ using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Models.Responses.Related;
 using ServerBackupTool.API.Services;
-using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
 
 namespace ServerBackupTool.PersistenceTests.API.Services
@@ -24,7 +23,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                 ServerName TEXT NOT NULL,
                 Timestamp TEXT NOT NULL,
                 Level TEXT NOT NULL,
-                Logger TEXT NOT NULL,
+                Type TEXT NOT NULL,
                 Message TEXT NOT NULL
             );";
 
@@ -88,9 +87,9 @@ namespace ServerBackupTool.PersistenceTests.API.Services
         private async Task SeedLogs(
             int count,
             string level = "Info",
-            string logger = "Tool")
+            string type = "Tool")
         {
-            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message) VALUES (@serverName, @timestamp, @level, @logger, @message)";
+            string insertSql = "INSERT INTO Logs (ServerName, Timestamp, Level, Type, Message) VALUES (@serverName, @timestamp, @level, @type, @message)";
 
             for (int i = 1; i <= count; i++)
             {
@@ -107,8 +106,8 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                     "@level",
                     level);
                 command.Parameters.AddWithValue(
-                    "@logger",
-                    logger);
+                    "@type",
+                    type);
                 command.Parameters.AddWithValue(
                     "@message",
                     $"Test message {i}");
@@ -174,10 +173,10 @@ namespace ServerBackupTool.PersistenceTests.API.Services
         {
             await SeedLogs(
                 3,
-                logger: "Tool");
+                type: "Tool");
             await SeedLogs(
                 2,
-                logger: "Server");
+                type: "Server");
 
             (List<LogModel>? logs, Exception? ex) = await _LogService.GetLogs(type: LogType.Tool);
 
@@ -257,15 +256,15 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await SeedLogs(
                 3,
                 level: "Info",
-                logger: "Tool");
+                type: "Tool");
             await SeedLogs(
                 2,
                 level: "Info",
-                logger: "Server");
+                type: "Server");
             await SeedLogs(
                 2,
                 level: "Debug",
-                logger: "Tool");
+                type: "Tool");
 
             (List<LogModel>? logs, Exception? ex) = await _LogService.GetLogs(
                 level: LogLevel.Info,

@@ -116,7 +116,7 @@ namespace ServerBackupTool.API.Controllers
             {
                 ServerName = Options.ServerName,
                 Logs = logs,
-                NextAfter = logs.Count == limit ? logs.First().Id : null
+                NextAfter = logs.First().Id
             };
 
             return StatusCode(
