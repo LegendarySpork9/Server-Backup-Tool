@@ -86,6 +86,11 @@ namespace ServerBackupTool.API.Controllers
                     });
             }
 
+            if (limit > 500)
+            {
+                limit = 500;
+            }
+
             (List<LogModel>? logs, Exception? ex) = await _logService.GetLogs(
                 logLevel,
                 logType,
