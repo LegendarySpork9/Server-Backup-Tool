@@ -14,7 +14,7 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             int count,
             string serverName = "TestServer",
             string level = "Info",
-            string logger = "Tool")
+            string type = "Tool")
         {
             using SqliteConnection connection = new(dbConnStr);
             connection.Open();
@@ -22,8 +22,8 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
             for (int i = 0; i < count; i++)
             {
                 using SqliteCommand cmd = connection.CreateCommand();
-                cmd.CommandText = @"INSERT INTO Logs (ServerName, Timestamp, Level, Logger, Message)
-                    VALUES (@serverName, @timestamp, @level, @logger, @message)";
+                cmd.CommandText = @"INSERT INTO Logs (ServerName, Timestamp, Level, Type, Message)
+                    VALUES (@serverName, @timestamp, @level, @type, @message)";
 
                 cmd.Parameters.AddWithValue(
                     "@serverName",
@@ -35,8 +35,8 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
                     "@level",
                     level);
                 cmd.Parameters.AddWithValue(
-                    "@logger",
-                    logger);
+                    "@type",
+                    type);
                 cmd.Parameters.AddWithValue(
                     "@message",
                     $"Test log message {i + 1}");
@@ -104,6 +104,66 @@ namespace ServerBackupTool.IntegrationTests.API.Helpers
 
             using SqliteCommand cmd = connection.CreateCommand();
             cmd.CommandText = "DELETE FROM Commands";
+            cmd.ExecuteNonQuery();
+        }
+
+        /// <summary>
+        /// Inserts a webhook registration row into the Webhooks table.
+        /// </summary>
+        public static string SeedWebhook(
+            string dbConnStr,
+            string url = "https://example.com/webhook",
+            string serverName = "TestServer",
+            string logType = "All",
+            string logLevel = "All",
+            int afterId = 0)
+        {
+            string id = Guid.NewGuid().ToString();
+
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = @"INSERT INTO Webhooks (Id, Url, ServerName, LogType, LogLevel, AfterId, CreatedAt)
+                    VALUES (@id, @url, @serverName, @logType, @logLevel, @afterId, @createdAt)";
+
+            cmd.Parameters.AddWithValue(
+                "@id",
+                id);
+            cmd.Parameters.AddWithValue(
+                "@url",
+                url);
+            cmd.Parameters.AddWithValue(
+                "@serverName",
+                serverName);
+            cmd.Parameters.AddWithValue(
+                "@logType",
+                logType);
+            cmd.Parameters.AddWithValue(
+                "@logLevel",
+                logLevel);
+            cmd.Parameters.AddWithValue(
+                "@afterId",
+                afterId);
+            cmd.Parameters.AddWithValue(
+                "@createdAt",
+                DateTime.UtcNow.ToString("o"));
+
+            cmd.ExecuteNonQuery();
+
+            return id;
+        }
+
+        /// <summary>
+        /// Deletes all rows from the Webhooks table.
+        /// </summary>
+        public static void ClearWebhooks(string dbConnStr)
+        {
+            using SqliteConnection connection = new(dbConnStr);
+            connection.Open();
+
+            using SqliteCommand cmd = connection.CreateCommand();
+            cmd.CommandText = "DELETE FROM Webhooks";
             cmd.ExecuteNonQuery();
         }
 

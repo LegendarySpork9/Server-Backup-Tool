@@ -3,9 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
+using ServerBackupTool.API.Services;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
@@ -45,7 +47,7 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                     ServerName TEXT,
                     Timestamp TEXT,
                     Level TEXT,
-                    Logger TEXT,
+                    Type TEXT,
                     Message TEXT
                 )";
 
@@ -59,6 +61,21 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                     ServerName TEXT,
                     Target TEXT,
                     Command TEXT,
+                    CreatedAt TEXT
+                )";
+
+                cmd.ExecuteNonQuery();
+            }
+
+            using (SqliteCommand cmd = _KeepAliveConnection.CreateCommand())
+            {
+                cmd.CommandText = @"CREATE TABLE IF NOT EXISTS Webhooks (
+                    Id TEXT PRIMARY KEY,
+                    Url TEXT,
+                    ServerName TEXT,
+                    LogType TEXT,
+                    LogLevel TEXT,
+                    AfterId INTEGER NOT NULL DEFAULT 0,
                     CreatedAt TEXT
                 )";
 
@@ -101,7 +118,7 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                 }
 
                 ServiceDescriptor? dbDescriptor = services.SingleOrDefault(
-                    d => d.ServiceType == typeof(IDatabase));
+                    d => d.ServiceType == typeof(IExtendedDatabase));
 
                 if (dbDescriptor != null)
                 {
@@ -127,7 +144,23 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
                     ArchiveDirectory = _ArchiveDirectory
                 });
 
-                services.AddSingleton<IDatabase, DatabaseWrapper>();
+                services.AddSingleton<IExtendedDatabase, ExtendedDatabaseWrapper>();
+
+                services.AddSingleton(new WebhookSettingsModel
+                {
+                    Secret = "test-webhook-secret",
+                    TimeoutSeconds = 5,
+                    MaxRetries = 1
+                });
+
+                ServiceDescriptor? pollingDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(IHostedService) &&
+                         d.ImplementationType == typeof(LogPollingService));
+
+                if (pollingDescriptor != null)
+                {
+                    services.Remove(pollingDescriptor);
+                }
             });
         }
 

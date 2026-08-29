@@ -6,7 +6,7 @@ using ServerBackupTool.Common.Models;
 namespace ServerBackupTool.PersistenceTests.Tool.Implementations
 {
     [TestClass]
-    public class DatabaseWrapperTest
+    public class ExtendedDatabaseWrapperTest
     {
         private record LogRecord(
             int Id,
@@ -17,7 +17,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Implementations
             string Message);
 
         private SqliteConnection _KeepAlive = null!;
-        private DatabaseWrapper _Wrapper = null!;
+        private ExtendedDatabaseWrapper _Wrapper = null!;
 
         private const string CreateTableSql = @"
             CREATE TABLE Logs (
@@ -35,7 +35,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Implementations
         [TestInitialize]
         public async Task Setup()
         {
-            string dbName = $"ToolDatabaseWrapperTest_{Guid.NewGuid():N}";
+            string dbName = $"ToolExtendedDatabaseWrapperTest_{Guid.NewGuid():N}";
             string connectionString = $"{dbName};Mode=Memory;Cache=Shared";
 
             _KeepAlive = new SqliteConnection($"Data Source={connectionString}");
@@ -55,7 +55,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Implementations
                 PollingIntervalMs = 1000
             };
 
-            _Wrapper = new DatabaseWrapper(options);
+            _Wrapper = new ExtendedDatabaseWrapper(options);
         }
 
         /// <summary>

@@ -126,9 +126,9 @@ namespace ServerBackupTool.Services
                     }
                 }
 
-                (bool succes, Exception? lex) = await _LogService.ClearLogs("Server");
+                (bool success, Exception? lex) = await _LogService.ClearLogs("Server");
 
-                if (!succes)
+                if (!success)
                 {
                     result = "Failed";
                 }

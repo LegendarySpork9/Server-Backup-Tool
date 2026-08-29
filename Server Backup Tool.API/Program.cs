@@ -146,6 +146,11 @@ Each instance of the tool is identified by the name of the server it manages. Th
                         {
                             Name = "Commands",
                             Description = "The calls allowing the user to send commands to the tool and server."
+                        },
+                        new()
+                        {
+                            Name = "Webhooks",
+                            Description = "The calls allowing the user to register and unregister webhooks for realtime log notifications."
                         }
                     };
 
@@ -172,6 +177,11 @@ Each instance of the tool is identified by the name of the server it manages. Th
 
             builder.Services.AddSingleton(archiveSettings);
 
+            WebhookSettingsModel webhookSettings = builder.Configuration.GetSection("Webhook")
+                .Get<WebhookSettingsModel>()!;
+
+            builder.Services.AddSingleton(webhookSettings);
+
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
                 "Loaded Configuration");
@@ -183,9 +193,11 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 "Added HTTP Context Accessor");
 
             builder.Services.AddScoped<ILoggerService, LoggerServiceWrapper>();
-            builder.Services.AddSingleton<IDatabase, DatabaseWrapper>();
+            builder.Services.AddSingleton<IExtendedDatabase, ExtendedDatabaseWrapper>();
             builder.Services.AddSingleton<IExtendedFileSystem, ExtendedFileSystemWrapper>();
             builder.Services.AddSingleton<IClock, SystemClockProvider>();
+            builder.Services.AddHostedService<Services.LogPollingService>();
+            builder.Services.AddHttpClient();
 
             _logger.LogMessage(
                StandardValues.LoggerValues.Debug,
@@ -208,9 +220,9 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 options.OpenApiRoutePattern = "api/{document}.json";
                 options.Title = "Server Backup Tool API";
                 options.Favicon = "/Logo.ico";
+                options.DefaultOpenAllTags = false;
                 options.ForceDarkMode();
-                options.ExpandAllResponses();
-                options.ExpandAllModelSections();
+                options.ExpandAllTags();
                 options.HideTestRequestButton();
             });
 

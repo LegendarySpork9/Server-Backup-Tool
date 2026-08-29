@@ -71,7 +71,7 @@ namespace ServerBackupTool
 
                 LogService _logService = new(
                     new LoggerServiceWrapper(),
-                    new DatabaseWrapper(options),
+                    new ExtendedDatabaseWrapper(options),
                     new SystemClockProvider(),
                     options);
 

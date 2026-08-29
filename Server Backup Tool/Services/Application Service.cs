@@ -43,7 +43,7 @@ namespace ServerBackupTool.Services
                 Name = serverBackupSection.ServerDetails.Name,
                 Game = serverBackupSection.ServerDetails.Game
             };
-            IDatabase _database = new DatabaseWrapper(options);
+            IExtendedDatabase _database = new ExtendedDatabaseWrapper(options);
             _LogService = new(
                 _Logger,
                 _database,
@@ -88,7 +88,7 @@ namespace ServerBackupTool.Services
             TimeSpan duration = _timeConverter.GetDuration(ServerBackupSection.TimerDetails.BackupTime);
 
             _Logger.LogToolMessage(
-                StandardValues.LoggerValues.Debug,
+                StandardValues.LoggerValues.Info,
                 $"Time before backup: {duration:hh\\:mm\\:ss}");
 
             timerDurations = timerDurations.Append(duration)
@@ -99,7 +99,7 @@ namespace ServerBackupTool.Services
                 duration = _timeConverter.GetDuration(timer.Time);
 
                 _Logger.LogToolMessage(
-                    StandardValues.LoggerValues.Debug,
+                    StandardValues.LoggerValues.Info,
                     $"Time before {timer.Name.ToLower()}: {duration:hh\\:mm\\:ss}");
 
                 timerDurations = timerDurations.Append(duration)
@@ -271,8 +271,8 @@ namespace ServerBackupTool.Services
                 await _ServerService.SendCommand(command.Command);
 
                 _Logger.LogToolMessage(
-                    StandardValues.LoggerValues.Debug,
-                    $"Command Sent to Server: {command}");
+                    StandardValues.LoggerValues.Info,
+                    $"Command Sent to Server: {command.Command}");
             }
 
             else
@@ -288,10 +288,10 @@ namespace ServerBackupTool.Services
                         await _ServerService.SendCommand(ServerConverter.GetStopCommand(Server.Game));
 
                         _Logger.LogToolMessage(
-                            StandardValues.LoggerValues.Debug,
+                            StandardValues.LoggerValues.Info,
                             "Stop Command Sent to Server");
                         _Logger.LogToolMessage(
-                            StandardValues.LoggerValues.Debug,
+                            StandardValues.LoggerValues.Info,
                             "Waiting for 30 seconds");
 
                         Thread.Sleep(30000);

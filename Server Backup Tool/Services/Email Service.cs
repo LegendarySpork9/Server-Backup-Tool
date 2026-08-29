@@ -114,7 +114,9 @@ namespace ServerBackupTool.Services
 
             catch
             {
-                _Logger.LogToolMessage(StandardValues.LoggerValues.Warning, "Unable to read body from file, using value specified in configuration element.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Unable to read body from file, using value specified in configuration element.");
             }
 
             return emailBody;

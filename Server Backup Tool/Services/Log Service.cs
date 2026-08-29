@@ -10,14 +10,14 @@ namespace ServerBackupTool.Services
     public class LogService
     {
         private readonly ILoggerService _Logger;
-        private readonly IDatabase _Database;
+        private readonly IExtendedDatabase _Database;
         private readonly IClock _Clock;
         private readonly DatabaseOptionsModel Options;
 
         // Sets the class's global variables
         public LogService(
             ILoggerService _logger,
-            IDatabase _database,
+            IExtendedDatabase _database,
             IClock _clock,
             DatabaseOptionsModel options)
         {
@@ -45,14 +45,14 @@ namespace ServerBackupTool.Services
     ServerName,
     Timestamp,
     Level,
-    Logger,
+    Type,
     Message
 )
 values (
     @serverName,
     @timestamp,
     @level,
-    @logger,
+    @type,
     @message
 )";
                 SqliteParameter[] parameters =
@@ -60,7 +60,7 @@ values (
                     new("@serverName", SqliteType.Text) { Value = Options.ServerName },
                     new("@timestamp", SqliteType.Text) { Value = _Clock.UtcNow },
                     new("@level", SqliteType.Text) { Value = level },
-                    new("@logger", SqliteType.Text) { Value = type },
+                    new("@type", SqliteType.Text) { Value = type },
                     new("@message", SqliteType.Text) { Value = message },
                 ];
 
@@ -110,11 +110,11 @@ values (
             {
                 string sql = @"delete from Logs
 where ServerName = @serverName
-and Logger = @logger";
+and Type = @type";
                 SqliteParameter[] parameters =
                 [
                     new("@serverName", SqliteType.Text) { Value = Options.ServerName },
-                    new("@logger", SqliteType.Text) { Value = type }
+                    new("@type", SqliteType.Text) { Value = type }
                 ];
 
                 (int result, Exception? qex) = await _Database.Execute(

@@ -50,7 +50,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                     ServerName TEXT NOT NULL,
                     Timestamp TEXT NOT NULL,
                     Level TEXT NOT NULL,
-                    Logger TEXT NOT NULL,
+                    Type TEXT NOT NULL,
                     Message TEXT NOT NULL
                 );",
                 _KeepAlive))
@@ -65,7 +65,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 PollingIntervalMs = 1000
             };
 
-            DatabaseWrapper database = new(dbOptions);
+            ExtendedDatabaseWrapper database = new(dbOptions);
 
             _LogService = new LogService(
                 _MockLogger.Object,

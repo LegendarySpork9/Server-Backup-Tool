@@ -17,7 +17,7 @@ namespace ServerBackupTool.API.Controllers
     public class LogsController : ControllerBase
     {
         private readonly ILoggerService _Logger;
-        private readonly IDatabase _Database;
+        private readonly IExtendedDatabase _Database;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly DatabaseOptionsModel Options;
         private readonly ArchiveSettingsModel Archive;
@@ -25,7 +25,7 @@ namespace ServerBackupTool.API.Controllers
         // Set's the class's global variables.
         public LogsController(
             ILoggerService _logger,
-            IDatabase _database,
+            IExtendedDatabase _database,
             IExtendedFileSystem _fileSystem,
             DatabaseOptionsModel options,
             ArchiveSettingsModel archive)
@@ -86,6 +86,11 @@ namespace ServerBackupTool.API.Controllers
                     });
             }
 
+            if (limit > 500)
+            {
+                limit = 500;
+            }
+
             (List<LogModel>? logs, Exception? ex) = await _logService.GetLogs(
                 logLevel,
                 logType,
@@ -116,7 +121,7 @@ namespace ServerBackupTool.API.Controllers
             {
                 ServerName = Options.ServerName,
                 Logs = logs,
-                NextAfter = logs.Count == limit ? logs.First().Id : null
+                NextAfter = logs.First().Id
             };
 
             return StatusCode(

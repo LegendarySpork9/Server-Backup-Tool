@@ -11,7 +11,7 @@ namespace ServerBackupTool.API.Models.Responses.Related
         public required int Id { get; set; }
         public required DateTime Timestamp { get; set; }
         public required Entities.LogLevel Level { get; set; }
-        public required LogType Logger { get; set; }
+        public required LogType Type { get; set; }
         public required string Message { get; set; }
     }
 }

@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS Logs (
     ServerName  TEXT    NOT NULL,
     Timestamp   TEXT    NOT NULL,
     Level   TEXT    NOT NULL,
-    Logger  TEXT    NOT NULL,
+    Type  TEXT    NOT NULL,
     Message TEXT    NOT NULL
 );
 
@@ -20,3 +20,17 @@ CREATE TABLE IF NOT EXISTS Commands (
 CREATE INDEX IF NOT EXISTS IX_Logs_Server ON Logs (ServerName, Id);
 
 CREATE INDEX IF NOT EXISTS IX_Commands_Server ON Commands (ServerName);
+
+CREATE TABLE IF NOT EXISTS Webhooks (
+    Id          TEXT    PRIMARY KEY,
+    URL         TEXT    NOT NULL,
+    ServerName  TEXT    NOT NULL,
+    LogType     TEXT    NOT NULL,
+    LogLevel    TEXT    NOT NULL,
+    AfterId     INTEGER NOT NULL DEFAULT 0,
+    CreatedAt   TEXT    NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS IX_Webhooks_Id ON Webhooks (Id);
+
+CREATE INDEX IF NOT EXISTS IX_Webhooks_Server ON Webhooks (ServerName);
