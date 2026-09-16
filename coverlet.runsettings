@@ -8,8 +8,10 @@
           <Exclude>
             [Server Backup Tool]ServerBackupTool.Program,
             [Server Backup Tool.API]ServerBackupTool.API.Program,
+            [Server Backup Tool.Installer]ServerBackupTool.Installer.Program,
             [*]*.Models.*,
             [*]*.Entities.*,
+            [*]*.Values.*,
             [Server Backup Tool.IntegrationTests]*.Helpers.*
           </Exclude>
           <ExcludeByAttribute>

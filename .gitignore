@@ -18,3 +18,6 @@
 
 # Output
 **[Oo]utput/
+
+# Installer embedded resources (build artifacts)
+Server Backup Tool.Installer/Resources/
