@@ -7,7 +7,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Server Backup Tool</Title>
-    <Version>2.0.2</Version>
+    <Version>3.0.0</Version>
     <Authors>Hunter Industries</Authors>
     <Description>Controls the specified server, allowing for scheduled backups, email notifications and logging.</Description>
     <Copyright>Copyright ©  2025</Copyright>

@@ -9,12 +9,13 @@
     <Title>Server Backup Tool Installer</Title>
     <Version>1.0.0</Version>
     <Authors>Hunter Industries</Authors>
-    <Description>Installs, configures, updates, and uninstalls the Server Backup Tool.</Description>
+    <Description>Installs, configures, updates, and uninstalls the Server Backup Tool and it's API.</Description>
     <Copyright>Copyright ©  2026</Copyright>
     <AssemblyName>SBTInstaller</AssemblyName>
-    <ApplicationIcon>..\Server Backup Tool\Content\Logo.ico</ApplicationIcon>
+    <ApplicationIcon>Content\Logo.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PackageIcon>Logo.png</PackageIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,7 +35,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Content\" />
+    <Content Include="Content\Logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
