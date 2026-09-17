@@ -33,7 +33,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);
-            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ICommandReader> _mockCommandReader = new();
+            Mock<ApplicationService> _mockApplicationService = new(
+                serverBackupSection,
+                _mockCommandReader.Object);
             Mock<ServerService> _mockServerService = new(
                 _mockLogger.Object,
                 _pidFileService,
@@ -123,7 +126,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);
-            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ICommandReader> _mockCommandReader = new();
+            Mock<ApplicationService> _mockApplicationService = new(
+                serverBackupSection,
+                _mockCommandReader.Object);
             Mock<ServerService> _mockServerService = new(
                 _mockLogger.Object,
                 _pidFileService,
@@ -236,7 +242,10 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             PidFileService _pidFileService = new(
                 _mockLogger.Object,
                 _mockFileSystem.Object);
-            Mock<ApplicationService> _mockApplicationService = new(serverBackupSection);
+            Mock<ICommandReader> _mockCommandReader = new();
+            Mock<ApplicationService> _mockApplicationService = new(
+                serverBackupSection,
+                _mockCommandReader.Object);
             Mock<ServerService> _mockServerService = new(
                 _mockLogger.Object,
                 _pidFileService,

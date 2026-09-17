@@ -9,16 +9,19 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class LocationStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IFileService _FileService;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public LocationStep(
+            IAnsiConsole console,
             ILoggerService logger,
             IFileService fileService,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _FileService = fileService;
             _Options = options;
@@ -35,7 +38,7 @@ namespace ServerBackupTool.Installer.Steps
 
             while (true)
             {
-                string path = AnsiConsole.Prompt(new TextPrompt<string>("Enter the install path:").DefaultValue(InstallerValues.Defaults.InstallPath));
+                string path = _Console.Prompt(new TextPrompt<string>("Enter the install path:").DefaultValue(InstallerValues.Defaults.InstallPath));
 
                 if (await _FileService.ValidateWritePermissions(path))
                 {
@@ -49,7 +52,7 @@ namespace ServerBackupTool.Installer.Steps
                     break;
                 }
 
-                AnsiConsole.MarkupLine("[red]The specified path is not writable. Please choose a different location.[/]");
+                _Console.MarkupLine("[red]The specified path is not writable. Please choose a different location.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Warning,

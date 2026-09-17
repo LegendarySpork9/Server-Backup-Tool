@@ -10,14 +10,17 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class EmailConfigStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public EmailConfigStep(
+            IAnsiConsole console,
             ILoggerService logger,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _Options = options;
         }
@@ -31,7 +34,7 @@ namespace ServerBackupTool.Installer.Steps
                 StandardValues.LoggerValues.Info,
                 "Entering email config step.");
 
-            bool configureEmail = AnsiConsole.Prompt(new ConfirmationPrompt("Configure email notifications?")
+            bool configureEmail = _Console.Prompt(new ConfirmationPrompt("Configure email notifications?")
             {
                 ShowDefaultValue = false
             });
@@ -47,25 +50,25 @@ namespace ServerBackupTool.Installer.Steps
 
             else
             {
-                string smtpHost = AnsiConsole.Prompt(new TextPrompt<string>("Enter the SMTP host:"));
-                string smtpPassword = AnsiConsole.Prompt(new TextPrompt<string>("Enter the SMTP password:").Secret());
-                int port = AnsiConsole.Prompt(new TextPrompt<int>("Enter the SMTP port:").DefaultValue(InstallerValues.Defaults.SmtpPort));
-                bool enableSsl = AnsiConsole.Prompt(new ConfirmationPrompt("Enable SSL?")
+                string smtpHost = _Console.Prompt(new TextPrompt<string>("Enter the SMTP host:"));
+                string smtpPassword = _Console.Prompt(new TextPrompt<string>("Enter the SMTP password:").Secret());
+                int port = _Console.Prompt(new TextPrompt<int>("Enter the SMTP port:").DefaultValue(InstallerValues.Defaults.SmtpPort));
+                bool enableSsl = _Console.Prompt(new ConfirmationPrompt("Enable SSL?")
                 {
                     DefaultValue = InstallerValues.Defaults.EnableSSL,
                     ShowDefaultValue = false
                 });
-                string fromEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter the from email address:"));
-                string fromName = AnsiConsole.Prompt(new TextPrompt<string>("Enter the from name:").DefaultValue(InstallerValues.Defaults.FromName));
+                string fromEmail = _Console.Prompt(new TextPrompt<string>("Enter the from email address:"));
+                string fromName = _Console.Prompt(new TextPrompt<string>("Enter the from name:").DefaultValue(InstallerValues.Defaults.FromName));
 
                 List<EmailTemplateModel> emails = [];
 
-                while (AnsiConsole.Prompt(new ConfirmationPrompt("Add an email template?")
+                while (_Console.Prompt(new ConfirmationPrompt("Add an email template?")
                 {
                     ShowDefaultValue = false
                 }))
                 {
-                    string triggerType = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    string triggerType = _Console.Prompt(new SelectionPrompt<string>()
                         .Title("Select the trigger type:")
                         .AddChoices(
                             "Open (system — sent on application startup)",
@@ -73,14 +76,14 @@ namespace ServerBackupTool.Installer.Steps
                             "Heartbeat (system — sent when server heartbeat fails)",
                             "Custom (triggered by server output text)"));
 
-                    AnsiConsole.MarkupLine($"Selected Trigger Type: [blue]{Markup.Escape(triggerType)}[/]");
+                    _Console.MarkupLine($"Selected Trigger Type: [blue]{Markup.Escape(triggerType)}[/]");
 
                     string trigger;
                     bool isSystem;
 
                     if (triggerType.StartsWith("Custom"))
                     {
-                        trigger = AnsiConsole.Prompt(new TextPrompt<string>("Enter the server output text to match:"));
+                        trigger = _Console.Prompt(new TextPrompt<string>("Enter the server output text to match:"));
                         isSystem = false;
                     }
 
@@ -90,15 +93,15 @@ namespace ServerBackupTool.Installer.Steps
                         isSystem = true;
                     }
 
-                    string subject = AnsiConsole.Prompt(new TextPrompt<string>("Enter the subject:").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Subject is required.")));
-                    string content = AnsiConsole.Prompt(new TextPrompt<string>("Enter the content (HTML or path to .html file):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Content is required.")));
+                    string subject = _Console.Prompt(new TextPrompt<string>("Enter the subject:").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Subject is required.")));
+                    string content = _Console.Prompt(new TextPrompt<string>("Enter the content (HTML or path to .html file):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Content is required.")));
 
                     List<RecipientModel> recipients = [];
 
-                    AnsiConsole.MarkupLine("[grey]At least one recipient is required.[/]");
+                    _Console.MarkupLine("[grey]At least one recipient is required.[/]");
 
-                    string email = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient email:"));
-                    string name = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient name:"));
+                    string email = _Console.Prompt(new TextPrompt<string>("Enter the recipient email:"));
+                    string name = _Console.Prompt(new TextPrompt<string>("Enter the recipient name:"));
 
                     recipients.Add(new RecipientModel
                     {
@@ -106,13 +109,13 @@ namespace ServerBackupTool.Installer.Steps
                         Name = name
                     });
 
-                    while (AnsiConsole.Prompt(new ConfirmationPrompt("Add another recipient?")
+                    while (_Console.Prompt(new ConfirmationPrompt("Add another recipient?")
                     {
                         ShowDefaultValue = false
                     }))
                     {
-                        email = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient email:"));
-                        name = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient name:"));
+                        email = _Console.Prompt(new TextPrompt<string>("Enter the recipient email:"));
+                        name = _Console.Prompt(new TextPrompt<string>("Enter the recipient name:"));
 
                         recipients.Add(new RecipientModel
                         {
@@ -123,13 +126,13 @@ namespace ServerBackupTool.Installer.Steps
 
                     List<ImageModel> images = [];
 
-                    while (AnsiConsole.Prompt(new ConfirmationPrompt("Add an inline image?")
+                    while (_Console.Prompt(new ConfirmationPrompt("Add an inline image?")
                     {
                         ShowDefaultValue = false
                     }))
                     {
-                        string imageKey = AnsiConsole.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
-                        string imagePath = AnsiConsole.Prompt(new TextPrompt<string>("Enter the image file path:"));
+                        string imageKey = _Console.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
+                        string imagePath = _Console.Prompt(new TextPrompt<string>("Enter the image file path:"));
 
                         images.Add(new ImageModel
                         {

@@ -8,14 +8,17 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class ComponentSelectionStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public ComponentSelectionStep(
+            IAnsiConsole console,
             ILoggerService logger,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _Options = options;
         }
@@ -29,7 +32,7 @@ namespace ServerBackupTool.Installer.Steps
                 StandardValues.LoggerValues.Info,
                 "Entering component selection step.");
 
-            List<string> selected = AnsiConsole.Prompt(new MultiSelectionPrompt<string>()
+            List<string> selected = _Console.Prompt(new MultiSelectionPrompt<string>()
                 .Title("Select components to install:")
                 .Required()
                 .AddChoices(

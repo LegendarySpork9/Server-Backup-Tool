@@ -10,6 +10,7 @@ namespace ServerBackupTool.Installer.Modes
 {
     public class UninstallMode
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IFileService _FileService;
         private readonly IExtendedFileSystem _FileSystem;
@@ -19,6 +20,7 @@ namespace ServerBackupTool.Installer.Modes
 
         // Sets the class's global variables.
         public UninstallMode(
+            IAnsiConsole console,
             ILoggerService logger,
             IFileService fileService,
             IExtendedFileSystem fileSystem,
@@ -26,6 +28,7 @@ namespace ServerBackupTool.Installer.Modes
             IRegistryService registryService,
             IVersionService versionService)
         {
+            _Console = console;
             _Logger = logger;
             _FileService = fileService;
             _FileSystem = fileSystem;
@@ -47,7 +50,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (installed == null)
             {
-                AnsiConsole.MarkupLine("[red]No existing installation found.[/]");
+                _Console.MarkupLine("[red]No existing installation found.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Error,
@@ -56,24 +59,24 @@ namespace ServerBackupTool.Installer.Modes
 
             else
             {
-                AnsiConsole.MarkupLine($"Installation found at: [blue]{Markup.Escape(installed.InstallPath)}[/]");
-                AnsiConsole.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/]");
+                _Console.MarkupLine($"Installation found at: [blue]{Markup.Escape(installed.InstallPath)}[/]");
+                _Console.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/]");
 
                 if (!string.IsNullOrEmpty(installed.ApiInstallPath))
                 {
-                    AnsiConsole.MarkupLine($"API location:  [blue]{Markup.Escape(installed.ApiInstallPath)}[/]");
-                    AnsiConsole.MarkupLine($"API version:   [blue]{Markup.Escape(!string.IsNullOrEmpty(installed.ApiVersion) ? installed.ApiVersion : "Unknown")}[/]");
+                    _Console.MarkupLine($"API location:  [blue]{Markup.Escape(installed.ApiInstallPath)}[/]");
+                    _Console.MarkupLine($"API version:   [blue]{Markup.Escape(!string.IsNullOrEmpty(installed.ApiVersion) ? installed.ApiVersion : "Unknown")}[/]");
                 }
 
-                AnsiConsole.WriteLine();
+                _Console.WriteLine();
 
-                if (!AnsiConsole.Prompt(new ConfirmationPrompt("[red]Are you sure you want to uninstall the Server Backup Tool?[/]")
+                if (!_Console.Prompt(new ConfirmationPrompt("[red]Are you sure you want to uninstall the Server Backup Tool?[/]")
                 {
                     DefaultValue = false,
                     ShowDefaultValue = false
                 }))
                 {
-                    AnsiConsole.MarkupLine("[yellow]Uninstall cancelled.[/]");
+                    _Console.MarkupLine("[yellow]Uninstall cancelled.[/]");
 
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Info,
@@ -88,7 +91,7 @@ namespace ServerBackupTool.Installer.Modes
 
                     if (apiInstalled)
                     {
-                        uninstallTarget = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                        uninstallTarget = _Console.Prompt(new SelectionPrompt<string>()
                             .Title("What would you like to uninstall?")
                             .AddChoices(
                                 "Everything (Tool and API)",
@@ -105,7 +108,7 @@ namespace ServerBackupTool.Installer.Modes
                         UninstallEverything(installed);
                     }
 
-                    AnsiConsole.MarkupLine("[green]Uninstall completed.[/]");
+                    _Console.MarkupLine("[green]Uninstall completed.[/]");
 
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Info,
@@ -121,29 +124,29 @@ namespace ServerBackupTool.Installer.Modes
         {
             if (!string.IsNullOrEmpty(installed.ApiTaskName) && _TaskSchedulerService.TaskExists(installed.ApiTaskName))
             {
-                AnsiConsole.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
+                _Console.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
 
                 (bool apiTaskRemoved, Exception? apiTaskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ApiTaskName);
 
                 if (!apiTaskRemoved)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
                 }
             }
 
             if (!string.IsNullOrEmpty(installed.ApiInstallPath) && _FileSystem.DirectoryExists(installed.ApiInstallPath))
             {
-                AnsiConsole.MarkupLine("Removing API files...");
+                _Console.MarkupLine("Removing API files...");
 
                 (bool apiDirDeleted, Exception? apiDirEx) = _FileService.DeleteDirectory(installed.ApiInstallPath);
 
                 if (!apiDirDeleted)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
                 }
             }
 
-            AnsiConsole.MarkupLine("Updating registry entry...");
+            _Console.MarkupLine("Updating registry entry...");
 
             _RegistryService.WriteUninstallEntry(
                 installed.ServerName,
@@ -166,40 +169,40 @@ namespace ServerBackupTool.Installer.Modes
         {
             if (!string.IsNullOrEmpty(installed.ToolTaskName) && _TaskSchedulerService.TaskExists(installed.ToolTaskName))
             {
-                AnsiConsole.MarkupLine($"Removing scheduled task '{Markup.Escape(installed.ToolTaskName)}'...");
+                _Console.MarkupLine($"Removing scheduled task '{Markup.Escape(installed.ToolTaskName)}'...");
 
                 (bool taskRemoved, Exception? taskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ToolTaskName);
 
                 if (!taskRemoved)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove scheduled task: {Markup.Escape(taskEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove scheduled task: {Markup.Escape(taskEx?.Message ?? "Unknown error")}[/]");
                 }
             }
 
             if (!string.IsNullOrEmpty(installed.ApiTaskName) && _TaskSchedulerService.TaskExists(installed.ApiTaskName))
             {
-                AnsiConsole.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
+                _Console.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
 
                 (bool apiTaskRemoved, Exception? apiTaskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ApiTaskName);
 
                 if (!apiTaskRemoved)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
                 }
             }
 
-            bool keepDatabase = AnsiConsole.Prompt(new ConfirmationPrompt("Keep the database file?")
+            bool keepDatabase = _Console.Prompt(new ConfirmationPrompt("Keep the database file?")
             {
                 DefaultValue = true,
                 ShowDefaultValue = false
             });
-            bool keepLogs = AnsiConsole.Prompt(new ConfirmationPrompt("Keep log files?")
+            bool keepLogs = _Console.Prompt(new ConfirmationPrompt("Keep log files?")
             {
                 DefaultValue = true,
                 ShowDefaultValue = false
             });
 
-            AnsiConsole.MarkupLine("Removing registry entry...");
+            _Console.MarkupLine("Removing registry entry...");
 
             _RegistryService.RemoveUninstallEntry(installed.ServerName);
 
@@ -220,7 +223,7 @@ namespace ServerBackupTool.Installer.Modes
 
                     catch (Exception ex)
                     {
-                        AnsiConsole.MarkupLine($"[yellow]Warning: Failed to delete database: {Markup.Escape(ex.Message)}[/]");
+                        _Console.MarkupLine($"[yellow]Warning: Failed to delete database: {Markup.Escape(ex.Message)}[/]");
                     }
                 }
 
@@ -257,25 +260,25 @@ namespace ServerBackupTool.Installer.Modes
                     StandardValues.LoggerValues.Info,
                     "Log files deleted.");
 
-                AnsiConsole.MarkupLine("Removing application files...");
+                _Console.MarkupLine("Removing application files...");
 
                 (bool installDirDeleted, Exception? installDirEx) = _FileService.DeleteDirectory(installed.InstallPath);
 
                 if (!installDirDeleted)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove install directory: {Markup.Escape(installDirEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove install directory: {Markup.Escape(installDirEx?.Message ?? "Unknown error")}[/]");
                 }
             }
 
             if (!string.IsNullOrEmpty(installed.ApiInstallPath) && _FileSystem.DirectoryExists(installed.ApiInstallPath))
             {
-                AnsiConsole.MarkupLine("Removing API files...");
+                _Console.MarkupLine("Removing API files...");
 
                 (bool apiDirDeleted, Exception? apiDirEx) = _FileService.DeleteDirectory(installed.ApiInstallPath);
 
                 if (!apiDirDeleted)
                 {
-                    AnsiConsole.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
                 }
             }
         }
@@ -339,7 +342,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else if (installations.Count > 1)
             {
-                string choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                string choice = _Console.Prompt(new SelectionPrompt<string>()
                     .Title("Multiple installations found. Which installation would you like to uninstall?")
                     .AddChoices(installations.Select(i => $"{i.ServerName} (v{i.ToolVersion} at {i.InstallPath})")));
 

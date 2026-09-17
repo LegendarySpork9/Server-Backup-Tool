@@ -17,6 +17,8 @@ namespace ServerBackupTool.Installer
                 StandardValues.LoggerValues.Info,
                 "Server Backup Tool Installer started.");
 
+            IAnsiConsole console = AnsiConsole.Console;
+
             try
             {
                 IExtendedFileSystem fileSystem = new ExtendedFileSystemWrapper();
@@ -40,12 +42,15 @@ namespace ServerBackupTool.Installer
                     resourceService,
                     fileSystem);
 
-                string mode = DetermineMode(args);
+                string mode = DetermineMode(
+                    console,
+                    args);
 
                 switch (mode)
                 {
                     case "install":
                         await new InstallMode(
+                            console,
                             logger,
                             fileService,
                             fileSystem,
@@ -59,6 +64,7 @@ namespace ServerBackupTool.Installer
 
                     case "update":
                         await new UpdateMode(
+                            console,
                             logger,
                             fileService,
                             fileSystem,
@@ -71,6 +77,7 @@ namespace ServerBackupTool.Installer
 
                     case "configure":
                         await new ConfigureMode(
+                            console,
                             logger,
                             fileSystem,
                             configWriter,
@@ -79,6 +86,7 @@ namespace ServerBackupTool.Installer
 
                     case "uninstall":
                         new UninstallMode(
+                            console,
                             logger,
                             fileService,
                             fileSystem,
@@ -97,7 +105,7 @@ namespace ServerBackupTool.Installer
 
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]An unexpected error occurred: {Markup.Escape(ex.Message)}[/]");
+                console.MarkupLine($"[red]An unexpected error occurred: {Markup.Escape(ex.Message)}[/]");
 
                 logger.LogMessage(
                     StandardValues.LoggerValues.Error,
@@ -110,7 +118,9 @@ namespace ServerBackupTool.Installer
         /// <summary>
         /// Determines the installer mode from command line arguments or user selection.
         /// </summary>
-        private static string DetermineMode(string[] args)
+        private static string DetermineMode(
+            IAnsiConsole console,
+            string[] args)
         {
             string mode = args.Length > 0 ? args[0].TrimStart('-')
                 .ToLowerInvariant() switch
@@ -119,8 +129,8 @@ namespace ServerBackupTool.Installer
                     "update" => "update",
                     "configure" => "configure",
                     "uninstall" => "uninstall",
-                    _ => PromptForMode()
-                } : PromptForMode();
+                    _ => PromptForMode(console)
+                } : PromptForMode(console);
 
             return mode;
         }
@@ -128,9 +138,9 @@ namespace ServerBackupTool.Installer
         /// <summary>
         /// Prompts the user to select an installer mode.
         /// </summary>
-        private static string PromptForMode()
+        private static string PromptForMode(IAnsiConsole console)
         {
-            string selection = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            string selection = console.Prompt(new SelectionPrompt<string>()
                 .Title(@"Hunter Industries Server Backup Tool Installer
 What operation would you like to perform?")
                 .AddChoices(

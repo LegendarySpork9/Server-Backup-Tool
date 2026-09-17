@@ -17,6 +17,7 @@ namespace ServerBackupTool.Services
     {
         private readonly ILoggerService _Logger = new LoggerServiceWrapper();
         private readonly IClock _Clock = new SystemClockProvider();
+        private readonly ICommandReader _CommandReader;
         private readonly LogService _LogService;
         private readonly CommandService _CommandService;
         private readonly PidFileService _PidFileService;
@@ -28,7 +29,9 @@ namespace ServerBackupTool.Services
         public static ManualResetEvent WaitForServerClose = new(false);
 
         // Sets the class's global variables.
-        public ApplicationService(SBTSection serverBackupSection)
+        public ApplicationService(
+            SBTSection serverBackupSection,
+            ICommandReader commandReader)
         {
             DatabaseOptionsModel options = new()
             {
@@ -37,6 +40,7 @@ namespace ServerBackupTool.Services
                 PollingIntervalMs = serverBackupSection.DatabaseDetails.PollingInterval
             };
 
+            _CommandReader = commandReader;
             ServerBackupSection = serverBackupSection;
             Server = new(serverBackupSection.ServerDetails)
             {
@@ -190,7 +194,7 @@ namespace ServerBackupTool.Services
         {
             while (true)
             {
-                string? command = Console.ReadLine();
+                string? command = _CommandReader.ReadCommand();
 
                 if (!string.IsNullOrEmpty(command))
                 {

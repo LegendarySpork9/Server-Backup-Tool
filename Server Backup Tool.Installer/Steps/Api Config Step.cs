@@ -13,14 +13,17 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class ApiConfigStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public ApiConfigStep(
+            IAnsiConsole console,
             ILoggerService logger,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _Options = options;
         }
@@ -45,10 +48,10 @@ namespace ServerBackupTool.Installer.Steps
 
             else
             {
-                AnsiConsole.MarkupLine("[grey]Use 0.0.0.0 to listen on all network interfaces, or a specific IP to restrict access.[/]");
-                string bindAddress = AnsiConsole.Prompt(new TextPrompt<string>("Enter the IP address the API should listen on:").DefaultValue(InstallerValues.Defaults.ApiBindAddress));
-                int httpPort = AnsiConsole.Prompt(new TextPrompt<int>("Enter the HTTP port:").DefaultValue(InstallerValues.Defaults.ApiHttpPort));
-                bool enableHttps = AnsiConsole.Prompt(new ConfirmationPrompt("Enable HTTPS?")
+                _Console.MarkupLine("[grey]Use 0.0.0.0 to listen on all network interfaces, or a specific IP to restrict access.[/]");
+                string bindAddress = _Console.Prompt(new TextPrompt<string>("Enter the IP address the API should listen on:").DefaultValue(InstallerValues.Defaults.ApiBindAddress));
+                int httpPort = _Console.Prompt(new TextPrompt<int>("Enter the HTTP port:").DefaultValue(InstallerValues.Defaults.ApiHttpPort));
+                bool enableHttps = _Console.Prompt(new ConfirmationPrompt("Enable HTTPS?")
                 {
                     ShowDefaultValue = false
                 });
@@ -58,16 +61,16 @@ namespace ServerBackupTool.Installer.Steps
 
                 if (enableHttps)
                 {
-                    httpsPort = AnsiConsole.Prompt(new TextPrompt<int>("Enter the HTTPS port:").DefaultValue(InstallerValues.Defaults.ApiHttpsPort));
-                    certificatePath = AnsiConsole.Prompt(new TextPrompt<string>("Enter the path to the SSL certificate (.pfx):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
-                    certificatePassword = AnsiConsole.Prompt(new TextPrompt<string>("Enter the certificate password:").Secret());
+                    httpsPort = _Console.Prompt(new TextPrompt<int>("Enter the HTTPS port:").DefaultValue(InstallerValues.Defaults.ApiHttpsPort));
+                    certificatePath = _Console.Prompt(new TextPrompt<string>("Enter the path to the SSL certificate (.pfx):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
+                    certificatePassword = _Console.Prompt(new TextPrompt<string>("Enter the certificate password:").Secret());
                 }
 
-                string databasePath = AnsiConsole.Prompt(new TextPrompt<string>("Enter the API database path:").DefaultValue(_Options.ServerConfig.DatabasePath));
-                string archiveDirectory = AnsiConsole.Prompt(new TextPrompt<string>("Enter the archive directory:").DefaultValue(Path.Combine(
+                string databasePath = _Console.Prompt(new TextPrompt<string>("Enter the API database path:").DefaultValue(_Options.ServerConfig.DatabasePath));
+                string archiveDirectory = _Console.Prompt(new TextPrompt<string>("Enter the archive directory:").DefaultValue(Path.Combine(
                     _Options.InstallPath,
                     InstallerValues.Defaults.ArchiveDirectory)));
-                string webhookSecretPlain = AnsiConsole.Prompt(new TextPrompt<string>("Enter the webhook signing secret (shared with webhook consumers):").Secret());
+                string webhookSecretPlain = _Console.Prompt(new TextPrompt<string>("Enter the webhook signing secret (shared with webhook consumers):").Secret());
                 
                 byte[] webhookHashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(webhookSecretPlain));
                 string webhookSecret = Convert.ToHexString(webhookHashBytes)
@@ -90,12 +93,12 @@ namespace ServerBackupTool.Installer.Steps
                     "Client Secret",
                     clientSecret);
 
-                AnsiConsole.WriteLine();
-                AnsiConsole.Write(credentialsTable);
-                AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("[yellow]WARNING: These credentials will NOT be shown again. Copy them now.[/]");
-                AnsiConsole.MarkupLine("Press [green]Enter[/] to continue...");
-                Console.ReadLine();
+                _Console.WriteLine();
+                _Console.Write(credentialsTable);
+                _Console.WriteLine();
+                _Console.MarkupLine("[yellow]WARNING: These credentials will NOT be shown again. Copy them now.[/]");
+                _Console.MarkupLine("Press [green]Enter[/] to continue...");
+                _Console.Prompt(new TextPrompt<string>("").AllowEmpty());
 
                 _Options.ApiConfig = new ApiConfigModel
                 {

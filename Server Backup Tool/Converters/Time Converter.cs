@@ -19,11 +19,13 @@ namespace ServerBackupTool.Converters
         public TimeSpan GetDuration(string triggerTime)
         {
             DateTime currentTime = _Clock.UtcNow;
+            TimeSpan parsedTime = TimeSpan.Parse(triggerTime);
+            DateTime triggerDateTime = DateTime.SpecifyKind(
+                currentTime.Date.Add(parsedTime),
+                DateTimeKind.Utc);
             string elapsedTime = GetElapsedTime(
                 currentTime,
-                DateTime.SpecifyKind(
-                    DateTime.Parse(triggerTime),
-                    DateTimeKind.Utc),
+                triggerDateTime,
                 triggerTime);
 
             TimeSpan timerDuration = DateTime.SpecifyKind(

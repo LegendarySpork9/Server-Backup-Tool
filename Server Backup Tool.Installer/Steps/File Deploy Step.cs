@@ -10,6 +10,7 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class FileDeployStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly IResourceService _ResourceService;
@@ -22,6 +23,7 @@ namespace ServerBackupTool.Installer.Steps
 
         // Sets the class's global variables.
         public FileDeployStep(
+            IAnsiConsole console,
             ILoggerService logger,
             IExtendedFileSystem fileSystem,
             IResourceService resourceService,
@@ -32,6 +34,7 @@ namespace ServerBackupTool.Installer.Steps
             IVersionService versionService,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _FileSystem = fileSystem;
             _ResourceService = resourceService;
@@ -52,7 +55,7 @@ namespace ServerBackupTool.Installer.Steps
                 StandardValues.LoggerValues.Info,
                 "Starting file deployment.");
 
-            await AnsiConsole.Progress()
+            await _Console.Progress()
                 .AutoClear(false)
                 .Columns(
                     new TaskDescriptionColumn(),

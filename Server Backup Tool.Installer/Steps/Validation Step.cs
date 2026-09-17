@@ -10,6 +10,7 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class ValidationStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly IDatabaseInitialiser _DatabaseInitialiser;
@@ -18,12 +19,14 @@ namespace ServerBackupTool.Installer.Steps
 
         // Sets the class's global variables.
         public ValidationStep(
+            IAnsiConsole console,
             ILoggerService logger,
             IExtendedFileSystem fileSystem,
             IDatabaseInitialiser databaseInitialiser,
             ITaskSchedulerService taskSchedulerService,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _FileSystem = fileSystem;
             _DatabaseInitialiser = databaseInitialiser;
@@ -79,7 +82,7 @@ namespace ServerBackupTool.Installer.Steps
                     CheckScheduledTask(_Options.ApiTaskName));
             }
 
-            AnsiConsole.Write(table);
+            _Console.Write(table);
 
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Info,

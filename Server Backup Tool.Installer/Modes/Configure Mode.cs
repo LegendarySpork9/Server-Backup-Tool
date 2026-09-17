@@ -14,6 +14,7 @@ namespace ServerBackupTool.Installer.Modes
 {
     public class ConfigureMode
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
         private readonly IConfigWriter _ConfigWriter;
@@ -21,11 +22,13 @@ namespace ServerBackupTool.Installer.Modes
 
         // Sets the class's global variables.
         public ConfigureMode(
+            IAnsiConsole console,
             ILoggerService logger,
             IExtendedFileSystem fileSystem,
             IConfigWriter configWriter,
             IVersionService versionService)
         {
+            _Console = console;
             _Logger = logger;
             _FileSystem = fileSystem;
             _ConfigWriter = configWriter;
@@ -45,7 +48,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (installed == null)
             {
-                AnsiConsole.MarkupLine("[red]No existing installation found. Please run the installer first.[/]");
+                _Console.MarkupLine("[red]No existing installation found. Please run the installer first.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Error,
@@ -60,7 +63,7 @@ namespace ServerBackupTool.Installer.Modes
 
                 if (!_FileSystem.FileExists(configPath))
                 {
-                    AnsiConsole.MarkupLine("[red]Configuration file not found.[/]");
+                    _Console.MarkupLine("[red]Configuration file not found.[/]");
 
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Error,
@@ -78,7 +81,7 @@ namespace ServerBackupTool.Installer.Modes
 
                     catch (Exception ex)
                     {
-                        AnsiConsole.MarkupLine($"[red]Failed to load configuration: {Markup.Escape(ex.Message)}[/]");
+                        _Console.MarkupLine($"[red]Failed to load configuration: {Markup.Escape(ex.Message)}[/]");
                     }
 
                     if (config != null)
@@ -102,11 +105,16 @@ namespace ServerBackupTool.Installer.Modes
 
                             catch (Exception ex)
                             {
-                                AnsiConsole.MarkupLine($"[yellow]Warning: Failed to load API settings: {Markup.Escape(ex.Message)}[/]");
+                                _Console.MarkupLine($"[yellow]Warning: Failed to load API settings: {Markup.Escape(ex.Message)}[/]");
 
                                 apiInstalled = false;
                             }
                         }
+
+                        XDocument originalConfig = XDocument.Parse(config.ToString());
+                        string? originalApiJson = apiSettings != null
+                            ? JsonSerializer.Serialize(apiSettings, new JsonSerializerOptions { WriteIndented = true })
+                            : null;
 
                         bool continueEditing = true;
 
@@ -128,7 +136,7 @@ namespace ServerBackupTool.Installer.Modes
                             choices.Add("Save and Exit");
                             choices.Add("Exit Without Saving");
 
-                            string section = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                            string section = _Console.Prompt(new SelectionPrompt<string>()
                                 .Title("Which section would you like to edit?")
                                 .AddChoices(choices));
 
@@ -136,27 +144,34 @@ namespace ServerBackupTool.Installer.Modes
                             {
                                 case "Server Details":
                                     EditServerDetails(config);
+                                    _Console.Clear();
                                     break;
                                 case "Backup and Timers":
                                     EditTimerDetails(config);
+                                    _Console.Clear();
                                     break;
                                 case "Email Notifications":
                                     EditEmailNotifications(config);
+                                    _Console.Clear();
                                     break;
                                 case "Database Settings":
                                     EditDatabaseSettings(config);
+                                    _Console.Clear();
                                     break;
                                 case "API Settings":
                                     EditApiSettings(
                                         apiDocument!,
                                         apiSettings!);
+                                    _Console.Clear();
                                     break;
                                 case "Save and Exit":
                                     await SaveAllAsync(
                                         configPath,
                                         config,
+                                        originalConfig,
                                         apiSettingsPath,
-                                        apiSettings);
+                                        apiSettings,
+                                        originalApiJson);
                                     continueEditing = false;
                                     break;
                                 case "Exit Without Saving":
@@ -193,19 +208,19 @@ namespace ServerBackupTool.Installer.Modes
 
                 serverDetails.SetAttributeValue(
                     "name",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Server name:").DefaultValue(currentName)));
+                    _Console.Prompt(new TextPrompt<string>("Server name:").DefaultValue(currentName)));
                 serverDetails.SetAttributeValue(
                     "game",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Game:").DefaultValue(currentGame)));
+                    _Console.Prompt(new TextPrompt<string>("Game:").DefaultValue(currentGame)));
                 serverDetails.SetAttributeValue(
                     "location",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Server directory:").DefaultValue(currentLocation)));
+                    _Console.Prompt(new TextPrompt<string>("Server directory:").DefaultValue(currentLocation)));
                 serverDetails.SetAttributeValue(
                     "startFile",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Start file:").DefaultValue(currentStartFile)));
+                    _Console.Prompt(new TextPrompt<string>("Start file:").DefaultValue(currentStartFile)));
                 serverDetails.SetAttributeValue(
                     "ipAddress",
-                    AnsiConsole.Prompt(new TextPrompt<string>("IP address:").DefaultValue(currentIpAddress)));
+                    _Console.Prompt(new TextPrompt<string>("IP address:").DefaultValue(currentIpAddress)));
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Info,
@@ -214,7 +229,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else
             {
-                AnsiConsole.MarkupLine("[red]Server details section not found.[/]");
+                _Console.MarkupLine("[red]Server details section not found.[/]");
             }
         }
 
@@ -236,7 +251,7 @@ namespace ServerBackupTool.Installer.Modes
                     List<XElement> existingTimers = timersElement?.Elements("timer")
                         .ToList() ?? [];
 
-                    string choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    string choice = _Console.Prompt(new SelectionPrompt<string>()
                         .Title($"Backup and Timers ({existingTimers.Count} custom timer(s) configured)")
                         .AddChoices(
                             "Edit Backup Time",
@@ -250,18 +265,18 @@ namespace ServerBackupTool.Installer.Modes
                             string currentBackupTime = timerDetails.Attribute("backupTime")?.Value ?? string.Empty;
                             timerDetails.SetAttributeValue(
                                 "backupTime",
-                                AnsiConsole.Prompt(new TextPrompt<string>("Backup time (HH:mm:ss):").DefaultValue(currentBackupTime)
+                                _Console.Prompt(new TextPrompt<string>("Backup time (HH:mm:ss):").DefaultValue(currentBackupTime)
                                     .Validate(input => TimeSpan.TryParse(
                                         input,
                                         out _) ? ValidationResult.Success() : ValidationResult.Error("Please enter a valid time in HH:mm:ss format."))));
                             break;
 
                         case "Add Custom Timer":
-                            string timerName = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer name:"));
-                            string timerTime = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
+                            string timerName = _Console.Prompt(new TextPrompt<string>("Enter the timer name:"));
+                            string timerTime = _Console.Prompt(new TextPrompt<string>("Enter the timer time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
                                 input,
                                 out _) ? ValidationResult.Success() : ValidationResult.Error("Please enter a valid time in HH:mm:ss format.")));
-                            string timerMessage = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer message:"));
+                            string timerMessage = _Console.Prompt(new TextPrompt<string>("Enter the timer message:"));
 
                             if (timersElement == null)
                             {
@@ -280,20 +295,20 @@ namespace ServerBackupTool.Installer.Modes
                                 "count",
                                 newCount);
 
-                            AnsiConsole.MarkupLine($"[green]Timer '{Markup.Escape(timerName)}' added.[/]");
+                            _Console.MarkupLine($"[green]Timer '{Markup.Escape(timerName)}' added.[/]");
                             break;
 
                         case "Remove Custom Timer":
                             if (existingTimers.Count == 0)
                             {
-                                AnsiConsole.MarkupLine("[yellow]No custom timers to remove.[/]");
+                                _Console.MarkupLine("[yellow]No custom timers to remove.[/]");
                             }
 
                             else
                             {
                                 List<string> timerChoices = [.. existingTimers.Select(t => $"{t.Attribute("name")?.Value} ({t.Attribute("time")?.Value})")];
 
-                                string selected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                string selected = _Console.Prompt(new SelectionPrompt<string>()
                                     .Title("Select a timer to remove:")
                                     .AddChoices(timerChoices));
 
@@ -309,7 +324,7 @@ namespace ServerBackupTool.Installer.Modes
                                         "count",
                                         updatedCount);
 
-                                    AnsiConsole.MarkupLine($"[green]Timer removed.[/]");
+                                    _Console.MarkupLine($"[green]Timer removed.[/]");
                                 }
                             }
                             break;
@@ -327,7 +342,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else
             {
-                AnsiConsole.MarkupLine("[red]Timer details section not found.[/]");
+                _Console.MarkupLine("[red]Timer details section not found.[/]");
             }
         }
 
@@ -349,7 +364,7 @@ namespace ServerBackupTool.Installer.Modes
                     List<XElement> existingEmails = emailsElement?.Elements("email")
                         .ToList() ?? [];
 
-                    string choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                    string choice = _Console.Prompt(new SelectionPrompt<string>()
                         .Title($"Email Notifications ({existingEmails.Count} template(s) configured)")
                         .AddChoices(
                             "Toggle Enabled",
@@ -364,7 +379,7 @@ namespace ServerBackupTool.Installer.Modes
                     {
                         case "Toggle Enabled":
                             string currentEnabled = notifications.Attribute("enabled")?.Value ?? "false";
-                            bool enabled = AnsiConsole.Prompt(new ConfirmationPrompt("Enable email notifications?")
+                            bool enabled = _Console.Prompt(new ConfirmationPrompt("Enable email notifications?")
                             {
                                 DefaultValue = currentEnabled.Equals(
                                     "true",
@@ -384,10 +399,10 @@ namespace ServerBackupTool.Installer.Modes
                                 string currentHost = provider.Attribute("name")?.Value ?? string.Empty;
                                 provider.SetAttributeValue(
                                     "name",
-                                    AnsiConsole.Prompt(new TextPrompt<string>("SMTP host:").DefaultValue(currentHost)));
+                                    _Console.Prompt(new TextPrompt<string>("SMTP host:").DefaultValue(currentHost)));
                                 provider.SetAttributeValue(
                                     "password",
-                                    AnsiConsole.Prompt(new TextPrompt<string>("SMTP password:").Secret()));
+                                    _Console.Prompt(new TextPrompt<string>("SMTP password:").Secret()));
                             }
                             break;
 
@@ -400,10 +415,10 @@ namespace ServerBackupTool.Installer.Modes
                                 string currentName = fromAddress.Attribute("name")?.Value ?? InstallerValues.Defaults.FromName;
                                 fromAddress.SetAttributeValue(
                                     "email",
-                                    AnsiConsole.Prompt(new TextPrompt<string>("From email:").DefaultValue(currentEmail)));
+                                    _Console.Prompt(new TextPrompt<string>("From email:").DefaultValue(currentEmail)));
                                 fromAddress.SetAttributeValue(
                                     "name",
-                                    AnsiConsole.Prompt(new TextPrompt<string>("From name:").DefaultValue(currentName)));
+                                    _Console.Prompt(new TextPrompt<string>("From name:").DefaultValue(currentName)));
                             }
                             break;
 
@@ -414,14 +429,14 @@ namespace ServerBackupTool.Installer.Modes
                         case "Edit Email Templates":
                             if (existingEmails.Count == 0)
                             {
-                                AnsiConsole.MarkupLine("[yellow]No email templates to edit.[/]");
+                                _Console.MarkupLine("[yellow]No email templates to edit.[/]");
                             }
 
                             else
                             {
                                 List<string> editTemplateChoices = [.. existingEmails.Select(e => $"{e.Attribute("trigger")?.Value} ({(e.Attribute("system")?.Value == "true" || e.Attribute("system")?.Value == "True" ? "System" : "Custom")})")];
 
-                                string editSelected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                string editSelected = _Console.Prompt(new SelectionPrompt<string>()
                                     .Title("Select a template to edit:")
                                     .AddChoices(editTemplateChoices));
 
@@ -437,14 +452,14 @@ namespace ServerBackupTool.Installer.Modes
                         case "Remove Email Templates":
                             if (existingEmails.Count == 0)
                             {
-                                AnsiConsole.MarkupLine("[yellow]No email templates to remove.[/]");
+                                _Console.MarkupLine("[yellow]No email templates to remove.[/]");
                             }
 
                             else
                             {
                                 List<string> templateChoices = [.. existingEmails.Select(e => $"{e.Attribute("trigger")?.Value} ({(e.Attribute("system")?.Value == "true" || e.Attribute("system")?.Value == "True" ? "System" : "Custom")})")];
 
-                                string selected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                                string selected = _Console.Prompt(new SelectionPrompt<string>()
                                     .Title("Select a template to remove:")
                                     .AddChoices(templateChoices));
 
@@ -454,7 +469,7 @@ namespace ServerBackupTool.Installer.Modes
                                 {
                                     existingEmails[selectedIndex].Remove();
 
-                                    AnsiConsole.MarkupLine("[green]Email template removed.[/]");
+                                    _Console.MarkupLine("[green]Email template removed.[/]");
                                 }
                             }
                             break;
@@ -472,7 +487,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else
             {
-                AnsiConsole.MarkupLine("[red]Notifications section not found.[/]");
+                _Console.MarkupLine("[red]Notifications section not found.[/]");
             }
         }
 
@@ -489,7 +504,7 @@ namespace ServerBackupTool.Installer.Modes
                 notifications.Add(emailsElement);
             }
 
-            string triggerType = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            string triggerType = _Console.Prompt(new SelectionPrompt<string>()
                 .Title("Select the trigger type:")
                 .AddChoices(
                     "Open (system — sent on application startup)",
@@ -502,7 +517,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (triggerType.StartsWith("Custom"))
             {
-                trigger = AnsiConsole.Prompt(new TextPrompt<string>("Enter the server output text to match:"));
+                trigger = _Console.Prompt(new TextPrompt<string>("Enter the server output text to match:"));
                 isSystem = false;
             }
 
@@ -512,8 +527,8 @@ namespace ServerBackupTool.Installer.Modes
                 isSystem = true;
             }
 
-            string subject = AnsiConsole.Prompt(new TextPrompt<string>("Enter the subject:").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Subject is required.")));
-            string content = AnsiConsole.Prompt(new TextPrompt<string>("Enter the content (HTML or path to .html file):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Content is required.")));
+            string subject = _Console.Prompt(new TextPrompt<string>("Enter the subject:").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Subject is required.")));
+            string content = _Console.Prompt(new TextPrompt<string>("Enter the content (HTML or path to .html file):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Content is required.")));
 
             XElement email = new("email",
                 new XAttribute("trigger", trigger),
@@ -521,22 +536,22 @@ namespace ServerBackupTool.Installer.Modes
 
             XElement addresses = new("addresses");
 
-            AnsiConsole.MarkupLine("[grey]At least one recipient is required.[/]");
+            _Console.MarkupLine("[grey]At least one recipient is required.[/]");
 
-            string recipientEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient email:"));
-            string recipientName = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient name:"));
+            string recipientEmail = _Console.Prompt(new TextPrompt<string>("Enter the recipient email:"));
+            string recipientName = _Console.Prompt(new TextPrompt<string>("Enter the recipient name:"));
 
             addresses.Add(new XElement("toAddress",
                 new XAttribute("email", recipientEmail),
                 new XAttribute("name", recipientName)));
 
-            while (AnsiConsole.Prompt(new ConfirmationPrompt("Add another recipient?")
+            while (_Console.Prompt(new ConfirmationPrompt("Add another recipient?")
             {
                 ShowDefaultValue = false
             }))
             {
-                recipientEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient email:"));
-                recipientName = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient name:"));
+                recipientEmail = _Console.Prompt(new TextPrompt<string>("Enter the recipient email:"));
+                recipientName = _Console.Prompt(new TextPrompt<string>("Enter the recipient name:"));
 
                 addresses.Add(new XElement("toAddress",
                     new XAttribute("email", recipientEmail),
@@ -549,13 +564,13 @@ namespace ServerBackupTool.Installer.Modes
 
             XElement images = new("images");
 
-            while (AnsiConsole.Prompt(new ConfirmationPrompt("Add an inline image?")
+            while (_Console.Prompt(new ConfirmationPrompt("Add an inline image?")
             {
                 ShowDefaultValue = false
             }))
             {
-                string imageKey = AnsiConsole.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
-                string imagePath = AnsiConsole.Prompt(new TextPrompt<string>("Enter the image file path:"));
+                string imageKey = _Console.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
+                string imagePath = _Console.Prompt(new TextPrompt<string>("Enter the image file path:"));
 
                 images.Add(new XElement("image",
                     new XAttribute("key", imageKey),
@@ -565,7 +580,7 @@ namespace ServerBackupTool.Installer.Modes
             email.Add(images);
             emailsElement.Add(email);
 
-            AnsiConsole.MarkupLine($"[green]Email template '{Markup.Escape(trigger)}' added.[/]");
+            _Console.MarkupLine($"[green]Email template '{Markup.Escape(trigger)}' added.[/]");
         }
 
         /// <summary>
@@ -587,7 +602,7 @@ namespace ServerBackupTool.Installer.Modes
                 List<XElement> existingRecipients = addressesElement?.Elements("toAddress")
                     .ToList() ?? [];
 
-                string action = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                string action = _Console.Prompt(new SelectionPrompt<string>()
                     .Title($"Editing template: {Markup.Escape(currentTrigger)} ({(currentSystem == "true" || currentSystem == "True" ? "System" : "Custom")})")
                     .AddChoices(
                         "Edit Subject",
@@ -606,7 +621,7 @@ namespace ServerBackupTool.Installer.Modes
                         {
                             subjectElement.SetAttributeValue(
                                 "value",
-                                AnsiConsole.Prompt(new TextPrompt<string>("Subject:").DefaultValue(currentSubject)));
+                                _Console.Prompt(new TextPrompt<string>("Subject:").DefaultValue(currentSubject)));
                         }
                         break;
 
@@ -617,7 +632,7 @@ namespace ServerBackupTool.Installer.Modes
                         {
                             contentElement.SetAttributeValue(
                                 "value",
-                                AnsiConsole.Prompt(new TextPrompt<string>("Content (HTML or path to .html file):").DefaultValue(currentContent)));
+                                _Console.Prompt(new TextPrompt<string>("Content (HTML or path to .html file):").DefaultValue(currentContent)));
                         }
                         break;
 
@@ -628,27 +643,27 @@ namespace ServerBackupTool.Installer.Modes
                             emailElement.Add(addressesElement);
                         }
 
-                        string recipientEmail = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient email:"));
-                        string recipientName = AnsiConsole.Prompt(new TextPrompt<string>("Enter the recipient name:"));
+                        string recipientEmail = _Console.Prompt(new TextPrompt<string>("Enter the recipient email:"));
+                        string recipientName = _Console.Prompt(new TextPrompt<string>("Enter the recipient name:"));
 
                         addressesElement.Add(new XElement("toAddress",
                             new XAttribute("email", recipientEmail),
                             new XAttribute("name", recipientName)));
 
-                        AnsiConsole.MarkupLine($"[green]Recipient '{Markup.Escape(recipientEmail)}' added.[/]");
+                        _Console.MarkupLine($"[green]Recipient '{Markup.Escape(recipientEmail)}' added.[/]");
                         break;
 
                     case "Remove Recipient":
                         if (existingRecipients.Count == 0)
                         {
-                            AnsiConsole.MarkupLine("[yellow]No recipients to remove.[/]");
+                            _Console.MarkupLine("[yellow]No recipients to remove.[/]");
                         }
 
                         else
                         {
                             List<string> recipientChoices = [.. existingRecipients.Select(r => $"{r.Attribute("name")?.Value} ({r.Attribute("email")?.Value})")];
 
-                            string selected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                            string selected = _Console.Prompt(new SelectionPrompt<string>()
                                 .Title("Select a recipient to remove:")
                                 .AddChoices(recipientChoices));
 
@@ -658,7 +673,7 @@ namespace ServerBackupTool.Installer.Modes
                             {
                                 existingRecipients[selectedIndex].Remove();
 
-                                AnsiConsole.MarkupLine("[green]Recipient removed.[/]");
+                                _Console.MarkupLine("[green]Recipient removed.[/]");
                             }
                         }
                         break;
@@ -697,7 +712,7 @@ namespace ServerBackupTool.Installer.Modes
             {
                 List<XElement> existingImages = [.. imagesElement.Elements("image")];
 
-                string action = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                string action = _Console.Prompt(new SelectionPrompt<string>()
                     .Title($"Images ({existingImages.Count} configured)")
                     .AddChoices(
                         "Add Image",
@@ -707,27 +722,27 @@ namespace ServerBackupTool.Installer.Modes
                 switch (action)
                 {
                     case "Add Image":
-                        string imageKey = AnsiConsole.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
-                        string imagePath = AnsiConsole.Prompt(new TextPrompt<string>("Enter the image file path:"));
+                        string imageKey = _Console.Prompt(new TextPrompt<string>("Enter the content ID (referenced in HTML as cid:value):"));
+                        string imagePath = _Console.Prompt(new TextPrompt<string>("Enter the image file path:"));
 
                         imagesElement.Add(new XElement("image",
                             new XAttribute("key", imageKey),
                             new XAttribute("path", imagePath)));
 
-                        AnsiConsole.MarkupLine($"[green]Image '{Markup.Escape(imageKey)}' added.[/]");
+                        _Console.MarkupLine($"[green]Image '{Markup.Escape(imageKey)}' added.[/]");
                         break;
 
                     case "Remove Image":
                         if (existingImages.Count == 0)
                         {
-                            AnsiConsole.MarkupLine("[yellow]No images to remove.[/]");
+                            _Console.MarkupLine("[yellow]No images to remove.[/]");
                         }
 
                         else
                         {
                             List<string> imageChoices = [.. existingImages.Select(i => $"{i.Attribute("key")?.Value} ({i.Attribute("path")?.Value})")];
 
-                            string selected = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                            string selected = _Console.Prompt(new SelectionPrompt<string>()
                                 .Title("Select an image to remove:")
                                 .AddChoices(imageChoices));
 
@@ -737,7 +752,7 @@ namespace ServerBackupTool.Installer.Modes
                             {
                                 existingImages[selectedIndex].Remove();
 
-                                AnsiConsole.MarkupLine("[green]Image removed.[/]");
+                                _Console.MarkupLine("[green]Image removed.[/]");
                             }
                         }
                         break;
@@ -764,10 +779,10 @@ namespace ServerBackupTool.Installer.Modes
 
                 databaseDetails.SetAttributeValue(
                     "path",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Database path:").DefaultValue(currentPath)));
+                    _Console.Prompt(new TextPrompt<string>("Database path:").DefaultValue(currentPath)));
                 databaseDetails.SetAttributeValue(
                     "pollingInterval",
-                    AnsiConsole.Prompt(new TextPrompt<string>("Polling interval (ms):").DefaultValue(currentInterval)));
+                    _Console.Prompt(new TextPrompt<string>("Polling interval (ms):").DefaultValue(currentInterval)));
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Info,
@@ -776,7 +791,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else
             {
-                AnsiConsole.MarkupLine("[red]Database details section not found.[/]");
+                _Console.MarkupLine("[red]Database details section not found.[/]");
             }
         }
 
@@ -787,7 +802,7 @@ namespace ServerBackupTool.Installer.Modes
             JsonDocument document,
             Dictionary<string, object> settings)
         {
-            string apiSection = AnsiConsole.Prompt(new SelectionPrompt<string>()
+            string apiSection = _Console.Prompt(new SelectionPrompt<string>()
                 .Title("Which API section would you like to edit?")
                 .AddChoices(
                     "Database",
@@ -836,9 +851,9 @@ namespace ServerBackupTool.Installer.Modes
             int currentPollingInterval = dbElement.GetProperty("PollingIntervalMs")
                 .GetInt32();
 
-            string path = AnsiConsole.Prompt(new TextPrompt<string>("Database path:").DefaultValue(currentPath));
-            string serverName = AnsiConsole.Prompt(new TextPrompt<string>("Server name:").DefaultValue(currentServerName));
-            int pollingInterval = AnsiConsole.Prompt(new TextPrompt<int>("Polling interval (ms):").DefaultValue(currentPollingInterval));
+            string path = _Console.Prompt(new TextPrompt<string>("Database path:").DefaultValue(currentPath));
+            string serverName = _Console.Prompt(new TextPrompt<string>("Server name:").DefaultValue(currentServerName));
+            int pollingInterval = _Console.Prompt(new TextPrompt<int>("Polling interval (ms):").DefaultValue(currentPollingInterval));
 
             settings["Database"] = new
             {
@@ -863,7 +878,7 @@ namespace ServerBackupTool.Installer.Modes
             string currentDirectory = archiveElement.GetProperty("ArchiveDirectory")
                 .GetString() ?? InstallerValues.Defaults.ArchiveDirectory;
 
-            string archiveDirectory = AnsiConsole.Prompt(new TextPrompt<string>("Archive directory:").DefaultValue(currentDirectory));
+            string archiveDirectory = _Console.Prompt(new TextPrompt<string>("Archive directory:").DefaultValue(currentDirectory));
 
             settings["ArchiveSettings"] = new
             {
@@ -880,7 +895,7 @@ namespace ServerBackupTool.Installer.Modes
         /// </summary>
         private void EditApiAuthentication(Dictionary<string, object> settings)
         {
-            if (AnsiConsole.Prompt(new ConfirmationPrompt("Regenerate API credentials?")
+            if (_Console.Prompt(new ConfirmationPrompt("Regenerate API credentials?")
             {
                 DefaultValue = false,
                 ShowDefaultValue = false
@@ -901,12 +916,12 @@ namespace ServerBackupTool.Installer.Modes
                     "Client Secret",
                     clientSecret);
 
-                AnsiConsole.WriteLine();
-                AnsiConsole.Write(credentialsTable);
-                AnsiConsole.WriteLine();
-                AnsiConsole.MarkupLine("[yellow]WARNING: These credentials will NOT be shown again. Copy them now.[/]");
-                AnsiConsole.MarkupLine("Press [green]Enter[/] to continue...");
-                Console.ReadLine();
+                _Console.WriteLine();
+                _Console.Write(credentialsTable);
+                _Console.WriteLine();
+                _Console.MarkupLine("[yellow]WARNING: These credentials will NOT be shown again. Copy them now.[/]");
+                _Console.MarkupLine("Press [green]Enter[/] to continue...");
+                _Console.Prompt(new TextPrompt<string>("").AllowEmpty());
 
                 settings["Authentication"] = new
                 {
@@ -937,20 +952,20 @@ namespace ServerBackupTool.Installer.Modes
 
             string secret = currentSecret;
 
-            if (AnsiConsole.Prompt(new ConfirmationPrompt("Change webhook secret?")
+            if (_Console.Prompt(new ConfirmationPrompt("Change webhook secret?")
             {
                 DefaultValue = false,
                 ShowDefaultValue = false
             }))
             {
-                string newSecretPlain = AnsiConsole.Prompt(new TextPrompt<string>("Enter the new webhook signing secret:").Secret());
+                string newSecretPlain = _Console.Prompt(new TextPrompt<string>("Enter the new webhook signing secret:").Secret());
                 byte[] webhookHashBytes = SHA256.HashData(Encoding.UTF8.GetBytes(newSecretPlain));
                 secret = Convert.ToHexString(webhookHashBytes)
                     .ToLowerInvariant();
             }
 
-            int timeout = AnsiConsole.Prompt(new TextPrompt<int>("Timeout (seconds):").DefaultValue(currentTimeout));
-            int retries = AnsiConsole.Prompt(new TextPrompt<int>("Max retries:").DefaultValue(currentRetries));
+            int timeout = _Console.Prompt(new TextPrompt<int>("Timeout (seconds):").DefaultValue(currentTimeout));
+            int retries = _Console.Prompt(new TextPrompt<int>("Max retries:").DefaultValue(currentRetries));
 
             settings["Webhook"] = new
             {
@@ -970,58 +985,360 @@ namespace ServerBackupTool.Installer.Modes
         private async Task SaveAllAsync(
             string configPath,
             XDocument config,
+            XDocument originalConfig,
             string apiSettingsPath,
-            Dictionary<string, object>? apiSettings)
+            Dictionary<string, object>? apiSettings,
+            string? originalApiJson)
         {
-            _FileSystem.CopyFile(
-                configPath,
-                configPath + ".bak",
-                true);
+            _Console.Clear();
 
-            _Logger.LogMessage(
-                StandardValues.LoggerValues.Info,
-                $"Config backed up to {configPath}.bak.");
+            List<(string setting, string from, string to)> changes = [];
 
-            (bool configWritten, Exception? configException) = await _ConfigWriter.WriteConfig(
-                configPath,
-                config);
+            CollectXmlChanges(
+                originalConfig,
+                config,
+                changes);
 
-            if (configWritten)
+            if (apiSettings != null && !string.IsNullOrEmpty(originalApiJson))
             {
-                AnsiConsole.MarkupLine("[green]App.config saved.[/]");
-            }
-
-            else
-            {
-                AnsiConsole.MarkupLine($"[red]Failed to save App.config: {Markup.Escape(configException?.Message ?? "Unknown error")}[/]");
-            }
-
-            if (apiSettings != null && !string.IsNullOrEmpty(apiSettingsPath))
-            {
-                _FileSystem.CopyFile(
-                    apiSettingsPath,
-                    apiSettingsPath + ".bak",
-                    true);
-
-                string updatedJson = JsonSerializer.Serialize(
+                string currentApiJson = JsonSerializer.Serialize(
                     apiSettings,
                     new JsonSerializerOptions
                     {
                         WriteIndented = true
                     });
 
-                (bool apiWritten, Exception? apiException) = await _ConfigWriter.WriteApiSettings(
-                    apiSettingsPath,
-                    updatedJson);
+                CollectJsonChanges(
+                    originalApiJson,
+                    currentApiJson,
+                    changes);
+            }
 
-                if (apiWritten)
+            if (changes.Count == 0)
+            {
+                _Console.MarkupLine("[yellow]No changes were made.[/]");
+            }
+
+            else
+            {
+                Table summaryTable = new();
+                summaryTable.Border(TableBorder.Rounded);
+                summaryTable.Title("[bold]Changes to Save[/]");
+                summaryTable.AddColumn("[bold]Setting[/]");
+                summaryTable.AddColumn("[bold]From[/]");
+                summaryTable.AddColumn("[bold]To[/]");
+
+                foreach ((string setting, string from, string to) in changes)
                 {
-                    AnsiConsole.MarkupLine("[green]API settings saved.[/]");
+                    summaryTable.AddRow(
+                        Markup.Escape(setting),
+                        $"[red]{Markup.Escape(from)}[/]",
+                        $"[green]{Markup.Escape(to)}[/]");
+                }
+
+                _Console.Write(summaryTable);
+                _Console.WriteLine();
+
+                if (!_Console.Prompt(new ConfirmationPrompt("Save these changes?")
+                {
+                    ShowDefaultValue = false
+                }))
+                {
+                    _Console.MarkupLine("[yellow]Save cancelled.[/]");
+
+                    return;
+                }
+
+                _FileSystem.CopyFile(
+                    configPath,
+                    configPath + ".bak",
+                    true);
+
+                _Logger.LogMessage(
+                    StandardValues.LoggerValues.Info,
+                    $"Config backed up to {configPath}.bak.");
+
+                (bool configWritten, Exception? configException) = await _ConfigWriter.WriteConfig(
+                    configPath,
+                    config);
+
+                if (configWritten)
+                {
+                    _Console.MarkupLine("[green]App.config saved.[/]");
                 }
 
                 else
                 {
-                    AnsiConsole.MarkupLine($"[red]Failed to save API settings: {Markup.Escape(apiException?.Message ?? "Unknown error")}[/]");
+                    _Console.MarkupLine($"[red]Failed to save App.config: {Markup.Escape(configException?.Message ?? "Unknown error")}[/]");
+                }
+
+                if (apiSettings != null && !string.IsNullOrEmpty(apiSettingsPath))
+                {
+                    _FileSystem.CopyFile(
+                        apiSettingsPath,
+                        apiSettingsPath + ".bak",
+                        true);
+
+                    string updatedJson = JsonSerializer.Serialize(
+                        apiSettings,
+                        new JsonSerializerOptions
+                        {
+                            WriteIndented = true
+                        });
+
+                    (bool apiWritten, Exception? apiException) = await _ConfigWriter.WriteApiSettings(
+                        apiSettingsPath,
+                        updatedJson);
+
+                    if (apiWritten)
+                    {
+                        _Console.MarkupLine("[green]API settings saved.[/]");
+                    }
+
+                    else
+                    {
+                        _Console.MarkupLine($"[red]Failed to save API settings: {Markup.Escape(apiException?.Message ?? "Unknown error")}[/]");
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Compares two XML documents and collects attribute value changes.
+        /// </summary>
+        private static void CollectXmlChanges(
+            XDocument original,
+            XDocument current,
+            List<(string setting, string from, string to)> changes)
+        {
+            XElement? originalSection = original.Root?.Element("serverBackup");
+            XElement? currentSection = current.Root?.Element("serverBackup");
+
+            if (originalSection != null && currentSection != null)
+            {
+                CollectElementChanges(
+                    originalSection,
+                    currentSection,
+                    string.Empty,
+                    changes);
+            }
+        }
+
+        /// <summary>
+        /// Recursively compares elements and their attributes for changes.
+        /// </summary>
+        private static void CollectElementChanges(
+            XElement original,
+            XElement current,
+            string path,
+            List<(string setting, string from, string to)> changes)
+        {
+            string elementPath = string.IsNullOrEmpty(path) ? current.Name.LocalName : $"{path}.{current.Name.LocalName}";
+
+            string? keyValue = GetKeyAttributeValue(current);
+
+            if (keyValue != null)
+            {
+                elementPath = $"{elementPath}[{keyValue}]";
+            }
+
+            foreach (XAttribute currentAttr in current.Attributes())
+            {
+                XAttribute? originalAttr = original.Attribute(currentAttr.Name);
+                string originalValue = originalAttr?.Value ?? string.Empty;
+
+                if (originalValue != currentAttr.Value)
+                {
+                    changes.Add((
+                        $"{elementPath}.{currentAttr.Name}",
+                        originalValue,
+                        currentAttr.Value));
+                }
+            }
+
+            foreach (XElement currentChild in current.Elements())
+            {
+                XElement? originalChild = FindMatchingChild(
+                    original,
+                    currentChild);
+
+                if (originalChild != null)
+                {
+                    CollectElementChanges(
+                        originalChild,
+                        currentChild,
+                        elementPath,
+                        changes);
+                }
+
+                else
+                {
+                    string childKey = GetKeyAttributeValue(currentChild) ?? currentChild.Name.LocalName;
+
+                    changes.Add((
+                        $"{elementPath}.{currentChild.Name.LocalName}[{childKey}]",
+                        "(none)",
+                        "(added)"));
+                }
+            }
+
+            foreach (XElement originalChild in original.Elements())
+            {
+                XElement? matchInCurrent = FindMatchingChild(
+                    current,
+                    originalChild);
+
+                if (matchInCurrent == null)
+                {
+                    string childKey = GetKeyAttributeValue(originalChild) ?? originalChild.Name.LocalName;
+
+                    changes.Add((
+                        $"{elementPath}.{originalChild.Name.LocalName}[{childKey}]",
+                        "(existed)",
+                        "(removed)"));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Returns the value of the key attribute (name, ref, or trigger) if present.
+        /// </summary>
+        private static string? GetKeyAttributeValue(XElement element)
+        {
+            string[] keyAttributes =
+            [
+                "name",
+                "ref",
+                "trigger"
+            ];
+            string? attribute = null;
+
+            foreach (string key in keyAttributes)
+            {
+                XAttribute? attr = element.Attribute(key);
+
+                if (attr != null && !string.IsNullOrEmpty(attr.Value))
+                {
+                    attribute = attr.Value;
+                }
+            }
+
+            return attribute;
+        }
+
+        /// <summary>
+        /// Finds a matching child element using key attributes when siblings share the same tag name.
+        /// </summary>
+        private static XElement? FindMatchingChild(
+            XElement parent,
+            XElement reference)
+        {
+            List<XElement> siblings = [.. parent.Elements(reference.Name)];
+            XElement? match = null;
+
+            if (siblings.Count <= 1)
+            {
+                match = siblings.FirstOrDefault();
+            }
+
+            else
+            {
+                string? keyValue = GetKeyAttributeValue(reference);
+
+                if (keyValue != null)
+                {
+                    string[] keyAttributes =
+                    [
+                        "name",
+                        "ref",
+                        "trigger"
+                    ];
+
+                    foreach (string key in keyAttributes)
+                    {
+                        XAttribute? refAttr = reference.Attribute(key);
+
+                        if (refAttr != null)
+                        {
+                            match = siblings.FirstOrDefault(e => e.Attribute(key)?.Value == refAttr.Value);
+
+                            break;
+                        }
+                    }
+                }
+
+                match ??= siblings.FirstOrDefault();
+            }
+
+            return match;
+        }
+
+        /// <summary>
+        /// Compares two JSON strings and collects property value changes.
+        /// </summary>
+        private static void CollectJsonChanges(
+            string originalJson,
+            string currentJson,
+            List<(string setting, string from, string to)> changes)
+        {
+            using JsonDocument originalDoc = JsonDocument.Parse(originalJson);
+            using JsonDocument currentDoc = JsonDocument.Parse(currentJson);
+
+            CollectJsonElementChanges(
+                originalDoc.RootElement,
+                currentDoc.RootElement,
+                "API",
+                changes);
+        }
+
+        /// <summary>
+        /// Recursively compares JSON elements for changes.
+        /// </summary>
+        private static void CollectJsonElementChanges(
+            JsonElement original,
+            JsonElement current,
+            string path,
+            List<(string setting, string from, string to)> changes)
+        {
+            if (current.ValueKind == JsonValueKind.Object)
+            {
+                foreach (JsonProperty prop in current.EnumerateObject())
+                {
+                    string propPath = $"{path}.{prop.Name}";
+
+                    if (original.TryGetProperty(prop.Name, out JsonElement originalProp))
+                    {
+                        if (prop.Value.ValueKind == JsonValueKind.Object)
+                        {
+                            CollectJsonElementChanges(
+                                originalProp,
+                                prop.Value,
+                                propPath,
+                                changes);
+                        }
+
+                        else
+                        {
+                            string originalValue = originalProp.ToString();
+                            string currentValue = prop.Value.ToString();
+
+                            if (originalValue != currentValue)
+                            {
+                                changes.Add((
+                                    propPath,
+                                    originalValue,
+                                    currentValue));
+                            }
+                        }
+                    }
+
+                    else
+                    {
+                        changes.Add((
+                            propPath,
+                            "(none)",
+                            "(added)"));
+                    }
                 }
             }
         }
@@ -1045,7 +1362,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else if (installations.Count > 1)
             {
-                string choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                string choice = _Console.Prompt(new SelectionPrompt<string>()
                     .Title("Multiple installations found. Which installation would you like to configure?")
                     .AddChoices(installations.Select(i => $"{i.ServerName} (v{i.ToolVersion} at {i.InstallPath})")));
 

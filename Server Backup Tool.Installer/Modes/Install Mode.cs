@@ -9,6 +9,7 @@ namespace ServerBackupTool.Installer.Modes
 {
     public class InstallMode
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IFileService _FileService;
         private readonly IExtendedFileSystem _FileSystem;
@@ -21,6 +22,7 @@ namespace ServerBackupTool.Installer.Modes
 
         // Sets the class's global variables.
         public InstallMode(
+            IAnsiConsole console,
             ILoggerService logger,
             IFileService fileService,
             IExtendedFileSystem fileSystem,
@@ -31,6 +33,7 @@ namespace ServerBackupTool.Installer.Modes
             IRegistryService registryService,
             IVersionService versionService)
         {
+            _Console = console;
             _Logger = logger;
             _FileService = fileService;
             _FileSystem = fileSystem;
@@ -58,14 +61,14 @@ namespace ServerBackupTool.Installer.Modes
                 string embeddedToolVersion = _VersionService.GetEmbeddedToolVersion();
                 string embeddedApiVersion = _VersionService.GetEmbeddedApiVersion();
 
-                AnsiConsole.MarkupLine($"Bundled tool version: [blue]{Markup.Escape(embeddedToolVersion)}[/]");
+                _Console.MarkupLine($"Bundled tool version: [blue]{Markup.Escape(embeddedToolVersion)}[/]");
 
                 if (embeddedApiVersion != "0.0.0")
                 {
-                    AnsiConsole.MarkupLine($"Bundled API version:  [blue]{Markup.Escape(embeddedApiVersion)}[/]");
+                    _Console.MarkupLine($"Bundled API version:  [blue]{Markup.Escape(embeddedApiVersion)}[/]");
                 }
 
-                AnsiConsole.WriteLine();
+                _Console.WriteLine();
 
                 List<VersionInfoModel> existingInstallations = _VersionService.GetAllInstallations();
 
@@ -73,10 +76,10 @@ namespace ServerBackupTool.Installer.Modes
                 {
                     foreach (VersionInfoModel existing in existingInstallations)
                     {
-                        AnsiConsole.MarkupLine($"[yellow]Existing installation found: {Markup.Escape(existing.ServerName)} at {Markup.Escape(existing.InstallPath)} (v{Markup.Escape(existing.ToolVersion)})[/]");
+                        _Console.MarkupLine($"[yellow]Existing installation found: {Markup.Escape(existing.ServerName)} at {Markup.Escape(existing.InstallPath)} (v{Markup.Escape(existing.ToolVersion)})[/]");
                     }
 
-                    if (!AnsiConsole.Prompt(new ConfirmationPrompt("Existing installation(s) found. Proceeding will create a new installation. Continue?") { DefaultValue = false, ShowDefaultValue = false }))
+                    if (!_Console.Prompt(new ConfirmationPrompt("Existing installation(s) found. Proceeding will create a new installation. Continue?") { DefaultValue = false, ShowDefaultValue = false }))
                     {
                         throw new OperationCanceledException("Installation cancelled — existing installation detected.");
                     }
@@ -87,36 +90,44 @@ namespace ServerBackupTool.Installer.Modes
                 }
 
                 new ComponentSelectionStep(
+                    _Console,
                     _Logger,
                     options).Execute();
 
                 await new LocationStep(
+                    _Console,
                     _Logger,
                     _FileService,
                     options).Execute();
 
                 new ServerConfigStep(
+                    _Console,
                     _Logger,
                     _FileSystem,
                     options).Execute();
 
                 new TimerConfigStep(
+                    _Console,
                     _Logger,
                     options).Execute();
 
                 new EmailConfigStep(
+                    _Console,
                     _Logger,
                     options).Execute();
 
                 new ApiConfigStep(
+                    _Console,
                     _Logger,
                     options).Execute();
 
                 new ConfirmationStep(
+                    _Console,
                     _Logger,
                     options).Execute();
 
                 await new FileDeployStep(
+                    _Console,
                     _Logger,
                     _FileSystem,
                     _ResourceService,
@@ -128,13 +139,14 @@ namespace ServerBackupTool.Installer.Modes
                     options).Execute();
 
                 await new ValidationStep(
+                    _Console,
                     _Logger,
                     _FileSystem,
                     _DatabaseInitialiser,
                     _TaskSchedulerService,
                     options).Execute();
 
-                AnsiConsole.MarkupLine("[green]Installation completed successfully.[/]");
+                _Console.MarkupLine("[green]Installation completed successfully.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Info,
@@ -143,7 +155,7 @@ namespace ServerBackupTool.Installer.Modes
 
             catch (OperationCanceledException)
             {
-                AnsiConsole.MarkupLine("[yellow]Installation cancelled by user.[/]");
+                _Console.MarkupLine("[yellow]Installation cancelled by user.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Info,
@@ -152,7 +164,7 @@ namespace ServerBackupTool.Installer.Modes
 
             catch (Exception ex)
             {
-                AnsiConsole.MarkupLine($"[red]Installation failed: {Markup.Escape(ex.Message)}[/]");
+                _Console.MarkupLine($"[red]Installation failed: {Markup.Escape(ex.Message)}[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Error,
@@ -160,7 +172,7 @@ namespace ServerBackupTool.Installer.Modes
 
                 if (!string.IsNullOrEmpty(options.InstallPath) && _FileSystem.DirectoryExists(options.InstallPath))
                 {
-                    AnsiConsole.MarkupLine("[yellow]Cleaning up partial installation...[/]");
+                    _Console.MarkupLine("[yellow]Cleaning up partial installation...[/]");
 
                     _FileService.DeleteDirectory(options.InstallPath);
                 }

@@ -8,14 +8,17 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class ConfirmationStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public ConfirmationStep(
+            IAnsiConsole console,
             ILoggerService logger,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _Options = options;
         }
@@ -29,7 +32,7 @@ namespace ServerBackupTool.Installer.Steps
                 StandardValues.LoggerValues.Info,
                 "Displaying installation summary for confirmation.");
 
-            AnsiConsole.Clear();
+            _Console.Clear();
 
             Table table = new();
             table.Border(TableBorder.Rounded);
@@ -118,10 +121,10 @@ namespace ServerBackupTool.Installer.Steps
                     "No");
             }
 
-            AnsiConsole.Write(table);
-            AnsiConsole.WriteLine();
+            _Console.Write(table);
+            _Console.WriteLine();
 
-            bool confirmed = AnsiConsole.Prompt(new ConfirmationPrompt("Proceed with installation?")
+            bool confirmed = _Console.Prompt(new ConfirmationPrompt("Proceed with installation?")
             {
                 ShowDefaultValue = false
             });
@@ -135,7 +138,7 @@ namespace ServerBackupTool.Installer.Steps
                 throw new OperationCanceledException("Installation cancelled by user.");
             }
 
-            AnsiConsole.Clear();
+            _Console.Clear();
 
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Info,

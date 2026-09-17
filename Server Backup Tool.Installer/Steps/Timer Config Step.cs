@@ -9,14 +9,17 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class TimerConfigStep
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public TimerConfigStep(
+            IAnsiConsole console,
             ILoggerService logger,
             InstallOptionsModel options)
         {
+            _Console = console;
             _Logger = logger;
             _Options = options;
         }
@@ -30,22 +33,22 @@ namespace ServerBackupTool.Installer.Steps
                 StandardValues.LoggerValues.Info,
                 "Entering timer config step.");
 
-            string backupTime = AnsiConsole.Prompt(new TextPrompt<string>("Enter the backup time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
+            string backupTime = _Console.Prompt(new TextPrompt<string>("Enter the backup time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
                 input,
                 out _) ? ValidationResult.Success() : ValidationResult.Error("Please enter a valid time in HH:mm:ss format.")));
 
             List<CustomTimerModel> customTimers = [];
 
-            while (AnsiConsole.Prompt(new ConfirmationPrompt("Add a custom timer?")
+            while (_Console.Prompt(new ConfirmationPrompt("Add a custom timer?")
             {
                 ShowDefaultValue = false
             }))
             {
-                string name = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer name:"));
-                string time = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
+                string name = _Console.Prompt(new TextPrompt<string>("Enter the timer name:"));
+                string time = _Console.Prompt(new TextPrompt<string>("Enter the timer time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
                     input,
                     out _) ? ValidationResult.Success() : ValidationResult.Error("Please enter a valid time in HH:mm:ss format.")));
-                string message = AnsiConsole.Prompt(new TextPrompt<string>("Enter the timer message:"));
+                string message = _Console.Prompt(new TextPrompt<string>("Enter the timer message:"));
 
                 customTimers.Add(new CustomTimerModel
                 {

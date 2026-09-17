@@ -23,7 +23,9 @@ Server Backup Tool is a self-hosted console application for managing game server
 | Authentication | Basic (custom handler) | - |
 | Configuration | System.Configuration (App.config) | - |
 | Installer TUI | Spectre.Console | 0.57.2 |
+| Integration Test TUI | Spectre.Console.Testing | 0.57.2 |
 | Task Scheduler | TaskScheduler | 2.12.2 |
+| Integration Test HTTP | Microsoft.AspNetCore.Mvc.Testing | 10.0.0 |
 | Testing | MSTest | 3.6.3 |
 | Test SDK | Microsoft.NET.Test.Sdk | 17.12.0 |
 | Mocking | Moq | 4.20.72 |
@@ -52,7 +54,7 @@ Server-Backup-Tool/
 │   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, etc.
 │   ├── Models/
 │   │   ├── Requests/                       # WebhookRegistrationRequestModel
-│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, WebhookRegistrationResponseModel, etc.
+│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, LogArchivesResponseModel, ArchivedLogsResponseModel, FailureModel, SuccessModel, WebhookRegistrationResponseModel
 │   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
 │   ├── Services/                           # LogService, CommandService, LoggerService, WebhookRegistrationService, WebhookDispatchService, LogPollingService
 ├── Server Backup Tool.Installer/            # TUI installer (install, update, configure, uninstall)
@@ -62,7 +64,7 @@ Server-Backup-Tool/
 │   ├── Models/                             # InstallOptionsModel, VersionInfoModel, CustomTimerModel
 │   │   └── Related/                       # ServerConfigModel, TimerConfigModel, EmailConfigModel, ApiConfigModel, etc.
 │   ├── Modes/                              # InstallMode, UpdateMode, ConfigureMode, UninstallMode
-│   ├── Steps/                              # ComponentSelectionStep, LocationStep, ServerConfigStep, TimerConfigStep, EmailConfigStep, ApiConfigStep, ConfirmationStep, FileDeployStep, ConfigGenerationStep, DatabaseSetupStep, ScheduledTaskStep, ValidationStep
+│   ├── Steps/                              # ComponentSelectionStep, LocationStep, ServerConfigStep, TimerConfigStep, etc.
 │   └── Values/                             # InstallerValues
 ├── Server Backup Tool.Common/              # Shared library
 │   ├── Abstractions/                       # IClock, IDatabase, IFileSystem
@@ -81,16 +83,17 @@ Server-Backup-Tool/
 │   │       └── Services/                   # TimerServiceTest
 │   ├── Server Backup Tool.IntegrationTests/ # Integration tests (HTTP + file system)
 │   │   ├── API/
-│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, etc.
+│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, GetLogArchivesTest, GetArchivedLogsTest
 │   │   │   ├── Fixtures/                   # CustomWebApplicationFactory
 │   │   │   ├── Helpers/                    # AuthHelper, TestDataSeeder
 │   │   │   └── Implementations/            # ClientAuthHandlerTest
-│   │   └── Tool/
-│   │       ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
-│   │       ├── Mocks/                      # Mock data (Configs/, Server/)
-│   │       └── Services/                   # JobServiceTest, EmailServiceTest, etc.
+│   │   ├── Tool/
+│   │   │   ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
+│   │   │   ├── Mocks/                      # Mock data (Configs/, Server/)
+│   │   │   └── Services/                   # JobServiceTest, EmailServiceTest, PidFileServiceTest, ServerServiceTest
 │   │   └── Installer/
 │   │       ├── Services/                   # ConfigWriterTest, FileServiceTest, VersionServiceTest, ResourceServiceTest, RegistryServiceTest, TaskSchedulerServiceTest
+│   │       ├── Steps/                      # ComponentSelectionStepTest, TimerConfigStepTest
 │   │       └── ConfigGenerationTest        # End-to-end config roundtrip tests
 │   └── Server Backup Tool.PersistenceTests/ # Database persistence tests (in-memory SQLite)
 │       ├── API/
@@ -124,6 +127,7 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (QuerySingle) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
+| `ICommandReader` | `ConsoleCommandReader` | Console input abstraction for testability |
 
 **Common (Server Backup Tool.Common):**
 
@@ -154,6 +158,8 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `IResourceService` | `ResourceService` | Embedded ZIP resource extraction for binary deployment |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File copy and file system operations — extends Common `IFileSystem` |
 | `IRegistryService` | `RegistryService` | Windows Registry Add/Remove Programs integration |
+
+All Steps and Modes accept `IAnsiConsole` as the first constructor parameter for testability. Steps and Modes can be tested using `Spectre.Console.Testing.TestConsole`.
 
 ### Services
 
@@ -251,6 +257,8 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `UpdateMode` | `--update` | Detects existing install, compares versions, backs up configs, replaces binaries |
 | `ConfigureMode` | `--configure` | Edits existing App.config via interactive menus |
 | `UninstallMode` | `--uninstall` | Component-level uninstall with optional database and log cleanup |
+
+ConfigureMode captures a snapshot of both the App.config and API settings before editing begins. On save, it compares the current values against the originals and displays a diff table showing each changed setting with its old and new value.
 
 ### Installer Steps
 

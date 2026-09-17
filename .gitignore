@@ -21,3 +21,6 @@
 
 # Installer embedded resources (build artifacts)
 Server Backup Tool.Installer/Resources/
+
+# Test Results
+[Tt]estResults/

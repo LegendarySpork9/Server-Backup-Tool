@@ -12,6 +12,7 @@ namespace ServerBackupTool.Installer.Modes
 {
     public class UpdateMode
     {
+        private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly IFileService _FileService;
         private readonly IExtendedFileSystem _FileSystem;
@@ -23,6 +24,7 @@ namespace ServerBackupTool.Installer.Modes
 
         // Sets the class's global variables.
         public UpdateMode(
+            IAnsiConsole console,
             ILoggerService logger,
             IFileService fileService,
             IExtendedFileSystem fileSystem,
@@ -32,6 +34,7 @@ namespace ServerBackupTool.Installer.Modes
             IVersionService versionService,
             IResourceService resourceService)
         {
+            _Console = console;
             _Logger = logger;
             _FileService = fileService;
             _FileSystem = fileSystem;
@@ -55,7 +58,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (installed == null)
             {
-                AnsiConsole.MarkupLine("[red]No existing installation found. Please run the installer first.[/]");
+                _Console.MarkupLine("[red]No existing installation found. Please run the installer first.[/]");
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Error,
@@ -87,15 +90,15 @@ namespace ServerBackupTool.Installer.Modes
                         Markup.Escape(embeddedApiVersion != "0.0.0" ? embeddedApiVersion : "Not bundled"));
                 }
 
-                AnsiConsole.Write(versionTable);
-                AnsiConsole.WriteLine();
+                _Console.Write(versionTable);
+                _Console.WriteLine();
 
-                if (!AnsiConsole.Prompt(new ConfirmationPrompt("Proceed with update?")
+                if (!_Console.Prompt(new ConfirmationPrompt("Proceed with update?")
                 {
                     ShowDefaultValue = false
                 }))
                 {
-                    AnsiConsole.MarkupLine("[yellow]Update cancelled.[/]");
+                    _Console.MarkupLine("[yellow]Update cancelled.[/]");
                 }
 
                 else
@@ -106,7 +109,7 @@ namespace ServerBackupTool.Installer.Modes
 
                     try
                     {
-                        AnsiConsole.MarkupLine("Backing up existing installation...");
+                        _Console.MarkupLine("Backing up existing installation...");
 
                         (bool backupSuccess, Exception? backupEx) = _FileService.BackupDirectory(
                             installed.InstallPath,
@@ -164,12 +167,12 @@ namespace ServerBackupTool.Installer.Modes
                             throw regEx ?? new InvalidOperationException("Registry update failed.");
                         }
 
-                        AnsiConsole.MarkupLine($"[green]Update completed successfully.[/]");
-                        AnsiConsole.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/] -> [green]{Markup.Escape(newToolVersion)}[/]");
+                        _Console.MarkupLine($"[green]Update completed successfully.[/]");
+                        _Console.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/] -> [green]{Markup.Escape(newToolVersion)}[/]");
 
                         if (!string.IsNullOrEmpty(installed.ApiVersion) || !string.IsNullOrEmpty(newApiVersion))
                         {
-                            AnsiConsole.MarkupLine($"API version:  [blue]{Markup.Escape(installed.ApiVersion)}[/] -> [green]{Markup.Escape(newApiVersion)}[/]");
+                            _Console.MarkupLine($"API version:  [blue]{Markup.Escape(installed.ApiVersion)}[/] -> [green]{Markup.Escape(newApiVersion)}[/]");
                         }
 
                         _Logger.LogMessage(
@@ -179,8 +182,8 @@ namespace ServerBackupTool.Installer.Modes
 
                     catch (Exception ex)
                     {
-                        AnsiConsole.MarkupLine($"[red]Update failed: {Markup.Escape(ex.Message)}[/]");
-                        AnsiConsole.MarkupLine("[yellow]Rolling back...[/]");
+                        _Console.MarkupLine($"[red]Update failed: {Markup.Escape(ex.Message)}[/]");
+                        _Console.MarkupLine("[yellow]Rolling back...[/]");
 
                         _Logger.LogMessage(
                             StandardValues.LoggerValues.Error,
@@ -191,7 +194,7 @@ namespace ServerBackupTool.Installer.Modes
                             installed.InstallPath);
                         _FileService.DeleteDirectory(backupPath);
 
-                        AnsiConsole.MarkupLine("[yellow]Rollback complete.[/]");
+                        _Console.MarkupLine("[yellow]Rollback complete.[/]");
                     }
                 }
             }
@@ -254,7 +257,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (_FileSystem.FileExists(appConfigPath))
             {
-                AnsiConsole.MarkupLine("Checking App.config for missing properties...");
+                _Console.MarkupLine("Checking App.config for missing properties...");
 
                 XDocument existingConfig = XDocument.Load(appConfigPath);
 
@@ -281,17 +284,17 @@ namespace ServerBackupTool.Installer.Modes
                         appConfigPath,
                         existingConfig);
 
-                    AnsiConsole.MarkupLine($"[green]App.config updated with {additions.Count} new propert(ies):[/]");
+                    _Console.MarkupLine($"[green]App.config updated with {additions.Count} new propert(ies):[/]");
 
                     foreach (string addition in additions)
                     {
-                        AnsiConsole.MarkupLine($"  [blue]+[/] {Markup.Escape(addition)}");
+                        _Console.MarkupLine($"  [blue]+[/] {Markup.Escape(addition)}");
                     }
                 }
 
                 else
                 {
-                    AnsiConsole.MarkupLine("[green]App.config is up to date.[/]");
+                    _Console.MarkupLine("[green]App.config is up to date.[/]");
                 }
             }
 
@@ -301,7 +304,7 @@ namespace ServerBackupTool.Installer.Modes
 
             if (_FileSystem.FileExists(apiSettingsPath))
             {
-                AnsiConsole.MarkupLine("Checking appsettings.json for missing properties...");
+                _Console.MarkupLine("Checking appsettings.json for missing properties...");
 
                 string existingJson = await _FileSystem.ReadAllText(apiSettingsPath);
 
@@ -367,17 +370,17 @@ namespace ServerBackupTool.Installer.Modes
                         apiSettingsPath,
                         updatedJson);
 
-                    AnsiConsole.MarkupLine($"[green]appsettings.json updated with {apiAdditions.Count} new propert(ies):[/]");
+                    _Console.MarkupLine($"[green]appsettings.json updated with {apiAdditions.Count} new propert(ies):[/]");
 
                     foreach (string addition in apiAdditions)
                     {
-                        AnsiConsole.MarkupLine($"  [blue]+[/] {Markup.Escape(addition)}");
+                        _Console.MarkupLine($"  [blue]+[/] {Markup.Escape(addition)}");
                     }
                 }
 
                 else
                 {
-                    AnsiConsole.MarkupLine("[green]appsettings.json is up to date.[/]");
+                    _Console.MarkupLine("[green]appsettings.json is up to date.[/]");
                 }
             }
         }
@@ -401,7 +404,7 @@ namespace ServerBackupTool.Installer.Modes
 
             else if (installations.Count > 1)
             {
-                string choice = AnsiConsole.Prompt(new SelectionPrompt<string>()
+                string choice = _Console.Prompt(new SelectionPrompt<string>()
                     .Title("Multiple installations found. Which installation would you like to update?")
                     .AddChoices(installations.Select(i => $"{i.ServerName} (v{i.ToolVersion} at {i.InstallPath})")));
 
