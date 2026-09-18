@@ -5,7 +5,7 @@
 Server Backup Tool is a self-hosted console application for managing game server processes. It provides scheduled backups, log archival, email notifications, and health monitoring via ICMP heartbeat pings. Currently supports Minecraft servers. A companion Web API provides HTTP access to log data and a command queue.
 
 - **Author:** Hunter Industries / Toby Hunter
-- **Version:** 2.0.2
+- **Version:** 3.0.0
 - **Repository:** https://github.com/LegendarySpork9/Server-Backup-Tool
 
 ## Technology Stack
@@ -51,12 +51,12 @@ Server-Backup-Tool/
 │   ├── Entities/                           # LogLevel, LogType enums
 │   ├── Filters/                            # RequestLoggingFilter, ResponseLoggingFilter
 │   ├── Functions/                          # IPAddressFunction
-│   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, etc.
+│   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, WebhookRegistrationService, WebhookDispatchService
 │   ├── Models/
 │   │   ├── Requests/                       # WebhookRegistrationRequestModel
 │   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, LogArchivesResponseModel, ArchivedLogsResponseModel, FailureModel, SuccessModel, WebhookRegistrationResponseModel
 │   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
-│   ├── Services/                           # LogService, CommandService, LoggerService, WebhookRegistrationService, WebhookDispatchService, LogPollingService
+│   ├── Services/                           # LogService, CommandService, LoggerService, LogPollingService
 ├── Server Backup Tool.Installer/            # TUI installer (install, update, configure, uninstall)
 │   ├── Abstractions/                       # ILoggerService, IConfigWriter, IDatabaseInitialiser, ITaskSchedulerService, IVersionService, IFileService, IRegistryService
 │   ├── Functions/                          # (none — shared functions live in Common)
@@ -128,6 +128,9 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
 | `ICommandReader` | `ConsoleCommandReader` | Console input abstraction for testability |
+| `IEmailService` | `EmailService` | Email trigger matching and dispatch |
+| `IJobService` | `JobService` | Backup, archive, and cleanup job execution |
+| `IPingProvider` | `PingProvider` | ICMP ping for heartbeat monitoring |
 
 **Common (Server Backup Tool.Common):**
 
@@ -144,6 +147,8 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `ILoggerService` | `LoggerServiceWrapper` | Request-scoped API logging via log4net |
 | `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (Query, ExecuteScalar) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | Archive file access |
+| `IWebhookRegistrationService` | `WebhookRegistrationService` | Webhook CRUD operations |
+| `IWebhookDispatchService` | `WebhookDispatchService` | Webhook payload delivery with HMAC signing |
 
 **Installer (Server Backup Tool.Installer):**
 

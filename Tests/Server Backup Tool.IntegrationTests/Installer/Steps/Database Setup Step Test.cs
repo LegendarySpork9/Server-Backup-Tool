@@ -12,7 +12,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
     public class DatabaseSetupStepTest
     {
         private Mock<ILoggerService> _MockLogger = null!;
-        private Mock<IExtendedFileSystem> _MockFileSystem = null!;
+        private IExtendedFileSystem _FileSystem = null!;
         private DatabaseInitialiser _DatabaseInitialiser = null!;
         private SqliteConnection _KeepAlive = null!;
         private string _ConnectionString = null!;
@@ -24,7 +24,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         public async Task TestInit()
         {
             _MockLogger = new Mock<ILoggerService>();
-            _MockFileSystem = new Mock<IExtendedFileSystem>();
+            _FileSystem = new ExtendedFileSystemWrapper();
 
             string dbName = $"DatabaseSetupStepTest_{Guid.NewGuid():N}";
             _ConnectionString = $"{dbName};Mode=Memory;Cache=Shared";
@@ -35,7 +35,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
 
             _DatabaseInitialiser = new DatabaseInitialiser(
                 _MockLogger.Object,
-                _MockFileSystem.Object);
+                _FileSystem);
         }
 
         /// <summary>

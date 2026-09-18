@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Mail;
 using System.Reflection;
 
+using ExtendedFS = ServerBackupTool.Implementations.ExtendedFileSystemWrapper;
+
 namespace ServerBackupTool.IntegrationTests.Tool.Services
 {
     [TestClass]
@@ -51,13 +53,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
 
             Mock<ILoggerService> mockLogger = new();
             SMTPEmailSender smtpEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
-            mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync(testEmail);
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 smtpEmailSender,
-                mockFileSystem.Object);
+                fileSystem);
 
             NotificationElement notifications = new()
             {
@@ -116,13 +117,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         {
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
-            mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync("body");
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             NotificationElement notifications = new()
             {
@@ -190,12 +190,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         {
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             NotificationElement notifications = new()
             {
@@ -249,13 +249,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
 
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
-            mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ThrowsAsync(new FileNotFoundException());
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             MailMessage? capturedMessage = null;
             mockEmailSender.Setup(s => s.Send(
@@ -335,13 +334,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
 
                 Mock<ILoggerService> mockLogger = new();
                 Mock<IEmailSender> mockEmailSender = new();
-                Mock<IExtendedFileSystem> mockFileSystem = new();
-                mockFileSystem.Setup(fs => fs.ReadAllText(tempFile)).ReturnsAsync(fileContent);
+                ExtendedFS fileSystem = new();
 
                 EmailService emailService = new(
                     mockLogger.Object,
                     mockEmailSender.Object,
-                    mockFileSystem.Object);
+                    fileSystem);
 
                 MailMessage? capturedMessage = null;
                 mockEmailSender.Setup(s => s.Send(
@@ -419,12 +417,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         {
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             NotificationElement notifications = new()
             {
@@ -470,13 +468,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         {
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
-            mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync("body");
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             MailMessage? capturedMessage = null;
             mockEmailSender.Setup(s => s.Send(
@@ -547,13 +544,12 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         {
             Mock<ILoggerService> mockLogger = new();
             Mock<IEmailSender> mockEmailSender = new();
-            Mock<IExtendedFileSystem> mockFileSystem = new();
-            mockFileSystem.Setup(fs => fs.ReadAllText(It.IsAny<string>())).ReturnsAsync("body");
+            ExtendedFS fileSystem = new();
 
             EmailService emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
-                mockFileSystem.Object);
+                fileSystem);
 
             NotificationElement notifications = new()
             {
