@@ -111,7 +111,7 @@ namespace ServerBackupTool.Installer.Steps
                         _Options.ToolTaskName,
                         Path.Combine(
                             _Options.InstallPath,
-                            "Server Backup Tool.exe"));
+                            "ServerBackupTool.exe"));
 
                     if (_Options.ApiConfig != null)
                     {
@@ -122,7 +122,7 @@ namespace ServerBackupTool.Installer.Steps
                             _Options.ApiTaskName,
                             Path.Combine(
                                 _Options.ApiInstallPath,
-                                "Server Backup Tool.API.exe"));
+                                "ServerBackupTool.API.exe"));
                     }
 
                     ProgressTask registryTask = context.AddTask("Writing registry entry");

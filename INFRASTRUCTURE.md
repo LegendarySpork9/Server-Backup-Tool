@@ -409,7 +409,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
 <configuration>
   <configSections>
     <section name="log4net" type="..." />
-    <section name="serverBackup" type="ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool" />
+    <section name="serverBackup" type="ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool" />
   </configSections>
 
   <serverBackup>
@@ -608,7 +608,7 @@ The installer writes to Add/Remove Programs using per-server registry keys:
 | Path | `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ServerBackupTool_{ServerName}` |
 | DisplayName | Server Backup Tool - {ServerName} |
 | Publisher | Hunter Industries |
-| UninstallString | `"{InstallPath}\SBTInstaller.exe" --uninstall` |
+| UninstallString | `"{InstallPath}\ServerBackupToolInstaller.exe" --uninstall` |
 | ServerName | Name of the server this installation manages |
 | InstallLocation | Tool install directory |
 | ApiInstallLocation | API install directory (empty if API not installed) |
@@ -627,7 +627,7 @@ The installer registers one or two Windows scheduled tasks depending on the sele
 |---|---|
 | Name | Configurable (default: `Server Backup Tool - {ServerName}`) |
 | Trigger | At system startup |
-| Action | Run `Server Backup Tool.exe` |
+| Action | Run `ServerBackupTool.exe` |
 | Restart on failure | Every 1 minute, up to 3 times |
 
 **API Task (if API component selected):**
@@ -636,7 +636,7 @@ The installer registers one or two Windows scheduled tasks depending on the sele
 |---|---|
 | Name | Configurable (default: `Server Backup Tool API - {ServerName}`) |
 | Trigger | At system startup |
-| Action | Run `Server Backup Tool.API.exe` |
+| Action | Run `ServerBackupTool.API.exe` |
 | Restart on failure | Every 1 minute, up to 3 times |
 
 ### Uninstall Paths

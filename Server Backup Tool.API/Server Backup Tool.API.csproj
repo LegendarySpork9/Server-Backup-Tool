@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ServerBackupTool.API</RootNamespace>
+    <AssemblyName>ServerBackupTool.API</AssemblyName>
     <ApplicationIcon>wwwroot\Logo.ico</ApplicationIcon>
     <Title>Server Backup Tool API</Title>
     <Authors>Hunter Industries</Authors>

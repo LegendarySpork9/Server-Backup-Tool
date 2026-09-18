@@ -853,7 +853,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                             new XAttribute("type", "log4net.Config.Log4NetConfigurationSectionHandler,log4net")),
                         new XElement("section",
                             new XAttribute("name", "serverBackup"),
-                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool")))));
+                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool")))));
 
             XDocument reference = new(
                 new XElement("configuration",
@@ -863,7 +863,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                             new XAttribute("type", "log4net.Config.Log4NetConfigurationSectionHandler,log4net")),
                         new XElement("section",
                             new XAttribute("name", "serverBackup"),
-                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool")),
+                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool")),
                         new XElement("section",
                             new XAttribute("name", "newSection"),
                             new XAttribute("type", "Some.New.Handler,SomeAssembly")))));
@@ -896,7 +896,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
 
             Assert.IsNotNull(serverBackupSection);
             Assert.AreEqual(
-                "ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool",
+                "ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool",
                 serverBackupSection.Attribute("type")?.Value);
 
             XElement? newSection = sections.FirstOrDefault(s =>

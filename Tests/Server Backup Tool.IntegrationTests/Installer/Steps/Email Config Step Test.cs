@@ -1,6 +1,7 @@
 // Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.Installer.Abstractions;
 using ServerBackupTool.Installer.Models;
+using ServerBackupTool.Installer.Models.Related;
 using ServerBackupTool.Installer.Steps;
 using Spectre.Console.Testing;
 
@@ -112,6 +113,115 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.AreEqual(
                 0,
                 options.EmailConfig.Emails[0].Images.Count);
+        }
+
+        /// <summary>
+        /// Checks that Execute populates a custom trigger template with multiple recipients and an image.
+        /// </summary>
+        [TestMethod]
+        public void Execute_ConfiguresEmail_WithCustomTriggerMultipleRecipientsAndImage()
+        {
+            TestConsole console = new();
+            console.Interactive();
+
+            // Enable email
+            console.Input.PushTextWithEnter("y");
+            // SMTP host
+            console.Input.PushTextWithEnter("mail.example.com");
+            // SMTP password
+            console.Input.PushTextWithEnter("secret");
+            // SMTP port (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enable SSL
+            console.Input.PushTextWithEnter("y");
+            // From email
+            console.Input.PushTextWithEnter("noreply@example.com");
+            // From name (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Add an email template? Yes
+            console.Input.PushTextWithEnter("y");
+            // Select trigger type: "Custom" is the 4th option
+            console.Input.PushKey(ConsoleKey.DownArrow);
+            console.Input.PushKey(ConsoleKey.DownArrow);
+            console.Input.PushKey(ConsoleKey.DownArrow);
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enter the server output text to match
+            console.Input.PushTextWithEnter("Server stopped");
+            // Subject
+            console.Input.PushTextWithEnter("Server Down Alert");
+            // Content
+            console.Input.PushTextWithEnter("<p>The server has stopped.</p>");
+            // First recipient (required)
+            console.Input.PushTextWithEnter("admin@example.com");
+            console.Input.PushTextWithEnter("Admin");
+            // Add another recipient? Yes
+            console.Input.PushTextWithEnter("y");
+            // Second recipient
+            console.Input.PushTextWithEnter("ops@example.com");
+            console.Input.PushTextWithEnter("Ops Team");
+            // Add another recipient? No
+            console.Input.PushTextWithEnter("n");
+            // Add an inline image? Yes
+            console.Input.PushTextWithEnter("y");
+            // Image content ID
+            console.Input.PushTextWithEnter("logo");
+            // Image file path
+            console.Input.PushTextWithEnter(@"C:\images\logo.png");
+            // Add another inline image? No
+            console.Input.PushTextWithEnter("n");
+            // Add another email template? No
+            console.Input.PushTextWithEnter("n");
+
+            InstallOptionsModel options = new();
+            EmailConfigStep step = new(
+                console,
+                _MockLogger.Object,
+                options);
+
+            step.Execute();
+
+            Assert.IsNotNull(options.EmailConfig);
+            Assert.IsTrue(options.EmailConfig.Enabled);
+            Assert.AreEqual(
+                "mail.example.com",
+                options.EmailConfig.SmtpHost);
+            Assert.AreEqual(
+                1,
+                options.EmailConfig.Emails.Count);
+
+            EmailTemplateModel template = options.EmailConfig.Emails[0];
+
+            Assert.AreEqual(
+                "Server stopped",
+                template.Trigger);
+            Assert.IsFalse(template.IsSystem);
+            Assert.AreEqual(
+                "Server Down Alert",
+                template.Subject);
+            Assert.AreEqual(
+                "<p>The server has stopped.</p>",
+                template.Content);
+            Assert.AreEqual(
+                2,
+                template.Recipients.Count);
+            Assert.AreEqual(
+                "admin@example.com",
+                template.Recipients[0].Email);
+            Assert.AreEqual(
+                "ops@example.com",
+                template.Recipients[1].Email);
+            Assert.AreEqual(
+                "Ops Team",
+                template.Recipients[1].Name);
+            Assert.AreEqual(
+                1,
+                template.Images.Count);
+            Assert.AreEqual(
+                "logo",
+                template.Images[0].Key);
+            Assert.AreEqual(
+                @"C:\images\logo.png",
+                template.Images[0].Path);
         }
     }
 }

@@ -315,6 +315,146 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         }
 
         /// <summary>
+        /// Checks that GetBundledToolVersion reads a valid version from a real assembly on disk.
+        /// </summary>
+        [TestMethod]
+        public void GetBundledToolVersion_ReadsVersion_WhenAssemblyExists()
+        {
+            string tempDir = Path.Combine(
+                Path.GetTempPath(),
+                $"SBT_VersionServiceTest_{Guid.NewGuid():N}");
+
+            try
+            {
+                Directory.CreateDirectory(tempDir);
+
+                string sourceAssembly = typeof(VersionService).Assembly.Location;
+                string destAssembly = Path.Combine(
+                    tempDir,
+                    "ServerBackupTool.dll");
+
+                File.Copy(
+                    sourceAssembly,
+                    destAssembly);
+
+                Mock<IFileSystem> realFileSystem = new();
+                realFileSystem.Setup(f => f.FileExists(destAssembly))
+                    .Returns(true);
+
+                VersionService service = new(
+                    _MockLogger.Object,
+                    _MockRegistry.Object,
+                    _MockResourceService.Object,
+                    realFileSystem.Object);
+
+                string result = service.GetBundledToolVersion(tempDir);
+
+                Assert.AreNotEqual(
+                    "0.0.0",
+                    result);
+                Assert.IsTrue(
+                    Version.TryParse(result, out _),
+                    $"Expected a valid version string but got '{result}'.");
+            }
+
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(
+                        tempDir,
+                        true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks that GetBundledApiVersion reads a valid version from a real assembly on disk.
+        /// </summary>
+        [TestMethod]
+        public void GetBundledApiVersion_ReadsVersion_WhenAssemblyExists()
+        {
+            string tempDir = Path.Combine(
+                Path.GetTempPath(),
+                $"SBT_VersionServiceTest_{Guid.NewGuid():N}");
+
+            try
+            {
+                Directory.CreateDirectory(tempDir);
+
+                string sourceAssembly = typeof(VersionService).Assembly.Location;
+                string destAssembly = Path.Combine(
+                    tempDir,
+                    "ServerBackupTool.API.dll");
+
+                File.Copy(
+                    sourceAssembly,
+                    destAssembly);
+
+                Mock<IFileSystem> realFileSystem = new();
+                realFileSystem.Setup(f => f.FileExists(destAssembly))
+                    .Returns(true);
+
+                VersionService service = new(
+                    _MockLogger.Object,
+                    _MockRegistry.Object,
+                    _MockResourceService.Object,
+                    realFileSystem.Object);
+
+                string result = service.GetBundledApiVersion(tempDir);
+
+                Assert.AreNotEqual(
+                    "0.0.0",
+                    result);
+                Assert.IsTrue(
+                    Version.TryParse(result, out _),
+                    $"Expected a valid version string but got '{result}'.");
+            }
+
+            finally
+            {
+                if (Directory.Exists(tempDir))
+                {
+                    Directory.Delete(
+                        tempDir,
+                        true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Checks that ParseVersionFromResourceName returns the default version when the resource name format is invalid.
+        /// </summary>
+        [TestMethod]
+        public void GetEmbeddedToolVersion_ReturnsDefault_WhenFormatInvalid()
+        {
+            _MockResourceService.Setup(r => r.FindResource("Tool_"))
+                .Returns("Server_Backup_Tool.Installer.Tool_notaversion.zip");
+
+            string version = _VersionService.GetEmbeddedToolVersion();
+
+            Assert.AreEqual(
+                "0.0.0",
+                version);
+        }
+
+        /// <summary>
+        /// Checks that ParseVersionFromResourceName returns the default version when the resource name has no extension match.
+        /// </summary>
+        [TestMethod]
+        public void GetEmbeddedToolVersion_ReturnsDefault_WhenNoExtensionMatch()
+        {
+            _MockResourceService.Setup(r => r.FindResource("Tool_"))
+                .Returns("Server_Backup_Tool.Installer.Tool_1.0.0.tar");
+
+            string version = _VersionService.GetEmbeddedToolVersion();
+
+            Assert.AreEqual(
+                "0.0.0",
+                version);
+        }
+
+        /// <summary>
         /// Checks that GetAllInstallations returns an empty list when no installations exist.
         /// </summary>
         [TestMethod]

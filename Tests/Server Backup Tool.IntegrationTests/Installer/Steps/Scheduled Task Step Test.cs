@@ -47,5 +47,39 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
 
             step.Execute();
         }
+
+        /// <summary>
+        /// Checks that Execute throws InvalidOperationException when the scheduled task creation fails.
+        /// </summary>
+        [TestMethod]
+        public void Execute_ThrowsInvalidOperationException_WhenTaskCreationFails()
+        {
+            _MockTaskScheduler
+                .Setup(ts => ts.CreateScheduledTask(
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .Returns((false, new Exception("Access denied")));
+
+            InstallOptionsModel options = new()
+            {
+                InstallPath = @"C:\Server Backup Tool"
+            };
+
+            ScheduledTaskStep step = new(
+                _MockLogger.Object,
+                _MockTaskScheduler.Object,
+                options);
+
+            InvalidOperationException exception = Assert.ThrowsException<InvalidOperationException>(
+                () => step.Execute());
+
+            Assert.AreEqual(
+                "Failed to create scheduled task.",
+                exception.Message);
+            Assert.IsNotNull(exception.InnerException);
+            Assert.AreEqual(
+                "Access denied",
+                exception.InnerException.Message);
+        }
     }
 }

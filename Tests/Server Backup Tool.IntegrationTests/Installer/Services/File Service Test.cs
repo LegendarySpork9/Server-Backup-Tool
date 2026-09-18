@@ -188,6 +188,116 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         }
 
         /// <summary>
+        /// Checks that ValidateWritePermissions returns false when the file system throws on write.
+        /// </summary>
+        [TestMethod]
+        public async Task ValidateWritePermissions_ReturnsFalse_WhenWriteThrows()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem
+                .Setup(fs => fs.WriteAllText(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new UnauthorizedAccessException("Write denied"));
+
+            FileService service = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            bool result = await service.ValidateWritePermissions(@"C:\Restricted");
+
+            Assert.IsFalse(result);
+        }
+
+        /// <summary>
+        /// Checks that BackupDirectory returns success even when CopyFiles fails internally,
+        /// as BackupDirectory does not inspect the CopyFiles return value.
+        /// </summary>
+        [TestMethod]
+        public void BackupDirectory_ReturnsSuccess_WhenCopyFilesFailsInternally()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem
+                .Setup(fs => fs.GetFiles(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<SearchOption>()))
+                .Throws(new IOException("Disk failure"));
+
+            FileService service = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            (bool success, Exception? error) = service.BackupDirectory(
+                @"C:\Source",
+                @"C:\Backups");
+
+            Assert.IsTrue(success);
+            Assert.IsNull(error);
+        }
+
+        /// <summary>
+        /// Checks that DeleteDirectory returns failure when the file system throws during deletion.
+        /// </summary>
+        [TestMethod]
+        public void DeleteDirectory_ReturnsFailure_WhenFileSystemThrows()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem
+                .Setup(fs => fs.DeleteDirectory(It.IsAny<string>(), It.IsAny<bool>()))
+                .Throws(new UnauthorizedAccessException("Access denied"));
+
+            FileService service = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            (bool success, Exception? error) = service.DeleteDirectory(@"C:\Protected");
+
+            Assert.IsFalse(success);
+            Assert.IsNotNull(error);
+            Assert.IsInstanceOfType<UnauthorizedAccessException>(error);
+        }
+
+        /// <summary>
+        /// Checks that CopyFiles returns failure when the file system throws during file enumeration.
+        /// </summary>
+        [TestMethod]
+        public void CopyFiles_ReturnsFailure_WhenFileSystemThrows()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem
+                .Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem
+                .Setup(fs => fs.GetFiles(
+                    It.IsAny<string>(),
+                    It.IsAny<string>(),
+                    It.IsAny<SearchOption>()))
+                .Throws(new IOException("Disk read error"));
+
+            FileService service = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            (bool success, Exception? error) = service.CopyFiles(
+                @"C:\Source",
+                @"C:\Dest");
+
+            Assert.IsFalse(success);
+            Assert.IsNotNull(error);
+            Assert.IsInstanceOfType(
+                error,
+                typeof(IOException));
+        }
+
+        /// <summary>
         /// Checks that DeleteDirectory returns true when the directory does not exist.
         /// </summary>
         [TestMethod]

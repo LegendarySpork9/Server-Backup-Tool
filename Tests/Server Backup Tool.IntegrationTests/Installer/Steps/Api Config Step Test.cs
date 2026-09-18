@@ -98,5 +98,66 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.IsTrue(
                 options.ApiConfig.WebhookSecret.Length > 0);
         }
+
+        /// <summary>
+        /// Checks that Execute populates HTTPS settings when the user enables HTTPS.
+        /// </summary>
+        [TestMethod]
+        public void Execute_ConfiguresHttps_WhenUserEnablesHttps()
+        {
+            TestConsole console = new();
+            console.Interactive();
+
+            // Bind address (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // HTTP port (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enable HTTPS? Yes
+            console.Input.PushTextWithEnter("y");
+            // HTTPS port
+            console.Input.PushTextWithEnter("5001");
+            // Certificate path
+            console.Input.PushTextWithEnter(@"C:\certs\server.pfx");
+            // Certificate password
+            console.Input.PushTextWithEnter("certpass123");
+            // API database path (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Archive directory (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Webhook secret
+            console.Input.PushTextWithEnter("webhooksecret");
+            // Press Enter to continue after credentials display
+            console.Input.PushKey(ConsoleKey.Enter);
+
+            InstallOptionsModel options = new()
+            {
+                Components = ["Server Backup Tool", "Server Backup Tool API"],
+                InstallPath = @"C:\Test"
+            };
+
+            options.ServerConfig = new ServerConfigModel
+            {
+                DatabasePath = "test.db"
+            };
+
+            ApiConfigStep step = new(
+                console,
+                _MockLogger.Object,
+                options);
+
+            step.Execute();
+
+            Assert.IsNotNull(options.ApiConfig);
+            Assert.IsTrue(options.ApiConfig.EnableHttps);
+            Assert.AreEqual(
+                5001,
+                options.ApiConfig.HttpsPort);
+            Assert.AreEqual(
+                @"C:\certs\server.pfx",
+                options.ApiConfig.CertificatePath);
+            Assert.AreEqual(
+                "certpass123",
+                options.ApiConfig.CertificatePassword);
+        }
     }
 }

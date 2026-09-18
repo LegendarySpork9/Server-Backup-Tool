@@ -3,7 +3,7 @@
 # then publishes the installer as a self-contained single-file executable.
 #
 # Usage: .\build-installer.ps1
-# Output: Server Backup Tool.Installer\bin\Release\net10.0\win-x64\publish\SBTInstaller.exe
+# Output: Server Backup Tool.Installer\bin\Release\net10.0\win-x64\publish\ServerBackupToolInstaller.exe
 
 param(
     [string]$Configuration = "Release",
@@ -37,8 +37,8 @@ if ($LASTEXITCODE -ne 0) { throw "Failed to publish Server Backup Tool API." }
 # Step 3: Read versions from published assemblies.
 Write-Host "[3/6] Reading assembly versions..." -ForegroundColor Yellow
 
-$ToolDll = Join-Path $ToolPublishDir "Server Backup Tool.dll"
-$ApiDll = Join-Path $ApiPublishDir "Server Backup Tool.API.dll"
+$ToolDll = Join-Path $ToolPublishDir "ServerBackupTool.dll"
+$ApiDll = Join-Path $ApiPublishDir "ServerBackupTool.API.dll"
 
 $ToolVersion = [System.Reflection.AssemblyName]::GetAssemblyName($ToolDll).Version.ToString(3)
 $ApiVersion = [System.Reflection.AssemblyName]::GetAssemblyName($ApiDll).Version.ToString(3)
@@ -74,7 +74,7 @@ dotnet publish $InstallerProject -c $Configuration -r $Runtime --self-contained 
 if ($LASTEXITCODE -ne 0) { throw "Failed to publish Installer." }
 
 # Step 6: Report output.
-$InstallerExe = Join-Path $SolutionDir "Server Backup Tool.Installer\bin\$Configuration\net10.0\$Runtime\publish\SBTInstaller.exe"
+$InstallerExe = Join-Path $SolutionDir "Server Backup Tool.Installer\bin\$Configuration\net10.0\$Runtime\publish\ServerBackupToolInstaller.exe"
 
 if (Test-Path $InstallerExe) {
     $Size = (Get-Item $InstallerExe).Length / 1MB

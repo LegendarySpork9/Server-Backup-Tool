@@ -11,7 +11,7 @@
     <Authors>Hunter Industries</Authors>
     <Description>Installs, configures, updates, and uninstalls the Server Backup Tool and it's API.</Description>
     <Copyright>Copyright ©  2026</Copyright>
-    <AssemblyName>SBTInstaller</AssemblyName>
+    <AssemblyName>ServerBackupToolInstaller</AssemblyName>
     <ApplicationIcon>Content\Logo.ico</ApplicationIcon>
     <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

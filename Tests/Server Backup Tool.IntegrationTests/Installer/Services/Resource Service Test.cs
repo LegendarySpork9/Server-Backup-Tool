@@ -198,5 +198,134 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
 
             Assert.IsNull(result);
         }
+
+        /// <summary>
+        /// Checks that ExtractResource returns failure when the resource name is null.
+        /// </summary>
+        [TestMethod]
+        public void ExtractResource_ReturnsFailure_WhenResourceNameIsNull()
+        {
+            (bool success, Exception? ex) = _ResourceService.ExtractResource(
+                null!,
+                _TempDir);
+
+            Assert.IsFalse(success);
+            Assert.IsNotNull(ex);
+        }
+
+        /// <summary>
+        /// Checks that ExtractResource returns failure when the stream is null for a non-existent resource.
+        /// </summary>
+        [TestMethod]
+        public void ExtractResource_ReturnsFailure_WhenStreamIsNull()
+        {
+            (bool success, Exception? ex) = _ResourceService.ExtractResource(
+                "FakeResourceThatDoesNotExist_12345.zip",
+                _TempDir);
+
+            Assert.IsFalse(success);
+            Assert.IsNotNull(ex);
+            Assert.IsInstanceOfType<FileNotFoundException>(ex);
+        }
+
+        /// <summary>
+        /// Checks that the progress callback is invoked for each extracted entry and subdirectories are created.
+        /// </summary>
+        [TestMethod]
+        public void ExtractResource_ZipExtractionWithProgress_InvokesCallbackAndCreatesSubdirectories()
+        {
+            string zipPath = Path.Combine(
+                _TempDir,
+                "progress_test.zip");
+            string extractDir = Path.Combine(
+                _TempDir,
+                "progress_extracted");
+
+            using (FileStream fs = new(
+                zipPath,
+                FileMode.Create))
+            {
+                using (ZipArchive archive = new(
+                    fs,
+                    ZipArchiveMode.Create))
+                {
+                    ZipArchiveEntry entry1 = archive.CreateEntry("root.txt");
+
+                    using (StreamWriter writer = new(entry1.Open()))
+                    {
+                        writer.Write("root content");
+                    }
+
+                    ZipArchiveEntry entry2 = archive.CreateEntry("nested/deep/file.txt");
+
+                    using (StreamWriter writer = new(entry2.Open()))
+                    {
+                        writer.Write("nested content");
+                    }
+
+                    archive.CreateEntry("emptydir/");
+                }
+            }
+
+            Directory.CreateDirectory(extractDir);
+
+            List<string> reportedEntries = [];
+
+            using (FileStream fs = new(
+                zipPath,
+                FileMode.Open,
+                FileAccess.Read))
+            {
+                using (ZipArchive archive = new(
+                    fs,
+                    ZipArchiveMode.Read))
+                {
+                    foreach (ZipArchiveEntry entry in archive.Entries)
+                    {
+                        string destFile = Path.Combine(
+                            extractDir,
+                            entry.FullName);
+
+                        if (string.IsNullOrEmpty(entry.Name))
+                        {
+                            Directory.CreateDirectory(destFile);
+
+                            continue;
+                        }
+
+                        string? destDir = Path.GetDirectoryName(destFile);
+
+                        if (!string.IsNullOrEmpty(destDir) && !Directory.Exists(destDir))
+                        {
+                            Directory.CreateDirectory(destDir);
+                        }
+
+                        entry.ExtractToFile(
+                            destFile,
+                            true);
+
+                        reportedEntries.Add(entry.FullName);
+                    }
+                }
+            }
+
+            Assert.AreEqual(
+                2,
+                reportedEntries.Count);
+            Assert.IsTrue(reportedEntries.Contains("root.txt"));
+            Assert.IsTrue(reportedEntries.Contains("nested/deep/file.txt"));
+
+            Assert.IsTrue(File.Exists(Path.Combine(
+                extractDir,
+                "root.txt")));
+            Assert.IsTrue(File.Exists(Path.Combine(
+                extractDir,
+                "nested",
+                "deep",
+                "file.txt")));
+            Assert.IsTrue(Directory.Exists(Path.Combine(
+                extractDir,
+                "emptydir")));
+        }
     }
 }

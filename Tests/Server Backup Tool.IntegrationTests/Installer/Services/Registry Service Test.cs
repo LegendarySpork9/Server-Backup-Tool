@@ -216,6 +216,46 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         }
 
         /// <summary>
+        /// Checks that WriteUninstallEntry returns failure when the registry root is disposed.
+        /// </summary>
+        [TestMethod]
+        public void WriteUninstallEntry_ReturnsFailure_WhenRegistryThrows()
+        {
+            RegistryKey disposedKey = Registry.CurrentUser.OpenSubKey("SOFTWARE")!;
+            disposedKey.Dispose();
+
+            RegistryService service = new(
+                _MockLogger.Object,
+                disposedKey);
+
+            (bool success, Exception? error) = service.WriteUninstallEntry(
+                "FailServer",
+                @"C:\Test",
+                @"C:\Test\API",
+                "1.0.0",
+                "1.0.0",
+                "Task1",
+                "Task2");
+
+            Assert.IsFalse(success);
+            Assert.IsNotNull(error);
+        }
+
+        /// <summary>
+        /// Checks that RemoveUninstallEntry succeeds when the key does not exist, using throwOnMissing false.
+        /// </summary>
+        [TestMethod]
+        public void RemoveUninstallEntry_ReturnsSuccess_WhenKeyDoesNotExist()
+        {
+            string nonExistentServer = $"NonExistent_{Guid.NewGuid():N}";
+
+            (bool removed, Exception? error) = _RegistryService.RemoveUninstallEntry(nonExistentServer);
+
+            Assert.IsTrue(removed);
+            Assert.IsNull(error);
+        }
+
+        /// <summary>
         /// Checks that GetAllInstallations returns all installations.
         /// </summary>
         [TestMethod]

@@ -34,7 +34,7 @@ namespace ServerBackupTool.Installer.Steps
 
             string executablePath = Path.Combine(
                 _Options.InstallPath,
-                "Server Backup Tool.exe");
+                "ServerBackupTool.exe");
 
             (bool success, Exception? exception) = _TaskSchedulerService.CreateScheduledTask(
                 InstallerValues.ScheduledTask.TaskName,

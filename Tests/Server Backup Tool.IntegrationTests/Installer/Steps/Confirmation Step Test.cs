@@ -88,5 +88,53 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.ThrowsException<OperationCanceledException>(
                 () => step.Execute());
         }
+
+        /// <summary>
+        /// Checks that Execute displays API configuration details when ApiConfig is populated.
+        /// </summary>
+        [TestMethod]
+        public void Execute_DisplaysApiConfig_WhenApiConfigIsPopulated()
+        {
+            TestConsole console = new();
+            console.Interactive();
+            console.Input.PushTextWithEnter("y");
+
+            InstallOptionsModel options = CreatePopulatedOptions();
+            options.Components = ["Server Backup Tool", "Server Backup Tool API"];
+            options.ApiTaskName = "Server Backup Tool API - TestServer";
+            options.ApiConfig = new ApiConfigModel
+            {
+                BindAddress = "0.0.0.0",
+                HttpPort = 5000,
+                HttpsPort = 5001,
+                EnableHttps = true,
+                CertificatePath = @"C:\certs\server.pfx",
+                CertificatePassword = "certpass",
+                DatabasePath = @"C:\ProgramData\Data.db",
+                ArchiveDirectory = @"C:\Server Backup Tool\Archived Logs"
+            };
+
+            ConfirmationStep step = new(
+                console,
+                _MockLogger.Object,
+                options);
+
+            step.Execute();
+
+            string output = console.Output;
+
+            Assert.IsTrue(
+                output.Contains("API Enabled"),
+                $"Expected output to contain 'API Enabled' but got: {output}");
+            Assert.IsTrue(
+                output.Contains("API HTTPS"),
+                $"Expected output to contain 'API HTTPS' but got: {output}");
+            Assert.IsTrue(
+                output.Contains("SSL Certificate"),
+                $"Expected output to contain 'SSL Certificate' but got: {output}");
+            Assert.IsTrue(
+                output.Contains("API Install Path"),
+                $"Expected output to contain 'API Install Path' but got: {output}");
+        }
     }
 }

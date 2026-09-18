@@ -9,9 +9,9 @@ using ServerBackupTool.Common.Values;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Models;
 
-namespace ServerBackupTool.API.Services
+namespace ServerBackupTool.API.Implementations
 {
-    public class WebhookRegistrationService
+    public class WebhookRegistrationService : IWebhookRegistrationService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedDatabase _Database;

@@ -1,7 +1,6 @@
-﻿// Copyright © - 31/10/2024 - Toby Hunter
+// Copyright © - 31/10/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Values;
-using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using System.Net.NetworkInformation;
@@ -10,12 +9,14 @@ using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Services
 {
-    public class TimerService
+    public class TimerService : ITimerService
     {
         private readonly ILoggerService _Logger;
-        private readonly ApplicationService _ApplicationService;
-        private readonly ServerService _ServerService;
-        private readonly CommandService _CommandService;
+        private readonly IApplicationService _ApplicationService;
+        private readonly IServerService _ServerService;
+        private readonly ICommandService _CommandService;
+        private readonly IEmailService _EmailService;
+        private readonly IPingProvider _PingProvider;
         private readonly SBTSection ServerBackupSection;
         private readonly bool DoHeartbeat = false;
         private readonly List<TimerModel> Timers = [];
@@ -24,9 +25,11 @@ namespace ServerBackupTool.Services
         // Sets the class's global variables.
         public TimerService(
             ILoggerService _logger,
-            ApplicationService _applicationService,
-            ServerService _serverService,
-            CommandService _commandService,
+            IApplicationService _applicationService,
+            IServerService _serverService,
+            ICommandService _commandService,
+            IEmailService _emailService,
+            IPingProvider _pingProvider,
             SBTSection serverBackupSection)
         {
             if (serverBackupSection.Notifications.Emails.Count != 0)
@@ -44,6 +47,8 @@ namespace ServerBackupTool.Services
             _ApplicationService = _applicationService;
             _ServerService = _serverService;
             _CommandService = _commandService;
+            _EmailService = _emailService;
+            _PingProvider = _pingProvider;
             ServerBackupSection = serverBackupSection;
         }
 
@@ -207,16 +212,16 @@ namespace ServerBackupTool.Services
             switch (timerNumber)
             {
                 case 0:
-                    await Heartbeat(Timers[0].TimerData);
+                    await Heartbeat();
                     break;
                 case 1:
-                    SystemTimers(Timers[1]);
+                    await SystemTimers(1);
                     break;
                 case 2:
-                    SystemTimers(Timers[2]);
+                    await SystemTimers(2);
                     break;
                 default:
-                    ServerWarning(Timers[timerNumber]);
+                    await ServerWarning(timerNumber);
                     break;
             }
         }
@@ -224,8 +229,9 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Runs code related to built in timers.
         /// </summary>
-        private async void SystemTimers(TimerModel timer)
+        internal async Task SystemTimers(int timerIndex)
         {
+            TimerModel timer = Timers[timerIndex];
             timer.TimerData.Stop();
 
             _Logger.LogToolMessage(
@@ -250,8 +256,9 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Runs code related to the server timers.
         /// </summary>
-        private async void ServerWarning(TimerModel timer)
+        internal async Task ServerWarning(int timerIndex)
         {
+            TimerModel timer = Timers[timerIndex];
             timer.TimerData.Stop();
 
             _Logger.LogToolMessage(
@@ -271,33 +278,28 @@ namespace ServerBackupTool.Services
         }
 
         /// <summary>
-        /// Runs when the Heartbeat timer finishes.
+        /// Runs the heartbeat check logic.
         /// </summary>
-        private async Task Heartbeat(Timer heartbeatTimer)
+        internal async Task Heartbeat()
         {
-            EmailService _emailService = new(
-                _Logger,
-                new SMTPEmailSender(),
-                new ExtendedFileSystemWrapper(),
-                true);
-
-            Ping pingSender = new();
-            PingReply reply = await pingSender.SendPingAsync(ServerBackupSection.ServerDetails.IPAddress);
+            PingReply reply = await _PingProvider.SendPingAsync(
+                ServerBackupSection.ServerDetails.IPAddress,
+                5000);
 
             if (reply.Status != IPStatus.Success)
             {
-                heartbeatTimer.Stop();
+                Timers[0].TimerData.Stop();
 
-                await _emailService.CheckForEmail(
+                await _EmailService.CheckForEmail(
                     ServerBackupSection.Notifications,
                     "Heartbeat");
             }
         }
 
         /// <summary>
-        /// Runs when the QueuedCommandCheck timer has finished.
+        /// Runs the queued command processing logic.
         /// </summary>
-        private async Task ProcessQueuedCommands(
+        internal async Task ProcessQueuedCommands(
             object? sender,
             ElapsedEventArgs e)
         {

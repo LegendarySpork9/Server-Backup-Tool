@@ -157,5 +157,74 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
 
             _PidService.Delete(uniqueName);
         }
+
+        /// <summary>
+        /// Checks that Write does not throw when WriteAllText throws an exception.
+        /// </summary>
+        [TestMethod]
+        public async Task Write_LogsWarning_WhenWriteAllTextThrows()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem.Setup(fs => fs.WriteAllText(
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .ThrowsAsync(new IOException("Disk full"));
+
+            PidFileService pidService = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            await pidService.Write(
+                "TestServer",
+                12345,
+                new DateTime(2025, 6, 15, 12, 0, 0, DateTimeKind.Utc));
+
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Warn",
+                    "Failed to write PID file for TestServer.",
+                    false),
+                Times.Once);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Error",
+                    It.Is<string>(m => m.Contains("Disk full")),
+                    false),
+                Times.Once);
+        }
+
+        /// <summary>
+        /// Checks that Delete does not throw when DeleteFile throws an exception.
+        /// </summary>
+        [TestMethod]
+        public void Delete_LogsWarning_WhenDeleteFileThrows()
+        {
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem.Setup(fs => fs.FileExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem.Setup(fs => fs.DeleteFile(It.IsAny<string>()))
+                .Throws(new UnauthorizedAccessException("Access denied"));
+
+            PidFileService pidService = new(
+                _MockLogger.Object,
+                mockFileSystem.Object);
+
+            pidService.Delete("TestServer");
+
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Warn",
+                    "Failed to delete PID file for TestServer.",
+                    false),
+                Times.Once);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Error",
+                    It.Is<string>(m => m.Contains("Access denied")),
+                    false),
+                Times.Once);
+        }
     }
 }

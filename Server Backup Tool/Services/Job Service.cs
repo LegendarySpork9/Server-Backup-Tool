@@ -7,7 +7,7 @@ using ServerBackupTool.Models.Configuration;
 
 namespace ServerBackupTool.Services
 {
-    public class JobService
+    public class JobService : IJobService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;

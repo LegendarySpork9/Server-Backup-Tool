@@ -69,7 +69,7 @@ CREATE INDEX IF NOT EXISTS IX_Webhooks_Server ON Webhooks (ServerName);";
         public static class Defaults
         {
             public const string InstallPath = @"C:\Server Backup Tool";
-            public const string ToolConfigFileName = "Server Backup Tool.dll.config";
+            public const string ToolConfigFileName = "ServerBackupTool.dll.config";
             public const string DatabaseFileName = "Data.db";
             public const string ArchiveDirectory = "Archived Logs";
             public const string FromName = "Server Backup Tool";

@@ -70,7 +70,7 @@ namespace ServerBackupTool.Installer.Implementations
                         "UninstallString",
                         $"\"{Path.Combine(
                             installPath,
-                            "SBTInstaller.exe")}\" --uninstall");
+                            "ServerBackupToolInstaller.exe")}\" --uninstall");
                     key.SetValue(
                         "DisplayIcon",
                         Path.Combine(

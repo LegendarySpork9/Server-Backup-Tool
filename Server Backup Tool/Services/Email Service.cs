@@ -7,7 +7,7 @@ using System.Net.Mail;
 
 namespace ServerBackupTool.Services
 {
-    public class EmailService
+    public class EmailService : IEmailService
     {
         private readonly ILoggerService _Logger;
         private readonly IEmailSender _EmailSender;

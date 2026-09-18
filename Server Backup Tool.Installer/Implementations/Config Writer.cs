@@ -56,7 +56,7 @@ namespace ServerBackupTool.Installer.Implementations
                             new XAttribute("type", "log4net.Config.Log4NetConfigurationSectionHandler,log4net")),
                         new XElement("section",
                             new XAttribute("name", "serverBackup"),
-                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool"))),
+                            new XAttribute("type", "ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool"))),
                     serverBackup,
                     log4Net));
 

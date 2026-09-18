@@ -133,7 +133,7 @@ namespace ServerBackupTool.Installer.Implementations
 
             string assemblyPath = Path.Combine(
                 installPath,
-                "Server Backup Tool.dll");
+                "ServerBackupTool.dll");
 
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Info,
@@ -172,7 +172,7 @@ namespace ServerBackupTool.Installer.Implementations
 
             string assemblyPath = Path.Combine(
                 apiInstallPath,
-                "Server Backup Tool.API.dll");
+                "ServerBackupTool.API.dll");
 
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Info,
