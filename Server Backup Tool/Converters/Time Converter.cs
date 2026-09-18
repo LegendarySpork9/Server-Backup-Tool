@@ -19,41 +19,33 @@ namespace ServerBackupTool.Converters
         public TimeSpan GetDuration(string triggerTime)
         {
             DateTime currentTime = _Clock.UtcNow;
-            string elapsedTime = GetElapsedTime(
-                currentTime,
-                DateTime.SpecifyKind(
-                    DateTime.Parse(triggerTime),
-                    DateTimeKind.Utc),
-                triggerTime);
+            TimeSpan parsedTime = TimeSpan.Parse(triggerTime);
+            DateTime triggerDateTime = DateTime.SpecifyKind(
+                currentTime.Date.Add(parsedTime),
+                DateTimeKind.Utc);
 
-            TimeSpan timerDuration = DateTime.SpecifyKind(
-                DateTime.Parse(elapsedTime),
-                DateTimeKind.Utc).Subtract(currentTime);
+            DateTime targetDateTime = GetElapsedTime(
+                currentTime,
+                triggerDateTime);
+
+            TimeSpan timerDuration = targetDateTime.Subtract(currentTime);
 
             return timerDuration;
         }
 
         /// <summary>
-        /// Returns the date and time the timer should be triggered.
+        /// Returns the UTC date and time the timer should next trigger.
         /// </summary>
-        private string GetElapsedTime(
+        private static DateTime GetElapsedTime(
             DateTime currentTime,
-            DateTime triggerDateTime,
-            string triggerTime)
+            DateTime triggerDateTime)
         {
-            string? elapsedTime;
-
             if (triggerDateTime <= currentTime)
             {
-                elapsedTime = $"{_Clock.UtcNow.AddDays(1):dd/MM/yyyy} {triggerTime}";
+                triggerDateTime = triggerDateTime.AddDays(1);
             }
 
-            else
-            {
-                elapsedTime = $"{_Clock.UtcNow:dd/MM/yyyy} {triggerTime}";
-            }
-
-            return elapsedTime;
+            return triggerDateTime;
         }
     }
 }

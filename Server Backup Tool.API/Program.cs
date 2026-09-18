@@ -196,8 +196,23 @@ Each instance of the tool is identified by the name of the server it manages. Th
             builder.Services.AddSingleton<IExtendedDatabase, ExtendedDatabaseWrapper>();
             builder.Services.AddSingleton<IExtendedFileSystem, ExtendedFileSystemWrapper>();
             builder.Services.AddSingleton<IClock, SystemClockProvider>();
-            builder.Services.AddHostedService<Services.LogPollingService>();
+            builder.Services.AddScoped<IWebhookRegistrationService, WebhookRegistrationService>();
             builder.Services.AddHttpClient();
+            builder.Services.AddScoped<IWebhookDispatchService>(sp =>
+            {
+                ILoggerService logger = sp.GetRequiredService<ILoggerService>();
+                HttpClient httpClient = sp.GetRequiredService<IHttpClientFactory>()
+                    .CreateClient();
+                WebhookSettingsModel settings = sp.GetRequiredService<WebhookSettingsModel>();
+                System.Text.Json.JsonSerializerOptions jsonOptions = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Mvc.JsonOptions>>().Value.JsonSerializerOptions;
+
+                return new WebhookDispatchService(
+                    logger,
+                    httpClient,
+                    settings,
+                    jsonOptions);
+            });
+            builder.Services.AddHostedService<Services.LogPollingService>();
 
             _logger.LogMessage(
                StandardValues.LoggerValues.Debug,

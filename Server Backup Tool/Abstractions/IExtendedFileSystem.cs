@@ -6,14 +6,6 @@ namespace ServerBackupTool.Abstractions
     /// </summary>
     public interface IExtendedFileSystem : Common.Abstractions.IFileSystem
     {
-        // Directory Operations
-        void CreateDirectory(string path);
-
-        // File Operations
-        void DeleteFile(string file);
-        Task<string> ReadAllText(string file);
-        Task WriteAllText(string path, string content);
-
         // ZIP Operations
         void CreateZIPFromDirectory(string sourceDirectory, string destinationFile);
         void CreateZIPFile(string path);

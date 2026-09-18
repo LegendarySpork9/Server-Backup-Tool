@@ -382,5 +382,191 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
                 "Complete",
                 result);
         }
+
+        /// <summary>
+        /// Checks that BackupServer returns Failed when CreateZIPFromDirectory throws.
+        /// </summary>
+        [TestMethod]
+        public async Task BackupServer_ReturnsFailed_WhenZipCreationThrows()
+        {
+            string serverLocation = Path.Combine(
+                TempBaseDir,
+                "Server");
+
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem.Setup(fs => fs.CreateZIPFromDirectory(
+                    It.IsAny<string>(),
+                    It.IsAny<string>()))
+                .Throws(new IOException("Disk full"));
+
+            SBTSection section = CreateSection(serverLocation);
+
+            JobService jobService = new(
+                _MockLogger.Object,
+                mockFileSystem.Object,
+                _MockClock.Object,
+                _LogService,
+                section);
+
+            string result = await jobService.RunJobs("backup");
+
+            Assert.AreEqual(
+                "Failed",
+                result);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Warn",
+                    "Failed to create a backup of the game data.",
+                    false),
+                Times.Once);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Error",
+                    It.Is<string>(m => m.Contains("Disk full")),
+                    false),
+                Times.Once);
+        }
+
+        /// <summary>
+        /// Checks that ArchiveLogs returns Failed when ClearLogs returns success false.
+        /// </summary>
+        [TestMethod]
+        public async Task ArchiveLogs_ReturnsFailed_WhenClearLogsReturnsFalse()
+        {
+            Directory.SetCurrentDirectory(TempBaseDir);
+
+            string logsDir = Path.Combine(
+                TempBaseDir,
+                "Logs");
+            Directory.CreateDirectory(logsDir);
+            File.WriteAllText(
+                Path.Combine(
+                    logsDir,
+                    "Backup.log"),
+                "keep this file");
+
+            string serverLocation = Path.Combine(
+                TempBaseDir,
+                "Server");
+            Directory.CreateDirectory(serverLocation);
+
+            SBTSection section = CreateSection(serverLocation);
+
+            JobService jobService = new(
+                _MockLogger.Object,
+                _FileSystem,
+                _MockClock.Object,
+                _LogService,
+                section);
+
+            string result = await jobService.RunJobs("archive");
+
+            Assert.AreEqual(
+                "Failed",
+                result);
+        }
+
+        /// <summary>
+        /// Checks that ArchiveLogs returns Failed when an exception is thrown during archiving.
+        /// </summary>
+        [TestMethod]
+        public async Task ArchiveLogs_ReturnsFailed_WhenExceptionThrownDuringArchiving()
+        {
+            Directory.SetCurrentDirectory(TempBaseDir);
+
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem.Setup(fs => fs.GetFiles(It.IsAny<string>()))
+                .Returns(new List<string> { @".\Logs\server.log" });
+            mockFileSystem.Setup(fs => fs.CreateZIPFile(It.IsAny<string>()))
+                .Throws(new UnauthorizedAccessException("Access denied"));
+
+            string serverLocation = Path.Combine(
+                TempBaseDir,
+                "Server");
+
+            SBTSection section = CreateSection(serverLocation);
+
+            JobService jobService = new(
+                _MockLogger.Object,
+                mockFileSystem.Object,
+                _MockClock.Object,
+                _LogService,
+                section);
+
+            string result = await jobService.RunJobs("archive");
+
+            Assert.AreEqual(
+                "Failed",
+                result);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Warn",
+                    "Failed to archive the logs into a ZIP file.",
+                    false),
+                Times.Once);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Error",
+                    It.Is<string>(m => m.Contains("Access denied")),
+                    false),
+                Times.Once);
+        }
+
+        /// <summary>
+        /// Checks that RemoveOldFiles returns Failed when DeleteFile throws.
+        /// </summary>
+        [TestMethod]
+        public async Task RemoveOldFiles_ReturnsFailed_WhenDeleteFileThrows()
+        {
+            Directory.SetCurrentDirectory(TempBaseDir);
+
+            DateTime now = new(2025, 6, 15, 12, 0, 0, DateTimeKind.Utc);
+            DateTime oldDate = now.AddDays(-15);
+
+            Mock<IExtendedFileSystem> mockFileSystem = new();
+            mockFileSystem.Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(true);
+            mockFileSystem.Setup(fs => fs.GetFiles(@".\Archived Logs"))
+                .Returns(new List<string> { @".\Archived Logs\old-archive.zip" });
+            mockFileSystem.Setup(fs => fs.GetCreationTime(@".\Archived Logs\old-archive.zip"))
+                .Returns(oldDate);
+            mockFileSystem.Setup(fs => fs.DeleteFile(@".\Archived Logs\old-archive.zip"))
+                .Throws(new IOException("File locked"));
+
+            string serverLocation = Path.Combine(
+                TempBaseDir,
+                "Server");
+
+            SBTSection section = CreateSection(serverLocation);
+
+            JobService jobService = new(
+                _MockLogger.Object,
+                mockFileSystem.Object,
+                _MockClock.Object,
+                _LogService,
+                section);
+
+            string result = await jobService.RunJobs("clean");
+
+            Assert.AreEqual(
+                "Failed",
+                result);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Warn",
+                    "Failed to delete logs and/or data backups over 10 days old.",
+                    false),
+                Times.Once);
+            _MockLogger.Verify(
+                l => l.LogToolMessage(
+                    "Error",
+                    It.Is<string>(m => m.Contains("File locked")),
+                    false),
+                Times.Once);
+        }
     }
 }

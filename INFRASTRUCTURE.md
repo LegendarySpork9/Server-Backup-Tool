@@ -5,7 +5,7 @@
 Server Backup Tool is a self-hosted console application for managing game server processes. It provides scheduled backups, log archival, email notifications, and health monitoring via ICMP heartbeat pings. Currently supports Minecraft servers. A companion Web API provides HTTP access to log data and a command queue.
 
 - **Author:** Hunter Industries / Toby Hunter
-- **Version:** 2.0.2
+- **Version:** 3.0.0
 - **Repository:** https://github.com/LegendarySpork9/Server-Backup-Tool
 
 ## Technology Stack
@@ -14,13 +14,18 @@ Server Backup Tool is a self-hosted console application for managing game server
 |---|---|---|
 | Framework | .NET | 10.0 |
 | Language | C# | Latest |
-| Application Type | Console Application + Web API | - |
+| Application Type | Console Application + Web API + TUI Installer | - |
 | Logging | log4net | 3.3.2 |
 | Database | Microsoft.Data.Sqlite | 10.0.11 |
 | API Documentation | Scalar.AspNetCore | 2.16.18 |
 | OpenAPI | Microsoft.AspNetCore.OpenApi | 10.0.10 |
+| OpenAPI Models | Microsoft.OpenApi | 2.11.0 |
 | Authentication | Basic (custom handler) | - |
 | Configuration | System.Configuration (App.config) | - |
+| Installer TUI | Spectre.Console | 0.57.2 |
+| Integration Test TUI | Spectre.Console.Testing | 0.57.2 |
+| Task Scheduler | TaskScheduler | 2.12.2 |
+| Integration Test HTTP | Microsoft.AspNetCore.Mvc.Testing | 10.0.0 |
 | Testing | MSTest | 3.6.3 |
 | Test SDK | Microsoft.NET.Test.Sdk | 17.12.0 |
 | Mocking | Moq | 4.20.72 |
@@ -46,12 +51,21 @@ Server-Backup-Tool/
 │   ├── Entities/                           # LogLevel, LogType enums
 │   ├── Filters/                            # RequestLoggingFilter, ResponseLoggingFilter
 │   ├── Functions/                          # IPAddressFunction
-│   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, etc.
+│   ├── Implementations/                    # ClientAuthHandler, ExtendedDatabaseWrapper, LoggerServiceWrapper, WebhookRegistrationService, WebhookDispatchService
 │   ├── Models/
 │   │   ├── Requests/                       # WebhookRegistrationRequestModel
-│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, FailureModel, WebhookRegistrationResponseModel, etc.
+│   │   └── Responses/                      # CommandResponseModel, LogsResponseModel, LogArchivesResponseModel, ArchivedLogsResponseModel, FailureModel, SuccessModel, WebhookRegistrationResponseModel
 │   │       └── Related/                    # LogModel, ArchivedLogModel, FileLogModel
-│   ├── Services/                           # LogService, CommandService, LoggerService, WebhookRegistrationService, WebhookDispatchService, LogPollingService
+│   ├── Services/                           # LogService, CommandService, LoggerService, LogPollingService
+├── Server Backup Tool.Installer/            # TUI installer (install, update, configure, uninstall)
+│   ├── Abstractions/                       # ILoggerService, IConfigWriter, IDatabaseInitialiser, ITaskSchedulerService, IVersionService, IFileService, IRegistryService
+│   ├── Functions/                          # (none — shared functions live in Common)
+│   ├── Implementations/                    # LoggerServiceWrapper, ConfigWriter, DatabaseInitialiser, TaskSchedulerService, VersionService, FileService, RegistryService
+│   ├── Models/                             # InstallOptionsModel, VersionInfoModel, CustomTimerModel
+│   │   └── Related/                       # ServerConfigModel, TimerConfigModel, EmailConfigModel, ApiConfigModel, etc.
+│   ├── Modes/                              # InstallMode, UpdateMode, ConfigureMode, UninstallMode
+│   ├── Steps/                              # ComponentSelectionStep, LocationStep, ServerConfigStep, TimerConfigStep, etc.
+│   └── Values/                             # InstallerValues
 ├── Server Backup Tool.Common/              # Shared library
 │   ├── Abstractions/                       # IClock, IDatabase, IFileSystem
 │   ├── Entities/                           # TargetType
@@ -63,27 +77,33 @@ Server-Backup-Tool/
 ├── Tests/
 │   ├── Server Backup Tool.UnitTests/       # Unit tests (no I/O, no HTTP)
 │   │   ├── API/Functions/                  # IPAddressFunctionTest
-│   │   ├── Common/Functions/               # ParameterFunctionTest
+│   │   ├── Common/Functions/               # ParameterFunctionTest, HashFunctionTest
 │   │   └── Tool/
 │   │       ├── Converters/                 # JobConverterTest, ServerConverterTest, TimeConverterTest
 │   │       └── Services/                   # TimerServiceTest
 │   ├── Server Backup Tool.IntegrationTests/ # Integration tests (HTTP + file system)
 │   │   ├── API/
-│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, etc.
+│   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, GetLogArchivesTest, GetArchivedLogsTest
 │   │   │   ├── Fixtures/                   # CustomWebApplicationFactory
 │   │   │   ├── Helpers/                    # AuthHelper, TestDataSeeder
 │   │   │   └── Implementations/            # ClientAuthHandlerTest
-│   │   └── Tool/
-│   │       ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
-│   │       ├── Mocks/                      # Mock data (Configs/, Server/)
-│   │       └── Services/                   # JobServiceTest, EmailServiceTest, etc.
+│   │   ├── Tool/
+│   │   │   ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
+│   │   │   ├── Mocks/                      # Mock data (Configs/, Server/)
+│   │   │   └── Services/                   # JobServiceTest, EmailServiceTest, PidFileServiceTest, ServerServiceTest
+│   │   └── Installer/
+│   │       ├── Services/                   # ConfigWriterTest, FileServiceTest, VersionServiceTest, ResourceServiceTest, RegistryServiceTest, TaskSchedulerServiceTest
+│   │       ├── Steps/                      # ComponentSelectionStepTest, TimerConfigStepTest
+│   │       └── ConfigGenerationTest        # End-to-end config roundtrip tests
 │   └── Server Backup Tool.PersistenceTests/ # Database persistence tests (in-memory SQLite)
 │       ├── API/
 │       │   ├── Implementations/            # ExtendedDatabaseWrapperTest
 │       │   └── Services/                   # LogServiceTest, CommandServiceTest, WebhookRegistrationServiceTest
-│       └── Tool/
-│           ├── Implementations/            # ExtendedDatabaseWrapperTest
-│           └── Services/                   # CommandServiceTest, LogServiceTest
+│       ├── Tool/
+│       │   ├── Implementations/            # ExtendedDatabaseWrapperTest
+│       │   └── Services/                   # CommandServiceTest, LogServiceTest
+│       └── Installer/
+│           └── Services/                   # DatabaseInitialiserTest
 └── .github/workflows/                      # CI/CD pipeline definitions
 ```
 
@@ -93,7 +113,7 @@ Server-Backup-Tool/
 
 The application is a **.NET 10.0 console application** that runs as a long-lived process alongside a game server. It launches the game server as a child process with redirected I/O, monitors its output, and manages scheduled operations.
 
-The solution also includes a .NET 10.0 Web API (Server Backup Tool.API) that provides HTTP access to the tool's log data and a command queue. It uses SQLite for persistence, Basic authentication, and Scalar for API documentation. A shared library (Server Backup Tool.Common) contains abstractions and implementations used by both the console app and the API.
+The solution also includes a .NET 10.0 Web API (Server Backup Tool.API) that provides HTTP access to the tool's log data and a command queue. It uses SQLite for persistence, Basic authentication, and Scalar for API documentation. A TUI installer (Server Backup Tool.Installer) handles installation, configuration, updating, and uninstallation via Spectre.Console. A shared library (Server Backup Tool.Common) contains abstractions and implementations used by the console app, the API, and the installer.
 
 ### Dependency Injection
 
@@ -107,6 +127,10 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (QuerySingle) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
+| `ICommandReader` | `ConsoleCommandReader` | Console input abstraction for testability |
+| `IEmailService` | `EmailService` | Email trigger matching and dispatch |
+| `IJobService` | `JobService` | Backup, archive, and cleanup job execution |
+| `IPingProvider` | `PingProvider` | ICMP ping for heartbeat monitoring |
 
 **Common (Server Backup Tool.Common):**
 
@@ -123,6 +147,24 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `ILoggerService` | `LoggerServiceWrapper` | Request-scoped API logging via log4net |
 | `IExtendedDatabase` | `ExtendedDatabaseWrapper` | SQLite database operations (Query, ExecuteScalar) — extends Common `IDatabase` |
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | Archive file access |
+| `IWebhookRegistrationService` | `WebhookRegistrationService` | Webhook CRUD operations |
+| `IWebhookDispatchService` | `WebhookDispatchService` | Webhook payload delivery with HMAC signing |
+
+**Installer (Server Backup Tool.Installer):**
+
+| Abstraction | Implementation | Purpose |
+|---|---|---|
+| `ILoggerService` | `LoggerServiceWrapper` | Installer logging via log4net |
+| `IConfigWriter` | `ConfigWriter` | App.config and appsettings.json generation |
+| `IDatabaseInitialiser` | `DatabaseInitialiser` | SQLite database creation and schema setup |
+| `ITaskSchedulerService` | `TaskSchedulerService` | Windows Task Scheduler registration |
+| `IVersionService` | `VersionService` | Version detection and comparison |
+| `IFileService` | `FileService` | File copy, backup, and permission validation |
+| `IResourceService` | `ResourceService` | Embedded ZIP resource extraction for binary deployment |
+| `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File copy and file system operations — extends Common `IFileSystem` |
+| `IRegistryService` | `RegistryService` | Windows Registry Add/Remove Programs integration |
+
+All Steps and Modes accept `IAnsiConsole` as the first constructor parameter for testability. Steps and Modes can be tested using `Spectre.Console.Testing.TestConsole`.
 
 ### Services
 
@@ -189,12 +231,62 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | Function | Purpose |
 |---|---|
 | `ParameterFunction` | Formats model properties into log-friendly strings via reflection |
+| `HashFunction` | SHA-512 hashing utility used by the API and installer |
 
 ### Common Values
 
 | Class | Purpose |
 |---|---|
 | `StandardValues` | Shared constant values (logger levels) used across projects |
+
+### Common IFileSystem Methods
+
+| Method | Purpose |
+|---|---|
+| `GetFiles(path)` | List files in a directory |
+| `GetFiles(path, pattern, searchOption)` | List files matching a pattern with search option |
+| `DirectoryExists(path)` | Check if a directory exists |
+| `CreateDirectory(path)` | Create a directory |
+| `DeleteDirectory(path, recursive)` | Delete a directory, optionally recursive |
+| `GetCreationTime(file)` | Get file creation timestamp |
+| `FileExists(path)` | Check if a file exists |
+| `DeleteFile(file)` | Delete a file |
+| `ReadAllText(file)` | Read all text from a file (async) |
+| `WriteAllText(path, content)` | Write text to a file (async) |
+
+### Installer Modes
+
+| Mode | CLI Argument | Description |
+|---|---|---|
+| `InstallMode` | `--install` | Full installation wizard with 9 interactive steps |
+| `UpdateMode` | `--update` | Detects existing install, compares versions, backs up configs, replaces binaries |
+| `ConfigureMode` | `--configure` | Edits existing App.config via interactive menus |
+| `UninstallMode` | `--uninstall` | Component-level uninstall with optional database and log cleanup |
+
+ConfigureMode captures a snapshot of both the App.config and API settings before editing begins. On save, it compares the current values against the originals and displays a diff table showing each changed setting with its old and new value.
+
+### Installer Steps
+
+| Step | Responsibility |
+|---|---|
+| `ComponentSelectionStep` | Select SBT (required) and optional API component |
+| `LocationStep` | Choose install directory with write permission validation |
+| `ServerConfigStep` | Server name, game type, directory, start file, IP address |
+| `TimerConfigStep` | Backup time, time zone, custom timers |
+| `EmailConfigStep` | Optional SMTP and email template configuration |
+| `ApiConfigStep` | API port, credentials generation (SHA-512 hashed), webhook secret |
+| `ConfirmationStep` | Summary table and user confirmation |
+| `FileDeployStep` | File copy, config generation, database creation, task registration |
+| `ConfigGenerationStep` | Standalone App.config and appsettings.json generation |
+| `DatabaseSetupStep` | SQLite database creation with schema |
+| `ScheduledTaskStep` | Windows Task Scheduler registration |
+| `ValidationStep` | Post-install checks with pass/fail report |
+
+### Installer Values
+
+| Class | Purpose |
+|---|---|
+| `InstallerValues` | Constants for registry paths, scheduled task settings, database SQL, and defaults |
 
 ### API Authentication
 
@@ -322,7 +414,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
 <configuration>
   <configSections>
     <section name="log4net" type="..." />
-    <section name="serverBackup" type="ServerBackupTool.Models.Configuration.SBTSection, Server Backup Tool" />
+    <section name="serverBackup" type="ServerBackupTool.Models.Configuration.SBTSection, ServerBackupTool" />
   </configSections>
 
   <serverBackup>
@@ -345,6 +437,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
                    port="<SMTP port, default: 587>"
                    enableSSL="<true|false, default: true>">
       <provider name="<SMTP server hostname>"
+                username="<SMTP auth username, defaults to from email if empty>"
                 password="<SMTP password>" />
       <fromAddress email="<sender email>"
                    name="<sender display name, default: Server Backup Tool>" />
@@ -466,6 +559,128 @@ The Pull Request workflow downloads and starts [Papercut SMTP](https://github.co
 - **SDK:** .NET 10.0
 - **Configuration:** Release
 - **Test Runner:** `dotnet test` (MSTest)
+
+## Installer
+
+### Overview
+
+The Server Backup Tool Installer is a .NET 10.0 TUI console application built with Spectre.Console. It provides four modes: Install, Update, Configure, and Uninstall. The installer can be run interactively (mode selection menu) or via CLI arguments (`--install`, `--update`, `--configure`, `--uninstall`). Multiple installations can coexist on the same machine — each installation uses per-server registry keys (`ServerBackupTool_{ServerName}`) and configurable scheduled task names to avoid conflicts. Uninstall supports component-level removal: "Everything (Tool and API)" or "API only". When an API component is selected, it installs to a separate directory (`{InstallPath}.API`).
+
+### Installation Workflow
+
+1. Component selection (SBT + optional API)
+2. Install location with write permission validation
+3. Server configuration (name, game, directory, start file, IP) and scheduled task naming
+4. Backup and timer configuration
+5. Optional email notification setup
+6. Optional API configuration with credential generation
+7. Confirmation summary
+8. File deployment with progress display (binaries, config, database, scheduled tasks, registry)
+9. Post-install validation
+
+### Distribution
+
+Published as a self-contained single-file executable with the tool and API binaries embedded as ZIP resources. The build script (`build-installer.ps1`) orchestrates the publish order:
+
+1. Publish `Server Backup Tool` as self-contained for `win-x64`
+2. Publish `Server Backup Tool.API` as self-contained for `win-x64`
+3. Package both publish outputs as versioned ZIPs (`Tool_X.Y.Z.zip` and `API_X.Y.Z.zip`) in the installer's `Resources/` directory
+4. Publish the installer with embedded resources as a single-file executable
+
+```powershell
+.\build-installer.ps1
+```
+
+At install time, the `ResourceService` extracts the embedded ZIPs to the install directory using `System.IO.Compression.ZipArchive`. Versions are parsed from the resource filenames (e.g., `Tool_2.0.2.zip` yields version `2.0.2`). The embedded resources are conditionally included in the csproj — they are only present after running the build script.
+
+### Installer Logging
+
+- **Framework:** log4net 3.3.2
+- **Configuration:** Programmatic (no config file)
+- **Appender:** RollingFileAppender writing to `Logs\Installer.log`
+- **Format:** `{ISO8601 Timestamp} {LEVEL} - {Message}`
+- **Max File Size:** 10 MB, 10 rolling backups
+
+### API HTTPS / Kestrel Configuration
+
+The installer generates a `Kestrel` section in `appsettings.json` for HTTP/HTTPS binding. If HTTPS is enabled during install, the user selects a certificate format (PFX or PEM) and the generated config includes the appropriate HTTPS endpoint configuration. The installer validates that the certificate contains a private key before proceeding.
+
+- **PFX:** `"Certificate": { "Path": "...", "Password": "..." }`
+- **PEM:** `"Certificate": { "Path": "...", "KeyPath": "..." }`
+
+The API uses Kestrel's endpoint configuration to bind to the specified addresses and ports.
+
+### Registry Integration
+
+The installer writes to Add/Remove Programs using per-server registry keys:
+
+| Key | Value |
+|---|---|
+| Path | `HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\ServerBackupTool_{ServerName}` |
+| DisplayName | Server Backup Tool - {ServerName} |
+| Publisher | Hunter Industries |
+| UninstallString | `"{InstallPath}\ServerBackupToolInstaller.exe" --uninstall` |
+| ServerName | Name of the server this installation manages |
+| InstallLocation | Tool install directory |
+| ApiInstallLocation | API install directory (empty if API not installed) |
+| ToolVersion | Installed tool version |
+| ApiVersion | Installed API version (empty if API not installed) |
+| ToolTaskName | User-configured scheduled task name for the backup tool |
+| ApiTaskName | User-configured scheduled task name for the API |
+
+### Scheduled Tasks
+
+The installer registers one or two Windows scheduled tasks depending on the selected components. Task names are configurable during install (defaults: `Server Backup Tool - {ServerName}` and `Server Backup Tool API - {ServerName}`) to support multiple installations on the same machine.
+
+**Tool Task:**
+
+| Setting | Value |
+|---|---|
+| Name | Configurable (default: `Server Backup Tool - {ServerName}`) |
+| Trigger | At system startup (1-minute delay) |
+| Action | Run `ServerBackupTool.exe` |
+| Principal | Current user, S4U logon (run whether logged on or not), least privilege |
+| Restart on failure | Every 1 minute, up to 3 times |
+| Execution time limit | Disabled |
+| Start on AC power only | Yes |
+| Stop on battery | Yes |
+| Allow hard terminate | Yes |
+| Multiple instances | Ignore new |
+| Start when available | Yes |
+
+**API Task (if API component selected):**
+
+| Setting | Value |
+|---|---|
+| Name | Configurable (default: `Server Backup Tool API - {ServerName}`) |
+| Trigger | At system startup (1-minute delay) |
+| Action | Run `ServerBackupTool.API.exe` |
+| Principal | Current user, S4U logon (run whether logged on or not), least privilege |
+| Restart on failure | Every 1 minute, up to 3 times |
+| Execution time limit | Disabled |
+| Start on AC power only | Yes |
+| Stop on battery | Yes |
+| Allow hard terminate | Yes |
+| Multiple instances | Ignore new |
+| Start when available | Yes |
+
+### Uninstall Paths
+
+The uninstaller supports two removal paths when an API component is installed:
+
+**Everything (Tool and API):**
+
+1. Remove tool and API scheduled tasks
+2. Prompt to keep or delete the database file
+3. Prompt to keep or delete log files (application logs and archived logs)
+4. Remove registry entry
+5. Delete tool install directory and API install directory
+
+**API only:**
+
+1. Remove API scheduled task
+2. Delete API install directory
+3. Update registry entry to clear API fields (`ApiInstallLocation`, `ApiVersion`, `ApiTaskName`) while preserving the tool installation
 
 ## Hosting Requirements
 

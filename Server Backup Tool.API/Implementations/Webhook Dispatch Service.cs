@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace ServerBackupTool.API.Services
+namespace ServerBackupTool.API.Implementations
 {
-    public class WebhookDispatchService
+    public class WebhookDispatchService : IWebhookDispatchService
     {
         private readonly ILoggerService _Logger;
         private readonly HttpClient _HttpClient;

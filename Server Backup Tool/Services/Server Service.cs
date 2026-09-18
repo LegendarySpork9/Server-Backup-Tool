@@ -9,17 +9,17 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Services
 {
-    public class ServerService
+    public class ServerService : IServerService
     {
         private readonly ILoggerService _Logger;
-        private readonly PidFileService _PidFileService;
+        private readonly IPidFileService _PidFileService;
         private readonly SBTSection ServerBackupSection;
         private readonly ServerModel Server;
 
         // Sets the class's global variables.
         public ServerService(
             ILoggerService _logger,
-            PidFileService pidFileService,
+            IPidFileService pidFileService,
             SBTSection serverBackupSection,
             ServerModel _server)
         {

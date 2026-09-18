@@ -1,0 +1,48 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>ServerBackupTool.Installer</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Title>Server Backup Tool Installer</Title>
+    <Version>1.0.0</Version>
+    <Authors>Hunter Industries</Authors>
+    <Description>Installs, configures, updates, and uninstalls the Server Backup Tool and it's API.</Description>
+    <Copyright>Copyright ©  2026</Copyright>
+    <AssemblyName>ServerBackupToolInstaller</AssemblyName>
+    <ApplicationIcon>Content\Logo.ico</ApplicationIcon>
+    <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageIcon>Logo.png</PackageIcon>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="log4net" Version="3.3.2" />
+    <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.11" />
+    <PackageReference Include="Spectre.Console" Version="0.57.2" />
+    <PackageReference Include="TaskScheduler" Version="2.12.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Server Backup Tool.Common\Server Backup Tool.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Tool_*.zip" />
+    <EmbeddedResource Include="Resources\API_*.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Content\Logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Content\Logo.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>

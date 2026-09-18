@@ -5,9 +5,6 @@ using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Entities;
 using ServerBackupTool.API.Models.Requests;
 using ServerBackupTool.API.Models.Responses;
-using ServerBackupTool.API.Services;
-using ServerBackupTool.Common.Abstractions;
-using ServerBackupTool.Common.Models;
 using System.ComponentModel.DataAnnotations;
 
 namespace ServerBackupTool.API.Controllers
@@ -18,21 +15,15 @@ namespace ServerBackupTool.API.Controllers
     public class WebhooksController : ControllerBase
     {
         private readonly ILoggerService _Logger;
-        private readonly IExtendedDatabase _Database;
-        private readonly IClock _Clock;
-        private readonly DatabaseOptionsModel Options;
+        private readonly IWebhookRegistrationService _WebhookService;
 
         // Set's the class's global variables.
         public WebhooksController(
             ILoggerService _logger,
-            IExtendedDatabase _database,
-            IClock _clock,
-            DatabaseOptionsModel options)
+            IWebhookRegistrationService webhookService)
         {
             _Logger = _logger;
-            _Database = _database;
-            _Clock = _clock;
-            Options = options;
+            _WebhookService = webhookService;
         }
 
         /// <summary>
@@ -47,12 +38,6 @@ namespace ServerBackupTool.API.Controllers
         [ProducesResponseType(typeof(FailureModel), 500)]
         public async Task<IActionResult> Register([FromBody, Required] WebhookRegistrationRequestModel registration)
         {
-            WebhookRegistrationService _webhookService = new(
-                _Logger,
-                _Database,
-                _Clock,
-                Options);
-
             if (!Enum.TryParse<LogType>(
                 registration.LogType,
                 true,
@@ -93,7 +78,7 @@ namespace ServerBackupTool.API.Controllers
                     });
             }
 
-            (string? webhookId, Exception? ex) = await _webhookService.Register(registration);
+            (string? webhookId, Exception? ex) = await _WebhookService.Register(registration);
 
             if (webhookId == null || ex != null)
             {
@@ -127,13 +112,7 @@ namespace ServerBackupTool.API.Controllers
         [ProducesResponseType(typeof(FailureModel), 500)]
         public async Task<IActionResult> Unregister([FromRoute] string webhookId)
         {
-            WebhookRegistrationService _webhookService = new(
-                _Logger,
-                _Database,
-                _Clock,
-                Options);
-
-            (bool removed, Exception? ex) = await _webhookService.Unregister(webhookId);
+            (bool removed, Exception? ex) = await _WebhookService.Unregister(webhookId);
 
             if (ex != null)
             {

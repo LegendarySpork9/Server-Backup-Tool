@@ -1,4 +1,4 @@
-﻿// Copyright © - 17/01/2024 - Toby Hunter
+// Copyright © - 17/01/2024 - Toby Hunter
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Entities;
@@ -13,23 +13,31 @@ using ServerBackupTool.Models.Configuration;
 
 namespace ServerBackupTool.Services
 {
-    public class ApplicationService
+    public class ApplicationService : IApplicationService
     {
-        private readonly ILoggerService _Logger = new LoggerServiceWrapper();
-        private readonly IClock _Clock = new SystemClockProvider();
+        private readonly ILoggerService _Logger;
+        private readonly IClock _Clock;
+        private readonly ICommandReader _CommandReader;
         private readonly LogService _LogService;
-        private readonly CommandService _CommandService;
-        private readonly PidFileService _PidFileService;
-        private readonly ServerService _ServerService;
-        private readonly TimerService _TimerService;
+        private readonly ICommandService _CommandService;
+        private readonly IPidFileService _PidFileService;
+        private readonly IServerService _ServerService;
+        private readonly ITimerService _TimerService;
+        private readonly IJobService _JobService;
         private readonly SBTSection ServerBackupSection;
         private readonly ServerModel Server;
+        internal readonly TimeSpan ExitDelay;
 
         public static ManualResetEvent WaitForServerClose = new(false);
 
         // Sets the class's global variables.
-        public ApplicationService(SBTSection serverBackupSection)
+        public ApplicationService(
+            SBTSection serverBackupSection,
+            ICommandReader commandReader)
         {
+            _Logger = new LoggerServiceWrapper();
+            _Clock = new SystemClockProvider();
+
             DatabaseOptionsModel options = new()
             {
                 Path = serverBackupSection.DatabaseDetails.Path,
@@ -37,6 +45,7 @@ namespace ServerBackupTool.Services
                 PollingIntervalMs = serverBackupSection.DatabaseDetails.PollingInterval
             };
 
+            _CommandReader = commandReader;
             ServerBackupSection = serverBackupSection;
             Server = new(serverBackupSection.ServerDetails)
             {
@@ -51,32 +60,73 @@ namespace ServerBackupTool.Services
                 options
                 );
             _Logger.SetLogService(_LogService);
-            _CommandService = new(
+            _CommandService = new CommandService(
                 _Logger,
                 _database,
                 _Clock,
                 options);
-            _PidFileService = new(
+            _PidFileService = new PidFileService(
                 _Logger,
                 new ExtendedFileSystemWrapper());
             _PidFileService.Delete(Server.Name);
-            _ServerService = new(
+            _ServerService = new ServerService(
                 _Logger,
                 _PidFileService,
                 ServerBackupSection,
                 Server);
-            _TimerService = new(
+            _TimerService = new TimerService(
                 _Logger,
                 this,
                 _ServerService,
                 _CommandService,
+                new EmailService(
+                    _Logger,
+                    new SMTPEmailSender(),
+                    new ExtendedFileSystemWrapper(),
+                    true),
+                new PingProvider(),
                 ServerBackupSection);
+            _JobService = new JobService(
+                _Logger,
+                new ExtendedFileSystemWrapper(),
+                _Clock,
+                _LogService,
+                ServerBackupSection);
+            ExitDelay = TimeSpan.FromSeconds(30);
+        }
+
+        // Sets the class's global variables via dependency injection.
+        internal ApplicationService(
+            ILoggerService logger,
+            IClock clock,
+            ICommandReader commandReader,
+            ICommandService commandService,
+            IPidFileService pidFileService,
+            IServerService serverService,
+            ITimerService timerService,
+            IJobService jobService,
+            SBTSection serverBackupSection,
+            ServerModel server,
+            TimeSpan? exitDelay = null)
+        {
+            _Logger = logger;
+            _Clock = clock;
+            _CommandReader = commandReader;
+            _LogService = null!;
+            _CommandService = commandService;
+            _PidFileService = pidFileService;
+            _ServerService = serverService;
+            _TimerService = timerService;
+            _JobService = jobService;
+            ServerBackupSection = serverBackupSection;
+            Server = server;
+            ExitDelay = exitDelay ?? TimeSpan.FromSeconds(30);
         }
 
         /// <summary>
         /// Executes the methods to run the application.
         /// </summary>
-        public async Task RunApplication()
+        public async Task RunApplication(CancellationToken cancellationToken = default)
         {
             TimeConverter _timeConverter = new(_Clock);
 
@@ -128,21 +178,14 @@ namespace ServerBackupTool.Services
 
             _TimerService.StartQueuedCommandCheckTimer();
 
-            await UserInput();
+            await UserInput(cancellationToken);
         }
 
         /// <summary>
         /// Executes the methods to take a backup of the server and log data.
         /// </summary>
-        public async Task RunBackup(TimerService _timerService)
+        public async Task RunBackup(ITimerService _timerService, CancellationToken cancellationToken = default)
         {
-            JobService _jobService = new(
-                _Logger,
-                new ExtendedFileSystemWrapper(),
-                _Clock,
-                _LogService,
-                ServerBackupSection);
-
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Stopping Server");
@@ -162,35 +205,35 @@ namespace ServerBackupTool.Services
                 StandardValues.LoggerValues.Info,
                 "Creating Backup");
 
-            await _jobService.RunJobs("backup");
+            await _JobService.RunJobs("backup");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Archiving Logs");
 
-            await _jobService.RunJobs("archive");
+            await _JobService.RunJobs("archive");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Removing Old Backups and Logs");
 
-            await _jobService.RunJobs("clean");
+            await _JobService.RunJobs("clean");
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 "Restarting Process");
 
-            await RunApplication();
+            await RunApplication(cancellationToken);
         }
 
         /// <summary>
         /// Handles inputs from the user.
         /// </summary>
-        private async Task UserInput()
+        private async Task UserInput(CancellationToken cancellationToken = default)
         {
-            while (true)
+            while (!cancellationToken.IsCancellationRequested)
             {
-                string? command = Console.ReadLine();
+                string? command = _CommandReader.ReadCommand();
 
                 if (!string.IsNullOrEmpty(command))
                 {
@@ -294,7 +337,7 @@ namespace ServerBackupTool.Services
                             StandardValues.LoggerValues.Info,
                             "Waiting for 30 seconds");
 
-                        Thread.Sleep(30000);
+                        Thread.Sleep(ExitDelay);
                     }
                 }
 

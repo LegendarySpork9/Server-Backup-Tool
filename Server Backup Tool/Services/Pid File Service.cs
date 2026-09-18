@@ -4,7 +4,7 @@ using ServerBackupTool.Common.Values;
 
 namespace ServerBackupTool.Services
 {
-    public class PidFileService
+    public class PidFileService : IPidFileService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
