@@ -38,7 +38,12 @@ namespace ServerBackupTool.Installer.Implementations
                 {
                     TaskDefinition definition = taskService.NewTask();
                     definition.RegistrationInfo.Description = "Runs the Server Backup Tool at system startup.";
-                    definition.Triggers.Add(new BootTrigger());
+
+                    definition.Triggers.Add(new BootTrigger
+                    {
+                        Delay = TimeSpan.FromMinutes(InstallerValues.ScheduledTask.BootDelayMinutes),
+                        Enabled = true
+                    });
 
                     string workingDirectory = Path.GetDirectoryName(executablePath) ?? string.Empty;
 
@@ -47,15 +52,25 @@ namespace ServerBackupTool.Installer.Implementations
                         null,
                         workingDirectory));
 
+                    definition.Principal.LogonType = TaskLogonType.S4U;
+                    definition.Principal.RunLevel = TaskRunLevel.LUA;
+
                     definition.Settings.RestartCount = InstallerValues.ScheduledTask.MaxRestartAttempts;
                     definition.Settings.RestartInterval = TimeSpan.FromMinutes(InstallerValues.ScheduledTask.RestartDelayMinutes);
                     definition.Settings.ExecutionTimeLimit = TimeSpan.Zero;
                     definition.Settings.DisallowStartIfOnBatteries = false;
                     definition.Settings.StopIfGoingOnBatteries = false;
+                    definition.Settings.AllowHardTerminate = true;
+                    definition.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
+                    definition.Settings.StartWhenAvailable = true;
 
                     taskService.RootFolder.RegisterTaskDefinition(
                         taskName,
-                        definition);
+                        definition,
+                        TaskCreation.CreateOrUpdate,
+                        System.Security.Principal.WindowsIdentity.GetCurrent().Name,
+                        null,
+                        TaskLogonType.S4U);
 
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Info,

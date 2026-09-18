@@ -16,6 +16,7 @@ namespace ServerBackupTool.Installer.Values
             public const string TaskName = "Server Backup Tool";
             public const int RestartDelayMinutes = 1;
             public const int MaxRestartAttempts = 3;
+            public const int BootDelayMinutes = 1;
         }
 
         public static class Database
