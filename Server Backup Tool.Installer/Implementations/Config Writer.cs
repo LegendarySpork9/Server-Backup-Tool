@@ -88,15 +88,31 @@ namespace ServerBackupTool.Installer.Implementations
 
             if (apiConfig.EnableHttps)
             {
-                kestrelEndpoints["Https"] = new
+                if (apiConfig.CertificateFormat == "PEM")
                 {
-                    Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
-                    Certificate = new
+                    kestrelEndpoints["Https"] = new
                     {
-                        Path = apiConfig.CertificatePath,
-                        Password = apiConfig.CertificatePassword
-                    }
-                };
+                        Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
+                        Certificate = new
+                        {
+                            Path = apiConfig.CertificatePath,
+                            KeyPath = apiConfig.CertificateKeyPath
+                        }
+                    };
+                }
+
+                else
+                {
+                    kestrelEndpoints["Https"] = new
+                    {
+                        Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
+                        Certificate = new
+                        {
+                            Path = apiConfig.CertificatePath,
+                            Password = apiConfig.CertificatePassword
+                        }
+                    };
+                }
             }
 
             Dictionary<string, object> settings = new()
@@ -475,6 +491,7 @@ namespace ServerBackupTool.Installer.Implementations
                     new XAttribute("enabled", false),
                     new XElement("provider",
                         new XAttribute("name", string.Empty),
+                        new XAttribute("username", string.Empty),
                         new XAttribute("password", string.Empty)),
                     new XElement("fromAddress",
                         new XAttribute("email", string.Empty),
@@ -491,6 +508,7 @@ namespace ServerBackupTool.Installer.Implementations
 
                 notifications.Add(new XElement("provider",
                     new XAttribute("name", emailConfig.SmtpHost),
+                    new XAttribute("username", emailConfig.SmtpUsername),
                     new XAttribute("password", emailConfig.SmtpPassword)));
 
                 notifications.Add(new XElement("fromAddress",

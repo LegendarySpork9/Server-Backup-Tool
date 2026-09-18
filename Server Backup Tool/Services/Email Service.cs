@@ -42,8 +42,10 @@ namespace ServerBackupTool.Services
 
                 try
                 {
+                    string authUsername = !string.IsNullOrEmpty(notifications.Provider.Username) ? notifications.Provider.Username : notifications.FromAddress.Email;
+                    
                     NetworkCredential credentials = new(
-                        notifications.FromAddress.Email,
+                        authUsername,
                         notifications.Provider.Password);
                     MailAddress fromAddress = new(
                         notifications.FromAddress.Email,

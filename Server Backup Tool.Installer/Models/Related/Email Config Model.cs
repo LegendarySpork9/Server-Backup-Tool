@@ -12,6 +12,7 @@ namespace ServerBackupTool.Installer.Models.Related
         public int Port { get; set; } = InstallerValues.Defaults.SmtpPort;
         public bool EnableSSL { get; set; } = InstallerValues.Defaults.EnableSSL;
         public string SmtpHost { get; set; } = string.Empty;
+        public string SmtpUsername { get; set; } = string.Empty;
         public string SmtpPassword { get; set; } = string.Empty;
         public string FromEmail { get; set; } = string.Empty;
         public string FromName { get; set; } = InstallerValues.Defaults.FromName;

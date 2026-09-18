@@ -437,6 +437,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
                    port="<SMTP port, default: 587>"
                    enableSSL="<true|false, default: true>">
       <provider name="<SMTP server hostname>"
+                username="<SMTP auth username, defaults to from email if empty>"
                 password="<SMTP password>" />
       <fromAddress email="<sender email>"
                    name="<sender display name, default: Server Backup Tool>" />
@@ -602,7 +603,12 @@ At install time, the `ResourceService` extracts the embedded ZIPs to the install
 
 ### API HTTPS / Kestrel Configuration
 
-The installer generates a `Kestrel` section in `appsettings.json` for HTTP/HTTPS binding. If HTTPS is enabled during install, the generated config includes an HTTPS endpoint with an SSL certificate path and password. The API uses Kestrel's endpoint configuration to bind to the specified addresses and ports.
+The installer generates a `Kestrel` section in `appsettings.json` for HTTP/HTTPS binding. If HTTPS is enabled during install, the user selects a certificate format (PFX or PEM) and the generated config includes the appropriate HTTPS endpoint configuration. The installer validates that the certificate contains a private key before proceeding.
+
+- **PFX:** `"Certificate": { "Path": "...", "Password": "..." }`
+- **PEM:** `"Certificate": { "Path": "...", "KeyPath": "..." }`
+
+The API uses Kestrel's endpoint configuration to bind to the specified addresses and ports.
 
 ### Registry Integration
 
@@ -631,18 +637,32 @@ The installer registers one or two Windows scheduled tasks depending on the sele
 | Setting | Value |
 |---|---|
 | Name | Configurable (default: `Server Backup Tool - {ServerName}`) |
-| Trigger | At system startup |
+| Trigger | At system startup (1-minute delay) |
 | Action | Run `ServerBackupTool.exe` |
+| Principal | Current user, S4U logon (run whether logged on or not), least privilege |
 | Restart on failure | Every 1 minute, up to 3 times |
+| Execution time limit | Disabled |
+| Start on AC power only | Yes |
+| Stop on battery | Yes |
+| Allow hard terminate | Yes |
+| Multiple instances | Ignore new |
+| Start when available | Yes |
 
 **API Task (if API component selected):**
 
 | Setting | Value |
 |---|---|
 | Name | Configurable (default: `Server Backup Tool API - {ServerName}`) |
-| Trigger | At system startup |
+| Trigger | At system startup (1-minute delay) |
 | Action | Run `ServerBackupTool.API.exe` |
+| Principal | Current user, S4U logon (run whether logged on or not), least privilege |
 | Restart on failure | Every 1 minute, up to 3 times |
+| Execution time limit | Disabled |
+| Start on AC power only | Yes |
+| Stop on battery | Yes |
+| Allow hard terminate | Yes |
+| Multiple instances | Ignore new |
+| Start when available | Yes |
 
 ### Uninstall Paths
 

@@ -397,12 +397,19 @@ namespace ServerBackupTool.Installer.Modes
                             if (provider != null)
                             {
                                 string currentHost = provider.Attribute("name")?.Value ?? string.Empty;
+                                string currentUsername = provider.Attribute("username")?.Value ?? string.Empty;
                                 provider.SetAttributeValue(
                                     "name",
                                     _Console.Prompt(new TextPrompt<string>("SMTP host:").DefaultValue(currentHost)));
                                 provider.SetAttributeValue(
                                     "password",
                                     _Console.Prompt(new TextPrompt<string>("SMTP password:").Secret()));
+
+                                string fromEmail = notifications.Element("fromAddress")?.Attribute("email")?.Value ?? string.Empty;
+                                string usernameDefault = !string.IsNullOrEmpty(currentUsername) ? currentUsername : fromEmail;
+                                provider.SetAttributeValue(
+                                    "username",
+                                    _Console.Prompt(new TextPrompt<string>("SMTP authentication username:").DefaultValue(usernameDefault)));
                             }
                             break;
 

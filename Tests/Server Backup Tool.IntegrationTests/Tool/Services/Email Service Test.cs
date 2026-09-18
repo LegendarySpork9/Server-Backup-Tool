@@ -537,6 +537,155 @@ namespace ServerBackupTool.IntegrationTests.Tool.Services
         }
 
         /// <summary>
+        /// Checks that SendEmail uses the provider username for credentials when set.
+        /// </summary>
+        [TestMethod]
+        public async Task SendEmail_UsesProviderUsername_WhenSet()
+        {
+            Mock<ILoggerService> mockLogger = new();
+            Mock<IEmailSender> mockEmailSender = new();
+            ExtendedFS fileSystem = new();
+
+            EmailService emailService = new(
+                mockLogger.Object,
+                mockEmailSender.Object,
+                fileSystem);
+
+            NetworkCredential? capturedCredential = null;
+            mockEmailSender.Setup(s => s.Send(
+                It.IsAny<MailMessage>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<NetworkCredential>()))
+                .Callback<MailMessage, string, int, bool, NetworkCredential>(
+                    (msg, host, port, ssl, cred) => capturedCredential = cred);
+
+            NotificationElement notifications = new()
+            {
+                Enabled = true,
+                Port = 25,
+                EnableSSL = false,
+                Provider = new()
+                {
+                    Name = "localhost",
+                    Username = "authuser@example.com",
+                    Password = "secret"
+                },
+                FromAddress = new()
+                {
+                    Email = "alias@example.com",
+                    Name = "Test Sender"
+                }
+            };
+
+            EmailElement email = new()
+            {
+                Subject = new() { Value = "Username Test" },
+                Content = new() { Value = "body" }
+            };
+
+            MethodInfo baseAdd = email.Addresses.GetType().BaseType!
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    [typeof(System.Configuration.ConfigurationElement)],
+                    null)!;
+
+            baseAdd.Invoke(
+                email.Addresses,
+                [new ToAddressElement()
+            {
+                Email = "recipient@example.com",
+                Name = "Test Recipient"
+            }]);
+
+            await emailService.SendEmail(
+                notifications,
+                email);
+
+            Assert.IsNotNull(capturedCredential);
+            Assert.AreEqual(
+                "authuser@example.com",
+                capturedCredential.UserName);
+        }
+
+        /// <summary>
+        /// Checks that SendEmail falls back to the from email for credentials when provider username is empty.
+        /// </summary>
+        [TestMethod]
+        public async Task SendEmail_FallsBackToFromEmail_WhenProviderUsernameEmpty()
+        {
+            Mock<ILoggerService> mockLogger = new();
+            Mock<IEmailSender> mockEmailSender = new();
+            ExtendedFS fileSystem = new();
+
+            EmailService emailService = new(
+                mockLogger.Object,
+                mockEmailSender.Object,
+                fileSystem);
+
+            NetworkCredential? capturedCredential = null;
+            mockEmailSender.Setup(s => s.Send(
+                It.IsAny<MailMessage>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                It.IsAny<bool>(),
+                It.IsAny<NetworkCredential>()))
+                .Callback<MailMessage, string, int, bool, NetworkCredential>(
+                    (msg, host, port, ssl, cred) => capturedCredential = cred);
+
+            NotificationElement notifications = new()
+            {
+                Enabled = true,
+                Port = 25,
+                EnableSSL = false,
+                Provider = new()
+                {
+                    Name = "localhost",
+                    Password = "secret"
+                },
+                FromAddress = new()
+                {
+                    Email = "sender@example.com",
+                    Name = "Test Sender"
+                }
+            };
+
+            EmailElement email = new()
+            {
+                Subject = new() { Value = "Fallback Test" },
+                Content = new() { Value = "body" }
+            };
+
+            MethodInfo baseAdd = email.Addresses.GetType().BaseType!
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    [typeof(System.Configuration.ConfigurationElement)],
+                    null)!;
+
+            baseAdd.Invoke(
+                email.Addresses,
+                [new ToAddressElement()
+            {
+                Email = "recipient@example.com",
+                Name = "Test Recipient"
+            }]);
+
+            await emailService.SendEmail(
+                notifications,
+                email);
+
+            Assert.IsNotNull(capturedCredential);
+            Assert.AreEqual(
+                "sender@example.com",
+                capturedCredential.UserName);
+        }
+
+        /// <summary>
         /// Checks that CheckForEmail sends the email when the message contains the trigger for a non-system email.
         /// </summary>
         [TestMethod]

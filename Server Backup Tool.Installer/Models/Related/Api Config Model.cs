@@ -12,7 +12,9 @@ namespace ServerBackupTool.Installer.Models.Related
         public int HttpPort { get; set; } = InstallerValues.Defaults.ApiHttpPort;
         public int HttpsPort { get; set; } = InstallerValues.Defaults.ApiHttpsPort;
         public bool EnableHttps { get; set; }
+        public string CertificateFormat { get; set; } = string.Empty;
         public string CertificatePath { get; set; } = string.Empty;
+        public string CertificateKeyPath { get; set; } = string.Empty;
         public string CertificatePassword { get; set; } = string.Empty;
         public string DatabasePath { get; set; } = string.Empty;
         public string ArchiveDirectory { get; set; } = InstallerValues.Defaults.ArchiveDirectory;

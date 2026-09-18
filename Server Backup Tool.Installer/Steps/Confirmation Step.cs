@@ -79,6 +79,9 @@ namespace ServerBackupTool.Installer.Steps
             if (_Options.EmailConfig != null && _Options.EmailConfig.Enabled)
             {
                 table.AddRow(
+                    "SMTP Auth Username",
+                    Markup.Escape(_Options.EmailConfig.SmtpUsername));
+                table.AddRow(
                     "Emails Configured",
                     Markup.Escape(_Options.EmailConfig.Emails.Count.ToString()));
             }
@@ -102,8 +105,18 @@ namespace ServerBackupTool.Installer.Steps
                         "API HTTPS",
                         $"https://{Markup.Escape(_Options.ApiConfig.BindAddress)}:{_Options.ApiConfig.HttpsPort}");
                     table.AddRow(
+                        "Certificate Format",
+                        Markup.Escape(_Options.ApiConfig.CertificateFormat));
+                    table.AddRow(
                         "SSL Certificate",
                         Markup.Escape(_Options.ApiConfig.CertificatePath));
+
+                    if (_Options.ApiConfig.CertificateFormat == "PEM")
+                    {
+                        table.AddRow(
+                            "Certificate Key",
+                            Markup.Escape(_Options.ApiConfig.CertificateKeyPath));
+                    }
                 }
 
                 table.AddRow(

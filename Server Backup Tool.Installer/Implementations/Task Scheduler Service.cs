@@ -58,8 +58,8 @@ namespace ServerBackupTool.Installer.Implementations
                     definition.Settings.RestartCount = InstallerValues.ScheduledTask.MaxRestartAttempts;
                     definition.Settings.RestartInterval = TimeSpan.FromMinutes(InstallerValues.ScheduledTask.RestartDelayMinutes);
                     definition.Settings.ExecutionTimeLimit = TimeSpan.Zero;
-                    definition.Settings.DisallowStartIfOnBatteries = false;
-                    definition.Settings.StopIfGoingOnBatteries = false;
+                    definition.Settings.DisallowStartIfOnBatteries = true;
+                    definition.Settings.StopIfGoingOnBatteries = true;
                     definition.Settings.AllowHardTerminate = true;
                     definition.Settings.MultipleInstances = TaskInstancesPolicy.IgnoreNew;
                     definition.Settings.StartWhenAvailable = true;

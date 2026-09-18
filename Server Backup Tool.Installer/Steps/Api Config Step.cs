@@ -1,5 +1,6 @@
 // Copyright © - Unpublished - Toby Hunter
 using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using ServerBackupTool.Common.Functions;
 using ServerBackupTool.Common.Values;
@@ -56,14 +57,84 @@ namespace ServerBackupTool.Installer.Steps
                     ShowDefaultValue = false
                 });
                 int httpsPort = 0;
+                string certificateFormat = string.Empty;
                 string certificatePath = string.Empty;
+                string certificateKeyPath = string.Empty;
                 string certificatePassword = string.Empty;
 
                 if (enableHttps)
                 {
                     httpsPort = _Console.Prompt(new TextPrompt<int>("Enter the HTTPS port:").DefaultValue(InstallerValues.Defaults.ApiHttpsPort));
-                    certificatePath = _Console.Prompt(new TextPrompt<string>("Enter the path to the SSL certificate (.pfx):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
-                    certificatePassword = _Console.Prompt(new TextPrompt<string>("Enter the certificate password:").Secret());
+
+                    certificateFormat = _Console.Prompt(new SelectionPrompt<string>()
+                        .Title("Select the certificate format:")
+                        .AddChoices("PFX", "PEM"));
+
+                    if (certificateFormat == "PFX")
+                    {
+                        certificatePath = _Console.Prompt(new TextPrompt<string>("Enter the path to the SSL certificate (.pfx):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
+                        certificatePassword = _Console.Prompt(new TextPrompt<string>("Enter the certificate password:").Secret());
+
+                        try
+                        {
+                            X509Certificate2 cert = X509CertificateLoader.LoadPkcs12FromFile(
+                                certificatePath,
+                                certificatePassword);
+
+                            if (!cert.HasPrivateKey)
+                            {
+                                _Console.MarkupLine("[red]The certificate does not contain a private key. HTTPS requires a certificate with a private key.[/]");
+
+                                _Logger.LogMessage(
+                                    StandardValues.LoggerValues.Error,
+                                    "PFX certificate missing private key.");
+                            }
+
+                            cert.Dispose();
+                        }
+
+                        catch (Exception ex)
+                        {
+                            _Console.MarkupLine($"[red]Failed to load certificate: {Markup.Escape(ex.Message)}[/]");
+
+                            _Logger.LogMessage(
+                                StandardValues.LoggerValues.Error,
+                                $"Failed to load PFX certificate: {ex.Message}");
+                        }
+                    }
+
+                    else
+                    {
+                        certificatePath = _Console.Prompt(new TextPrompt<string>("Enter the path to the certificate file (.pem):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
+                        certificateKeyPath = _Console.Prompt(new TextPrompt<string>("Enter the path to the private key file (.pem):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Key path is required.")));
+
+                        try
+                        {
+                            X509Certificate2 cert = X509Certificate2.CreateFromPemFile(
+                                certificatePath,
+                                certificateKeyPath);
+
+                            if (!cert.HasPrivateKey)
+                            {
+                                _Console.MarkupLine("[red]The certificate does not contain a private key. HTTPS requires a certificate with a private key.[/]");
+
+                                _Logger.LogMessage(
+                                    StandardValues.LoggerValues.Error,
+                                    "PEM certificate missing private key.");
+                            }
+
+                            cert.Dispose();
+                        }
+
+                        catch (Exception ex)
+                        {
+                            _Console.MarkupLine($"[red]Failed to load certificate: {Markup.Escape(ex.Message)}[/]");
+
+                            _Logger.LogMessage(
+                                StandardValues.LoggerValues.Error,
+                                $"Failed to load PEM certificate: {ex.Message}");
+                        }
+                    }
                 }
 
                 string databasePath = _Console.Prompt(new TextPrompt<string>("Enter the API database path:").DefaultValue(_Options.ServerConfig.DatabasePath));
@@ -106,7 +177,9 @@ namespace ServerBackupTool.Installer.Steps
                     HttpPort = httpPort,
                     HttpsPort = httpsPort,
                     EnableHttps = enableHttps,
+                    CertificateFormat = certificateFormat,
                     CertificatePath = certificatePath,
+                    CertificateKeyPath = certificateKeyPath,
                     CertificatePassword = certificatePassword,
                     DatabasePath = databasePath,
                     ArchiveDirectory = archiveDirectory,

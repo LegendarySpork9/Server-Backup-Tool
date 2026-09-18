@@ -58,6 +58,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushTextWithEnter("y");
             console.Input.PushTextWithEnter("test@test.com");
             console.Input.PushKey(ConsoleKey.Enter);
+            console.Input.PushKey(ConsoleKey.Enter);
             console.Input.PushTextWithEnter("y");
             console.Input.PushKey(ConsoleKey.Enter);
             console.Input.PushTextWithEnter("Server Started");
@@ -91,6 +92,9 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.AreEqual(
                 "test@test.com",
                 options.EmailConfig.FromEmail);
+            Assert.AreEqual(
+                "test@test.com",
+                options.EmailConfig.SmtpUsername);
             Assert.AreEqual(
                 1,
                 options.EmailConfig.Emails.Count);
@@ -136,6 +140,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushTextWithEnter("y");
             // From email
             console.Input.PushTextWithEnter("noreply@example.com");
+            // SMTP authentication username (default = from email)
+            console.Input.PushTextWithEnter("mailbox@example.com");
             // From name (default)
             console.Input.PushKey(ConsoleKey.Enter);
             // Add an email template? Yes
@@ -185,6 +191,9 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.AreEqual(
                 "mail.example.com",
                 options.EmailConfig.SmtpHost);
+            Assert.AreEqual(
+                "mailbox@example.com",
+                options.EmailConfig.SmtpUsername);
             Assert.AreEqual(
                 1,
                 options.EmailConfig.Emails.Count);

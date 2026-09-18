@@ -679,14 +679,15 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         }
 
         /// <summary>
-        /// Checks that the generated API settings contain Kestrel HTTPS endpoint when enabled.
+        /// Checks that the generated API settings contain Kestrel HTTPS endpoint with PFX certificate when enabled.
         /// </summary>
         [TestMethod]
-        public void GenerateApiAppSettings_ContainsKestrelHttpsEndpoint_WhenEnabled()
+        public void GenerateApiAppSettings_ContainsKestrelHttpsEndpoint_WhenEnabledWithPfx()
         {
             InstallOptionsModel options = CreateTestOptions();
             options.ApiConfig!.EnableHttps = true;
             options.ApiConfig.HttpsPort = 5001;
+            options.ApiConfig.CertificateFormat = "PFX";
             options.ApiConfig.CertificatePath = @"C:\certs\api.pfx";
             options.ApiConfig.CertificatePassword = "certpass";
 
@@ -710,6 +711,55 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                 https.GetProperty("Certificate")
                     .GetProperty("Path")
                     .GetString());
+            Assert.AreEqual(
+                "certpass",
+                https.GetProperty("Certificate")
+                    .GetProperty("Password")
+                    .GetString());
+        }
+
+        /// <summary>
+        /// Checks that the generated API settings contain Kestrel HTTPS endpoint with PEM certificate when enabled.
+        /// </summary>
+        [TestMethod]
+        public void GenerateApiAppSettings_ContainsKestrelHttpsEndpoint_WhenEnabledWithPem()
+        {
+            InstallOptionsModel options = CreateTestOptions();
+            options.ApiConfig!.EnableHttps = true;
+            options.ApiConfig.HttpsPort = 5001;
+            options.ApiConfig.CertificateFormat = "PEM";
+            options.ApiConfig.CertificatePath = @"C:\certs\api.pem";
+            options.ApiConfig.CertificateKeyPath = @"C:\certs\api-key.pem";
+
+            string json = _ConfigWriter.GenerateApiAppSettings(
+                options.ApiConfig,
+                options.ServerConfig);
+
+            using JsonDocument document = JsonDocument.Parse(json);
+            JsonElement endpoints = document.RootElement.GetProperty("Kestrel")
+                .GetProperty("Endpoints");
+
+            Assert.IsTrue(endpoints.TryGetProperty(
+                "Https",
+                out JsonElement https));
+            Assert.AreEqual(
+                "https://0.0.0.0:5001",
+                https.GetProperty("Url")
+                    .GetString());
+            Assert.AreEqual(
+                @"C:\certs\api.pem",
+                https.GetProperty("Certificate")
+                    .GetProperty("Path")
+                    .GetString());
+            Assert.AreEqual(
+                @"C:\certs\api-key.pem",
+                https.GetProperty("Certificate")
+                    .GetProperty("KeyPath")
+                    .GetString());
+            Assert.IsFalse(https.GetProperty("Certificate")
+                .TryGetProperty(
+                    "Password",
+                    out _));
         }
 
         /// <summary>
@@ -732,6 +782,45 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
             Assert.IsFalse(endpoints.TryGetProperty(
                 "Https",
                 out _));
+        }
+
+        /// <summary>
+        /// Checks that GenerateAppConfig includes the username attribute on the provider element.
+        /// </summary>
+        [TestMethod]
+        public void GenerateAppConfig_IncludesUsernameAttributeOnProvider()
+        {
+            InstallOptionsModel options = CreateTestOptions();
+
+            XDocument config = _ConfigWriter.GenerateAppConfig(options);
+            XElement? provider = config.Root?.Element("serverBackup")?
+                .Element("notifications")?
+                .Element("provider");
+
+            Assert.IsNotNull(provider);
+            Assert.AreEqual(
+                "auth@test.com",
+                provider.Attribute("username")?.Value);
+        }
+
+        /// <summary>
+        /// Checks that GenerateAppConfig writes empty username attribute when EmailConfig is null.
+        /// </summary>
+        [TestMethod]
+        public void GenerateAppConfig_WritesEmptyUsernameAttribute_WhenEmailConfigNull()
+        {
+            InstallOptionsModel options = CreateTestOptions();
+            options.EmailConfig = null;
+
+            XDocument config = _ConfigWriter.GenerateAppConfig(options);
+            XElement? provider = config.Root?.Element("serverBackup")?
+                .Element("notifications")?
+                .Element("provider");
+
+            Assert.IsNotNull(provider);
+            Assert.AreEqual(
+                string.Empty,
+                provider.Attribute("username")?.Value);
         }
 
         /// <summary>
@@ -940,6 +1029,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                     Port = 587,
                     EnableSSL = true,
                     SmtpHost = "smtp.test.com",
+                    SmtpUsername = "auth@test.com",
                     SmtpPassword = "password",
                     FromEmail = "noreply@test.com",
                     FromName = "SBT",
