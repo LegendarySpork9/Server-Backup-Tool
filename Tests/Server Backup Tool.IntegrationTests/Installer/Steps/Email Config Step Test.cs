@@ -52,13 +52,21 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Interactive();
 
             console.Input.PushTextWithEnter("y");
+            // SMTP host.
             console.Input.PushTextWithEnter("smtp.test.com");
-            console.Input.PushTextWithEnter("password123");
-            console.Input.PushKey(ConsoleKey.Enter);
-            console.Input.PushTextWithEnter("y");
+            // SMTP auth username.
             console.Input.PushTextWithEnter("test@test.com");
+            // SMTP password.
+            console.Input.PushTextWithEnter("password123");
+            // SMTP port (default).
             console.Input.PushKey(ConsoleKey.Enter);
+            // Enable SSL.
+            console.Input.PushTextWithEnter("y");
+            // From email (default = username).
             console.Input.PushKey(ConsoleKey.Enter);
+            // From name (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Add template.
             console.Input.PushTextWithEnter("y");
             console.Input.PushKey(ConsoleKey.Enter);
             console.Input.PushTextWithEnter("Server Started");
@@ -128,21 +136,21 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             TestConsole console = new();
             console.Interactive();
 
-            // Enable email
+            // Enable email.
             console.Input.PushTextWithEnter("y");
-            // SMTP host
+            // SMTP host.
             console.Input.PushTextWithEnter("mail.example.com");
-            // SMTP password
-            console.Input.PushTextWithEnter("secret");
-            // SMTP port (default)
-            console.Input.PushKey(ConsoleKey.Enter);
-            // Enable SSL
-            console.Input.PushTextWithEnter("y");
-            // From email
-            console.Input.PushTextWithEnter("noreply@example.com");
-            // SMTP authentication username (default = from email)
+            // SMTP auth username.
             console.Input.PushTextWithEnter("mailbox@example.com");
-            // From name (default)
+            // SMTP password.
+            console.Input.PushTextWithEnter("secret");
+            // SMTP port (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enable SSL.
+            console.Input.PushTextWithEnter("y");
+            // From email.
+            console.Input.PushTextWithEnter("noreply@example.com");
+            // From name (default).
             console.Input.PushKey(ConsoleKey.Enter);
             // Add an email template? Yes
             console.Input.PushTextWithEnter("y");

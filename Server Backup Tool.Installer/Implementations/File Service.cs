@@ -102,13 +102,9 @@ namespace ServerBackupTool.Installer.Implementations
                     StandardValues.LoggerValues.Info,
                     $"Backing up {sourcePath} to {backupPath}.");
 
-                string timestampedPath = Path.Combine(
-                    backupPath,
-                    $"Backup_{DateTime.UtcNow:yyyyMMdd_HHmmss}");
-
                 CopyFiles(
                     sourcePath,
-                    timestampedPath);
+                    backupPath);
 
                 _Logger.LogMessage(
                     StandardValues.LoggerValues.Info,

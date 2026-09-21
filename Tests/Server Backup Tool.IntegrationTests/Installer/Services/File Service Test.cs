@@ -140,30 +140,24 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         }
 
         /// <summary>
-        /// Checks that BackupDirectory creates a timestamped backup containing the source files.
+        /// Checks that BackupDirectory copies source files to the specified backup path.
         /// </summary>
         [TestMethod]
-        public void BackupDirectory_CreatesTimestampedBackup()
+        public void BackupDirectory_CopiesFilesToBackupPath()
         {
-            string backupRoot = Path.Combine(_TempBase, "backups");
-            Directory.CreateDirectory(backupRoot);
+            string backupPath = Path.Combine(
+                _TempBase,
+                $"Backup_{Guid.NewGuid():N}");
 
             (bool success, Exception? error) = _FileService.BackupDirectory(
                 _SourceDir,
-                backupRoot);
+                backupPath);
 
             Assert.IsTrue(success);
             Assert.IsNull(error);
+            Assert.IsTrue(Directory.Exists(backupPath));
 
-            string[] backupDirs = Directory.GetDirectories(backupRoot);
-
-            Assert.AreEqual(
-                1,
-                backupDirs.Length);
-            Assert.IsTrue(Path.GetFileName(backupDirs[0])
-                .StartsWith("Backup_"));
-
-            int fileCount = Directory.GetFiles(backupDirs[0]).Length;
+            int fileCount = Directory.GetFiles(backupPath).Length;
 
             Assert.AreEqual(
                 3,

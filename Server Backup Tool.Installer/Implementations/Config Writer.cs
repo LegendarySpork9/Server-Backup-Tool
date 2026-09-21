@@ -78,42 +78,7 @@ namespace ServerBackupTool.Installer.Implementations
                 StandardValues.LoggerValues.Info,
                 "Generating appsettings.json.");
 
-            Dictionary<string, object> kestrelEndpoints = new()
-            {
-                ["Http"] = new
-                {
-                    Url = $"http://{apiConfig.BindAddress}:{apiConfig.HttpPort}"
-                }
-            };
-
-            if (apiConfig.EnableHttps)
-            {
-                if (apiConfig.CertificateFormat == "PEM")
-                {
-                    kestrelEndpoints["Https"] = new
-                    {
-                        Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
-                        Certificate = new
-                        {
-                            Path = apiConfig.CertificatePath,
-                            KeyPath = apiConfig.CertificateKeyPath
-                        }
-                    };
-                }
-
-                else
-                {
-                    kestrelEndpoints["Https"] = new
-                    {
-                        Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
-                        Certificate = new
-                        {
-                            Path = apiConfig.CertificatePath,
-                            Password = apiConfig.CertificatePassword
-                        }
-                    };
-                }
-            }
+            bool usePem = apiConfig.EnableHttps && apiConfig.CertificateFormat == "PEM";
 
             Dictionary<string, object> settings = new()
             {
@@ -125,32 +90,78 @@ namespace ServerBackupTool.Installer.Implementations
                         Microsoft_AspNetCore = "Warning"
                     }
                 },
-                ["AllowedHosts"] = "*",
-                ["Kestrel"] = new
+                ["AllowedHosts"] = "*"
+            };
+
+            if (usePem)
+            {
+                object pemCertificate = !string.IsNullOrEmpty(apiConfig.CertificatePassword) ? new
+                {
+                    HttpUrl = $"http://{apiConfig.BindAddress}:{apiConfig.HttpPort}",
+                    HttpsUrl = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
+                    CertificatePath = apiConfig.CertificatePath,
+                    KeyPath = apiConfig.CertificateKeyPath,
+                    Password = apiConfig.CertificatePassword
+                } : (object)new
+                {
+                    HttpUrl = $"http://{apiConfig.BindAddress}:{apiConfig.HttpPort}",
+                    HttpsUrl = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
+                    CertificatePath = apiConfig.CertificatePath,
+                    KeyPath = apiConfig.CertificateKeyPath
+                };
+
+                settings["PemCertificate"] = pemCertificate;
+            }
+
+            else
+            {
+                Dictionary<string, object> kestrelEndpoints = new()
+                {
+                    ["Http"] = new
+                    {
+                        Url = $"http://{apiConfig.BindAddress}:{apiConfig.HttpPort}"
+                    }
+                };
+
+                if (apiConfig.EnableHttps)
+                {
+                    kestrelEndpoints["Https"] = new
+                    {
+                        Url = $"https://{apiConfig.BindAddress}:{apiConfig.HttpsPort}",
+                        Certificate = new
+                        {
+                            Path = apiConfig.CertificatePath,
+                            Password = apiConfig.CertificatePassword
+                        }
+                    };
+                }
+
+                settings["Kestrel"] = new
                 {
                     Endpoints = kestrelEndpoints
-                },
-                ["Authentication"] = new
-                {
-                    ClientId = apiConfig.ClientIdHash,
-                    ClientSecret = apiConfig.ClientSecretHash
-                },
-                ["Database"] = new
-                {
-                    Path = apiConfig.DatabasePath,
-                    ServerName = serverConfig.ServerName,
-                    PollingIntervalMs = serverConfig.PollingIntervalMs
-                },
-                ["ArchiveSettings"] = new
-                {
-                    ArchiveDirectory = apiConfig.ArchiveDirectory
-                },
-                ["Webhook"] = new
-                {
-                    Secret = apiConfig.WebhookSecret,
-                    TimeoutSeconds = InstallerValues.Defaults.WebhookTimeoutSeconds,
-                    MaxRetries = InstallerValues.Defaults.WebhookMaxRetries
-                }
+                };
+            }
+
+            settings["Authentication"] = new
+            {
+                ClientId = apiConfig.ClientIdHash,
+                ClientSecret = apiConfig.ClientSecretHash
+            };
+            settings["Database"] = new
+            {
+                Path = apiConfig.DatabasePath,
+                ServerName = serverConfig.ServerName,
+                PollingIntervalMs = serverConfig.PollingIntervalMs
+            };
+            settings["ArchiveSettings"] = new
+            {
+                ArchiveDirectory = apiConfig.ArchiveDirectory
+            };
+            settings["Webhook"] = new
+            {
+                Secret = apiConfig.WebhookSecret,
+                TimeoutSeconds = InstallerValues.Defaults.WebhookTimeoutSeconds,
+                MaxRetries = InstallerValues.Defaults.WebhookMaxRetries
             };
 
             string json = JsonSerializer.Serialize(

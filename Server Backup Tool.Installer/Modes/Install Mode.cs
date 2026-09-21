@@ -119,6 +119,7 @@ namespace ServerBackupTool.Installer.Modes
                 new ApiConfigStep(
                     _Console,
                     _Logger,
+                    _FileSystem,
                     options).Execute();
 
                 new ConfirmationStep(

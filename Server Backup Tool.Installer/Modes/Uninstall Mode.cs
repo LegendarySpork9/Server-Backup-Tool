@@ -208,7 +208,10 @@ namespace ServerBackupTool.Installer.Modes
 
             if (!keepDatabase)
             {
-                string dbPath = GetDatabasePath(installed.InstallPath);
+                string dbPath = Functions.ConfigurationFunction.GetDatabasePath(
+                    installed.InstallPath,
+                    _FileSystem,
+                    _Logger);
 
                 if (_FileSystem.FileExists(dbPath))
                 {
@@ -281,46 +284,6 @@ namespace ServerBackupTool.Installer.Modes
                     _Console.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
                 }
             }
-        }
-
-        /// <summary>
-        /// Reads the database path from the installed App.config, falling back to the default location.
-        /// </summary>
-        private string GetDatabasePath(string installPath)
-        {
-            string configPath = Path.Combine(
-                installPath,
-                InstallerValues.Defaults.ToolConfigFileName);
-            string defaultPath = Path.Combine(
-                InstallerValues.Defaults.ProgramDataPath,
-                InstallerValues.Defaults.DatabaseFileName);
-
-            string dbPath = defaultPath;
-
-            if (_FileSystem.FileExists(configPath))
-            {
-                try
-                {
-                    XDocument config = XDocument.Load(configPath);
-                    string? configuredPath = config.Root?.Element("serverBackup")?
-                        .Element("databaseDetails")?
-                        .Attribute("path")?.Value;
-
-                    if (!string.IsNullOrEmpty(configuredPath))
-                    {
-                        dbPath = configuredPath;
-                    }
-                }
-
-                catch (Exception ex)
-                {
-                    _Logger.LogMessage(
-                        StandardValues.LoggerValues.Warning,
-                        $"Failed to read database path from config: {ex.Message}. Using default.");
-                }
-            }
-
-            return dbPath;
         }
 
         /// <summary>

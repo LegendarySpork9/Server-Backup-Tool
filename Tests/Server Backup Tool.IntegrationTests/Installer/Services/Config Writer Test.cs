@@ -722,7 +722,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         /// Checks that the generated API settings contain Kestrel HTTPS endpoint with PEM certificate when enabled.
         /// </summary>
         [TestMethod]
-        public void GenerateApiAppSettings_ContainsKestrelHttpsEndpoint_WhenEnabledWithPem()
+        public void GenerateApiAppSettings_ContainsPemCertificateSection_WhenEnabledWithPem()
         {
             InstallOptionsModel options = CreateTestOptions();
             options.ApiConfig!.EnableHttps = true;
@@ -736,30 +736,33 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                 options.ServerConfig);
 
             using JsonDocument document = JsonDocument.Parse(json);
-            JsonElement endpoints = document.RootElement.GetProperty("Kestrel")
-                .GetProperty("Endpoints");
 
-            Assert.IsTrue(endpoints.TryGetProperty(
-                "Https",
-                out JsonElement https));
+            Assert.IsFalse(
+                document.RootElement.TryGetProperty("Kestrel", out _),
+                "PEM mode should not have a Kestrel section.");
+
+            Assert.IsTrue(
+                document.RootElement.TryGetProperty("PemCertificate", out JsonElement pemSection),
+                "Expected PemCertificate section in settings.");
+
+            Assert.AreEqual(
+                "http://0.0.0.0:5000",
+                pemSection.GetProperty("HttpUrl")
+                    .GetString());
             Assert.AreEqual(
                 "https://0.0.0.0:5001",
-                https.GetProperty("Url")
+                pemSection.GetProperty("HttpsUrl")
                     .GetString());
             Assert.AreEqual(
                 @"C:\certs\api.pem",
-                https.GetProperty("Certificate")
-                    .GetProperty("Path")
+                pemSection.GetProperty("CertificatePath")
                     .GetString());
             Assert.AreEqual(
                 @"C:\certs\api-key.pem",
-                https.GetProperty("Certificate")
-                    .GetProperty("KeyPath")
+                pemSection.GetProperty("KeyPath")
                     .GetString());
-            Assert.IsFalse(https.GetProperty("Certificate")
-                .TryGetProperty(
-                    "Password",
-                    out _));
+            Assert.IsFalse(
+                pemSection.TryGetProperty("Password", out _));
         }
 
         /// <summary>

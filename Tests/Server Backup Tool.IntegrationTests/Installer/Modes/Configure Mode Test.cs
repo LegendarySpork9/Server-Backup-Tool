@@ -472,6 +472,9 @@ namespace ServerBackupTool.IntegrationTests.Installer.Modes
             // TextPrompt "SMTP host:".
             console.Input.PushTextWithEnter("smtp.test.com");
 
+            // TextPrompt "SMTP authentication username:".
+            console.Input.PushTextWithEnter("auth@test.com");
+
             // TextPrompt "SMTP password:" (secret).
             console.Input.PushTextWithEnter("password123");
 

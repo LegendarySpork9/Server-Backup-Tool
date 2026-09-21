@@ -51,6 +51,7 @@ namespace ServerBackupTool.Installer.Steps
             else
             {
                 string smtpHost = _Console.Prompt(new TextPrompt<string>("Enter the SMTP host:"));
+                string smtpUsername = _Console.Prompt(new TextPrompt<string>("Enter the SMTP authentication username (email):"));
                 string smtpPassword = _Console.Prompt(new TextPrompt<string>("Enter the SMTP password:").Secret());
                 int port = _Console.Prompt(new TextPrompt<int>("Enter the SMTP port:").DefaultValue(InstallerValues.Defaults.SmtpPort));
                 bool enableSsl = _Console.Prompt(new ConfirmationPrompt("Enable SSL?")
@@ -58,8 +59,7 @@ namespace ServerBackupTool.Installer.Steps
                     DefaultValue = InstallerValues.Defaults.EnableSSL,
                     ShowDefaultValue = false
                 });
-                string fromEmail = _Console.Prompt(new TextPrompt<string>("Enter the from email address:"));
-                string smtpUsername = _Console.Prompt(new TextPrompt<string>("Enter the SMTP authentication username:").DefaultValue(fromEmail));
+                string fromEmail = _Console.Prompt(new TextPrompt<string>("Enter the from email address:").DefaultValue(smtpUsername));
                 string fromName = _Console.Prompt(new TextPrompt<string>("Enter the from name:").DefaultValue(InstallerValues.Defaults.FromName));
 
                 List<EmailTemplateModel> emails = [];

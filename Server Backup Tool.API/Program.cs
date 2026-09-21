@@ -3,6 +3,7 @@ using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Filters;
+using ServerBackupTool.API.Functions;
 using ServerBackupTool.API.Implementations;
 using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Models.Responses;
@@ -10,6 +11,8 @@ using ServerBackupTool.Common.Values;
 using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
 
 namespace ServerBackupTool.API
 {
@@ -94,7 +97,7 @@ namespace ServerBackupTool.API
                         Version = "v1",
                         Description = @"The Server Backup Tool (SBT) API provides remote monitoring and control over game servers managed by the tool. Live log messages from the SBT are added to a queue where the API can then retrieve them on demand. Archived logs are also accessible but require fetching from their archive. Commands are added to a queue where they are then picked up and processed by the tool like regular imputs.
 
-Each instance of the tool is identified by the name of the server it manages. The API for each instance is available on the same domain the server is hosted on with the prefix “/api”. EG. Ark.legendaryspork9.co.uk/api. Endpoints are authenticated through a client id and secret sent in the auth header of each API call.",
+Each instance of the tool is identified by the name of the server it manages. The API for each instance is available on the same domain the server is hosted on with the prefix “api-”. EG. api-ark.legendaryspork9.co.uk. Endpoints are authenticated through a client id and secret sent in the auth header of each API call.",
                         Contact = new OpenApiContact
                         {
                             Name = "API Team",
@@ -218,6 +221,60 @@ Each instance of the tool is identified by the name of the server it manages. Th
                StandardValues.LoggerValues.Debug,
                "Configured Services");
 
+            IConfigurationSection pemSection = builder.Configuration.GetSection("PemCertificate");
+
+            if (pemSection.Exists())
+            {
+                string? certPath = pemSection["CertificatePath"];
+                string? keyPath = pemSection["KeyPath"];
+                string? certPassword = pemSection["Password"];
+                string httpUrl = pemSection["HttpUrl"] ?? "http://localhost:5000";
+                string httpsUrl = pemSection["HttpsUrl"] ?? "https://localhost:5001";
+
+                if (!string.IsNullOrEmpty(certPath) && !string.IsNullOrEmpty(keyPath))
+                {
+                    ExtendedFileSystemWrapper fileSystem = new();
+
+                    string certPem = fileSystem.ReadAllText(certPath)
+                        .GetAwaiter()
+                        .GetResult();
+                    string keyPem = fileSystem.ReadAllText(keyPath)
+                        .GetAwaiter()
+                        .GetResult();
+
+                    X509Certificate2 cert = CertificateFunction.LoadFromPem(
+                        certPem,
+                        keyPem,
+                        certPassword);
+
+                    builder.WebHost.ConfigureKestrel(serverOptions =>
+                    {
+                        Uri httpUri = new(httpUrl);
+
+                        serverOptions.Listen(
+                            httpUri.Host == "0.0.0.0" ? IPAddress.Any : IPAddress.Parse(httpUri.Host),
+                            httpUri.Port);
+
+                        Uri httpsUri = new(httpsUrl);
+
+                        serverOptions.Listen(
+                            httpsUri.Host == "0.0.0.0" ? IPAddress.Any : IPAddress.Parse(httpsUri.Host),
+                            httpsUri.Port,
+                            listenOptions =>
+                            {
+                                listenOptions.UseHttps(httpsOptions =>
+                                {
+                                    httpsOptions.ServerCertificate = cert;
+                                });
+                            });
+                    });
+
+                    _logger.LogMessage(
+                        StandardValues.LoggerValues.Debug,
+                        "Configured Kestrel with PEM certificate");
+                }
+            }
+
             WebApplication app = builder.Build();
 
             _logger.LogMessage(
@@ -244,12 +301,6 @@ Each instance of the tool is identified by the name of the server it manages. Th
             _logger.LogMessage(
                 StandardValues.LoggerValues.Debug,
                 "Mapped Scalar Reference");
-
-            app.UseHttpsRedirection();
-
-            _logger.LogMessage(
-                StandardValues.LoggerValues.Debug,
-                "Configured HTTPS Redirection");
 
             app.UseAuthorization();
 

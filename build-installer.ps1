@@ -58,13 +58,14 @@ New-Item -ItemType Directory -Path $ResourcesDir -Force | Out-Null
 $ToolZip = Join-Path $ResourcesDir "Tool_$ToolVersion.zip"
 $ApiZip = Join-Path $ResourcesDir "API_$ApiVersion.zip"
 
-$ConfigExclusions = @("*.config", "appsettings.json", "appsettings.*.json")
+$ToolConfigExclusions = @("*.config", "appsettings.json", "appsettings.*.json")
+$ApiConfigExclusions = @("appsettings.json", "appsettings.*.json")
 
-$ToolFiles = Get-ChildItem -Path $ToolPublishDir -Exclude $ConfigExclusions
+$ToolFiles = Get-ChildItem -Path $ToolPublishDir -Exclude $ToolConfigExclusions
 Compress-Archive -Path $ToolFiles.FullName -DestinationPath $ToolZip -Force
 Write-Host "  Created Tool_$ToolVersion.zip ($('{0:N1} MB' -f ((Get-Item $ToolZip).Length / 1MB)))"
 
-$ApiFiles = Get-ChildItem -Path $ApiPublishDir -Exclude $ConfigExclusions
+$ApiFiles = Get-ChildItem -Path $ApiPublishDir -Exclude $ApiConfigExclusions
 Compress-Archive -Path $ApiFiles.FullName -DestinationPath $ApiZip -Force
 Write-Host "  Created API_$ApiVersion.zip ($('{0:N1} MB' -f ((Get-Item $ApiZip).Length / 1MB)))"
 

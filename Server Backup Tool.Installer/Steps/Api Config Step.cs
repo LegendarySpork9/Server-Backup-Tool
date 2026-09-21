@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using ServerBackupTool.Common.Functions;
+using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Installer.Abstractions;
 using ServerBackupTool.Installer.Models;
@@ -16,16 +17,19 @@ namespace ServerBackupTool.Installer.Steps
     {
         private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
+        private readonly IExtendedFileSystem _FileSystem;
         private readonly InstallOptionsModel _Options;
 
         // Sets the class's global variables.
         public ApiConfigStep(
             IAnsiConsole console,
             ILoggerService logger,
+            IExtendedFileSystem fileSystem,
             InstallOptionsModel options)
         {
             _Console = console;
             _Logger = logger;
+            _FileSystem = fileSystem;
             _Options = options;
         }
 
@@ -107,23 +111,57 @@ namespace ServerBackupTool.Installer.Steps
                     {
                         certificatePath = _Console.Prompt(new TextPrompt<string>("Enter the path to the certificate file (.pem):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Certificate path is required.")));
                         certificateKeyPath = _Console.Prompt(new TextPrompt<string>("Enter the path to the private key file (.pem):").Validate(input => !string.IsNullOrWhiteSpace(input) ? ValidationResult.Success() : ValidationResult.Error("Key path is required.")));
+                        bool keyEncrypted = _Console.Prompt(new ConfirmationPrompt("Is the private key encrypted?")
+                        {
+                            ShowDefaultValue = false
+                        });
+
+                        if (keyEncrypted)
+                        {
+                            _Console.MarkupLine("[yellow]Note: The password must only contain ASCII characters. Non-ASCII characters (e.g. £, €, ñ) are not supported due to console encoding limitations.[/]");
+                            certificatePassword = _Console.Prompt(new TextPrompt<string>("Enter the private key password:").Secret());
+                        }
 
                         try
                         {
-                            X509Certificate2 cert = X509Certificate2.CreateFromPemFile(
-                                certificatePath,
-                                certificateKeyPath);
+                            string keyPem = _FileSystem.ReadAllText(certificateKeyPath)
+                                .GetAwaiter()
+                                .GetResult();
 
-                            if (!cert.HasPrivateKey)
+                            using (StringReader keyReader = new(keyPem))
                             {
-                                _Console.MarkupLine("[red]The certificate does not contain a private key. HTTPS requires a certificate with a private key.[/]");
+                                Org.BouncyCastle.OpenSsl.PemReader pemReader = keyEncrypted ? new Org.BouncyCastle.OpenSsl.PemReader(
+                                keyReader,
+                                new PasswordFinder(certificatePassword)) : new Org.BouncyCastle.OpenSsl.PemReader(keyReader);
 
-                                _Logger.LogMessage(
-                                    StandardValues.LoggerValues.Error,
-                                    "PEM certificate missing private key.");
+                                object keyObject = pemReader.ReadObject();
+
+                                if (keyObject == null)
+                                {
+                                    _Console.MarkupLine("[red]Failed to read private key from PEM file.[/]");
+                                    _Logger.LogMessage(
+                                        StandardValues.LoggerValues.Error,
+                                        "PEM key file could not be read.");
+                                }
+
+                                else
+                                {
+                                    Org.BouncyCastle.Crypto.AsymmetricKeyParameter privateKey = keyObject is Org.BouncyCastle.Crypto.AsymmetricCipherKeyPair pair ? pair.Private : (Org.BouncyCastle.Crypto.AsymmetricKeyParameter)keyObject;
+
+                                    if (!privateKey.IsPrivate)
+                                    {
+                                        _Console.MarkupLine("[red]The key file does not contain a private key.[/]");
+                                        _Logger.LogMessage(
+                                            StandardValues.LoggerValues.Error,
+                                            "PEM file does not contain a private key.");
+                                    }
+
+                                    else
+                                    {
+                                        _Console.MarkupLine("[green]Certificate key validated successfully.[/]");
+                                    }
+                                }
                             }
-
-                            cert.Dispose();
                         }
 
                         catch (Exception ex)

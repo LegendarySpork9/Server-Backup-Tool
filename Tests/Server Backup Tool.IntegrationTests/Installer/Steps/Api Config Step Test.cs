@@ -11,6 +11,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
     public class ApiConfigStepTest
     {
         private Mock<ILoggerService> _MockLogger = null!;
+        private Mock<IExtendedFileSystem> _MockFileSystem = null!;
 
         /// <summary>
         /// Initialises the test dependencies.
@@ -19,6 +20,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         public void TestInit()
         {
             _MockLogger = new Mock<ILoggerService>();
+            _MockFileSystem = new Mock<IExtendedFileSystem>();
         }
 
         /// <summary>
@@ -38,6 +40,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             ApiConfigStep step = new(
                 console,
                 _MockLogger.Object,
+                _MockFileSystem.Object,
                 options);
 
             step.Execute();
@@ -76,6 +79,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             ApiConfigStep step = new(
                 console,
                 _MockLogger.Object,
+                _MockFileSystem.Object,
                 options);
 
             step.Execute();
@@ -145,6 +149,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             ApiConfigStep step = new(
                 console,
                 _MockLogger.Object,
+                _MockFileSystem.Object,
                 options);
 
             step.Execute();
@@ -189,6 +194,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushTextWithEnter(@"C:\certs\server.pem");
             // Key path
             console.Input.PushTextWithEnter(@"C:\certs\server-key.pem");
+            // Is the private key encrypted? No
+            console.Input.PushTextWithEnter("n");
             // API database path (default)
             console.Input.PushKey(ConsoleKey.Enter);
             // Archive directory (default)
@@ -212,6 +219,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             ApiConfigStep step = new(
                 console,
                 _MockLogger.Object,
+                _MockFileSystem.Object,
                 options);
 
             step.Execute();
@@ -232,6 +240,77 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 options.ApiConfig.CertificateKeyPath);
             Assert.AreEqual(
                 string.Empty,
+                options.ApiConfig.CertificatePassword);
+        }
+        /// <summary>
+        /// Checks that Execute populates HTTPS settings when the user enables HTTPS with an encrypted PEM key.
+        /// </summary>
+        [TestMethod]
+        public void Execute_ConfiguresHttps_WhenUserEnablesHttpsWithEncryptedPem()
+        {
+            TestConsole console = new();
+            console.Interactive();
+
+            // Bind address (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // HTTP port (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enable HTTPS? Yes.
+            console.Input.PushTextWithEnter("y");
+            // HTTPS port.
+            console.Input.PushTextWithEnter("5001");
+            // Certificate format (PEM is second).
+            console.Input.PushKey(ConsoleKey.DownArrow);
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Certificate path.
+            console.Input.PushTextWithEnter(@"C:\certs\server-crt.pem");
+            // Key path.
+            console.Input.PushTextWithEnter(@"C:\certs\server-key.pem");
+            // Is the private key encrypted? Yes.
+            console.Input.PushTextWithEnter("y");
+            // Private key password.
+            console.Input.PushTextWithEnter("keypass123");
+            // API database path (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Archive directory (default).
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Webhook secret.
+            console.Input.PushTextWithEnter("webhooksecret");
+            // Press Enter to continue after credentials display.
+            console.Input.PushKey(ConsoleKey.Enter);
+
+            InstallOptionsModel options = new()
+            {
+                Components = ["Server Backup Tool", "Server Backup Tool API"],
+                InstallPath = @"C:\Test"
+            };
+
+            options.ServerConfig = new ServerConfigModel
+            {
+                DatabasePath = "test.db"
+            };
+
+            ApiConfigStep step = new(
+                console,
+                _MockLogger.Object,
+                _MockFileSystem.Object,
+                options);
+
+            step.Execute();
+
+            Assert.IsNotNull(options.ApiConfig);
+            Assert.IsTrue(options.ApiConfig.EnableHttps);
+            Assert.AreEqual(
+                "PEM",
+                options.ApiConfig.CertificateFormat);
+            Assert.AreEqual(
+                @"C:\certs\server-crt.pem",
+                options.ApiConfig.CertificatePath);
+            Assert.AreEqual(
+                @"C:\certs\server-key.pem",
+                options.ApiConfig.CertificateKeyPath);
+            Assert.AreEqual(
+                "keypass123",
                 options.ApiConfig.CertificatePassword);
         }
     }

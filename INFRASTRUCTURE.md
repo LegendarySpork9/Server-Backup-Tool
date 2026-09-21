@@ -20,6 +20,7 @@ Server Backup Tool is a self-hosted console application for managing game server
 | API Documentation | Scalar.AspNetCore | 2.16.18 |
 | OpenAPI | Microsoft.AspNetCore.OpenApi | 10.0.10 |
 | OpenAPI Models | Microsoft.OpenApi | 2.11.0 |
+| Certificate Loading | BouncyCastle.Cryptography | 2.5.1 |
 | Authentication | Basic (custom handler) | - |
 | Configuration | System.Configuration (App.config) | - |
 | Installer TUI | Spectre.Console | 0.57.2 |
@@ -59,7 +60,7 @@ Server-Backup-Tool/
 │   ├── Services/                           # LogService, CommandService, LoggerService, LogPollingService
 ├── Server Backup Tool.Installer/            # TUI installer (install, update, configure, uninstall)
 │   ├── Abstractions/                       # ILoggerService, IConfigWriter, IDatabaseInitialiser, ITaskSchedulerService, IVersionService, IFileService, IRegistryService
-│   ├── Functions/                          # (none — shared functions live in Common)
+│   ├── Functions/                          # ConfigurationFunction
 │   ├── Implementations/                    # LoggerServiceWrapper, ConfigWriter, DatabaseInitialiser, TaskSchedulerService, VersionService, FileService, RegistryService
 │   ├── Models/                             # InstallOptionsModel, VersionInfoModel, CustomTimerModel
 │   │   └── Related/                       # ServerConfigModel, TimerConfigModel, EmailConfigModel, ApiConfigModel, etc.
@@ -225,6 +226,7 @@ All Steps and Modes accept `IAnsiConsole` as the first constructor parameter for
 | Function | Purpose |
 |---|---|
 | `IPAddressFunction` | Extracts client IP from CF-Connecting-IP, X-Forwarded-For, or RemoteIpAddress |
+| `CertificateFunction` | Loads X509 certificates from PEM files with BouncyCastle support for encrypted PKCS#1 keys |
 
 ### Common Functions
 
@@ -605,10 +607,21 @@ At install time, the `ResourceService` extracts the embedded ZIPs to the install
 
 The installer generates a `Kestrel` section in `appsettings.json` for HTTP/HTTPS binding. If HTTPS is enabled during install, the user selects a certificate format (PFX or PEM) and the generated config includes the appropriate HTTPS endpoint configuration. The installer validates that the certificate contains a private key before proceeding.
 
-- **PFX:** `"Certificate": { "Path": "...", "Password": "..." }`
-- **PEM:** `"Certificate": { "Path": "...", "KeyPath": "..." }`
+- **PFX:** Certificate config lives under `Kestrel:Endpoints:Https` — Kestrel loads it natively
+- **PEM:** Certificate config lives in a separate `PemCertificate` section (not under `Kestrel`) to prevent Kestrel from attempting to load the key itself. The API's `CertificateFunction` uses BouncyCastle's `PemReader` to load the private key at startup, supporting encrypted PKCS#1 keys which .NET's built-in APIs cannot handle. The loaded certificate is re-exported as PFX and re-imported so Windows' Schannel can access the private key for TLS.
 
-The API uses Kestrel's endpoint configuration to bind to the specified addresses and ports.
+PEM `appsettings.json` structure:
+```json
+{
+    "PemCertificate": {
+        "HttpUrl": "http://0.0.0.0:5000",
+        "HttpsUrl": "https://0.0.0.0:5001",
+        "CertificatePath": "path/to/cert.pem",
+        "KeyPath": "path/to/key.pem",
+        "Password": "optional-key-password"
+    }
+}
+```
 
 ### Registry Integration
 

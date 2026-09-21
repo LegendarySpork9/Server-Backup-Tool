@@ -126,19 +126,18 @@ namespace ServerBackupTool.Installer.Modes
 
                         ExtractUpdatedBinaries(installed);
 
-                        (bool dbSuccess, Exception? dbEx) = await _DatabaseInitialiser.ValidateDatabase(Path.Combine(
+                        string dbPath = Functions.ConfigurationFunction.GetDatabasePath(
                             installed.InstallPath,
-                            InstallerValues.Defaults.DatabaseFileName));
+                            _FileSystem,
+                            _Logger);
+
+                        (bool dbSuccess, Exception? dbEx) = await _DatabaseInitialiser.ValidateDatabase(dbPath);
 
                         if (!dbSuccess)
                         {
                             _Logger.LogMessage(
                                 StandardValues.LoggerValues.Warning,
                                 "Database validation failed, running migration.");
-
-                            string dbPath = Path.Combine(
-                                installed.InstallPath,
-                                InstallerValues.Defaults.DatabaseFileName);
 
                             (bool initSuccess, Exception? initEx) = await _DatabaseInitialiser.InitialiseDatabase(dbPath);
 
@@ -166,6 +165,8 @@ namespace ServerBackupTool.Installer.Modes
                         {
                             throw regEx ?? new InvalidOperationException("Registry update failed.");
                         }
+
+                        _FileService.DeleteDirectory(backupPath);
 
                         _Console.MarkupLine($"[green]Update completed successfully.[/]");
                         _Console.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/] -> [green]{Markup.Escape(newToolVersion)}[/]");
