@@ -603,6 +603,12 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                         $"{timer.TimerName} should be started.");
                 }
             }
+
+            foreach (TimerModel timer in timerList)
+            {
+                timer.TimerData.Stop();
+                timer.TimerData.Dispose();
+            }
         }
 
         /// <summary>
@@ -682,6 +688,12 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             Assert.IsTrue(
                 heartbeatTimer.TimerData.Enabled,
                 "Heartbeat timer should be running after restart.");
+
+            foreach (TimerModel timer in timerList)
+            {
+                timer.TimerData.Stop();
+                timer.TimerData.Dispose();
+            }
         }
 
         /// <summary>
@@ -756,6 +768,12 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             Assert.IsTrue(
                 waitTimer.TimerData.Enabled,
                 "Wait timer should be started after WaitForClose.");
+
+            foreach (TimerModel timer in timerList)
+            {
+                timer.TimerData.Stop();
+                timer.TimerData.Dispose();
+            }
         }
 
         /// <summary>
