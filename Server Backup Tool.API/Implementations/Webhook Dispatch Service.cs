@@ -33,6 +33,7 @@ namespace ServerBackupTool.API.Implementations
         /// </summary>
         public async Task<(bool, Exception?)> Send(
             string url,
+            string webhookId,
             WebhookPayloadModel payload)
         {
             _Logger.LogMessage(
@@ -76,6 +77,9 @@ namespace ServerBackupTool.API.Implementations
                             request.Headers.Add(
                                 "X-Webhook-Secret",
                                 signature);
+                            request.Headers.Add(
+                                "X-Webhook-Id",
+                                webhookId);
 
                             using (HttpResponseMessage response = await _HttpClient.SendAsync(request))
                             {

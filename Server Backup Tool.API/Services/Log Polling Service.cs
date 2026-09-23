@@ -219,6 +219,7 @@ order by Id asc";
 
                     (bool sent, Exception? sendEx) = await dispatchService.Send(
                         registration.URL,
+                        registration.Id,
                         payload);
 
                     if (sent)

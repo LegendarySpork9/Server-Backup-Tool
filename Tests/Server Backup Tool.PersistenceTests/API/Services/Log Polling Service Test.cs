@@ -232,7 +232,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await service.StopAsync(CancellationToken.None);
 
             _MockDispatchService.Verify(
-                d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
+                d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
                 Times.Never());
         }
 
@@ -262,7 +262,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await service.StopAsync(CancellationToken.None);
 
             _MockDispatchService.Verify(
-                d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
+                d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
                 Times.Never());
         }
 
@@ -279,7 +279,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await InsertLog("Server started");
 
             _MockDispatchService
-                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
+                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
                 .ReturnsAsync((true, (Exception?)null));
 
             LogPollingService service = new(
@@ -297,7 +297,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await service.StopAsync(CancellationToken.None);
 
             _MockDispatchService.Verify(
-                d => d.Send("https://example.com/hook", It.Is<WebhookPayloadModel>(p =>
+                d => d.Send("https://example.com/hook", It.IsAny<string>(), It.Is<WebhookPayloadModel>(p =>
                     p.ServerName == "TestServer" &&
                     p.Logs.Count == 1 &&
                     p.Logs[0].Message == "Server started")),
@@ -323,7 +323,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await InsertLog("Server started");
 
             _MockDispatchService
-                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
+                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
                 .ReturnsAsync((false, new HttpRequestException("Connection refused")));
 
             LogPollingService service = new(
@@ -364,7 +364,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                 afterId: 2);
 
             _MockDispatchService
-                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
+                .Setup(d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()))
                 .ReturnsAsync((true, (Exception?)null));
 
             LogPollingService service = new(
@@ -382,7 +382,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await service.StopAsync(CancellationToken.None);
 
             _MockDispatchService.Verify(
-                d => d.Send("https://example.com/hook", It.Is<WebhookPayloadModel>(p =>
+                d => d.Send("https://example.com/hook", It.IsAny<string>(), It.Is<WebhookPayloadModel>(p =>
                     p.Logs.Count == 1 &&
                     p.Logs[0].Message == "New log")),
                 Times.AtLeastOnce());
@@ -426,7 +426,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             await service.StopAsync(CancellationToken.None);
 
             _MockDispatchService.Verify(
-                d => d.Send(It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
+                d => d.Send(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<WebhookPayloadModel>()),
                 Times.Never());
         }
     }

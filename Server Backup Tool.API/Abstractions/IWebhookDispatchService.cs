@@ -8,6 +8,6 @@ namespace ServerBackupTool.API.Abstractions
     /// </summary>
     public interface IWebhookDispatchService
     {
-        Task<(bool, Exception?)> Send(string url, WebhookPayloadModel payload);
+        Task<(bool, Exception?)> Send(string url, string webhookId, WebhookPayloadModel payload);
     }
 }

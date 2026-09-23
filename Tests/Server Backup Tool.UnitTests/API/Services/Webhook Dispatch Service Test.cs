@@ -145,6 +145,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsTrue(success);
@@ -175,6 +176,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -202,6 +204,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsTrue(success);
@@ -233,6 +236,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -261,6 +265,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -290,6 +295,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.AreEqual(
@@ -345,6 +351,7 @@ namespace ServerBackupTool.UnitTests.API.Services
 
             await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 payload);
 
             Assert.AreEqual(
