@@ -371,7 +371,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                 webhook.GetProperty("TimeoutSeconds")
                     .GetInt32());
             Assert.AreEqual(
-                3,
+                4,
                 webhook.GetProperty("MaxRetries")
                     .GetInt32());
         }
@@ -578,7 +578,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
         public void MigrateApiAppSettings_AddsMissingSection()
         {
             string existing = """{"Authentication":{"ClientId":"abc","ClientSecret":"def"}}""";
-            string reference = """{"Authentication":{"ClientId":"","ClientSecret":""},"Webhook":{"Secret":"","TimeoutSeconds":10,"MaxRetries":3}}""";
+            string reference = """{"Authentication":{"ClientId":"","ClientSecret":""},"Webhook":{"Secret":"","TimeoutSeconds":10,"MaxRetries":4}}""";
 
             (bool migrated, List<string> additions) = _ConfigWriter.MigrateApiAppSettings(
                 existing,

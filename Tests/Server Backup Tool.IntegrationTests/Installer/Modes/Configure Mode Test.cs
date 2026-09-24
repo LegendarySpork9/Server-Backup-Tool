@@ -53,7 +53,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Modes
   ""Webhook"": {
     ""Secret"": ""webhooksecret"",
     ""TimeoutSeconds"": 10,
-    ""MaxRetries"": 3
+    ""MaxRetries"": 4
   },
   ""ConnectionStrings"": {},
   ""Kestrel"": {}

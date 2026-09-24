@@ -81,7 +81,7 @@ CREATE INDEX IF NOT EXISTS IX_Webhooks_Server ON Webhooks (ServerName);";
             public const int ApiHttpPort = 5000;
             public const int ApiHttpsPort = 5001;
             public const int WebhookTimeoutSeconds = 10;
-            public const int WebhookMaxRetries = 3;
+            public const int WebhookMaxRetries = 4;
             public static readonly string ProgramDataPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
                 "Hunter Industries",

@@ -492,7 +492,7 @@ Both the console app and the API use **SQLite** for structured data persistence 
   "Webhook": {
     "Secret": "<HMAC-SHA256 secret key>",
     "TimeoutSeconds": 10,
-    "MaxRetries": 3
+    "MaxRetries": 4
   }
 }
 ```

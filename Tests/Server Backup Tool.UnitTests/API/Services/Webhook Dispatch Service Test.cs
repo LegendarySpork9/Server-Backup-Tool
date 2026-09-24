@@ -94,6 +94,7 @@ namespace ServerBackupTool.UnitTests.API.Services
             WebhookSettingsModel settings)
         {
             HttpClient httpClient = new(handler);
+            httpClient.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
 
             return new WebhookDispatchService(
                 _MockLogger.Object,

@@ -207,6 +207,7 @@ Each instance of the tool is identified by the name of the server it manages. Th
                 HttpClient httpClient = sp.GetRequiredService<IHttpClientFactory>()
                     .CreateClient();
                 WebhookSettingsModel settings = sp.GetRequiredService<WebhookSettingsModel>();
+                httpClient.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
                 System.Text.Json.JsonSerializerOptions jsonOptions = sp.GetRequiredService<Microsoft.Extensions.Options.IOptions<Microsoft.AspNetCore.Mvc.JsonOptions>>().Value.JsonSerializerOptions;
 
                 return new WebhookDispatchService(

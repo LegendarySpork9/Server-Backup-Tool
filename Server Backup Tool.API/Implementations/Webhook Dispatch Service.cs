@@ -57,7 +57,7 @@ namespace ServerBackupTool.API.Implementations
                     {
                         if (attempt > 0)
                         {
-                            int delayMs = (int)(2000 * Math.Pow(2, attempt - 1));
+                            int delayMs = (int)(10000 * Math.Pow(2, attempt - 1));
 
                             _Logger.LogMessage(
                                 StandardValues.LoggerValues.Debug,
