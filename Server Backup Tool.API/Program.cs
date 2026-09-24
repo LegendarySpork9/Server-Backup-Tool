@@ -109,7 +109,7 @@ Each instance of the tool is identified by the name of the server it manages. Th
                     [
                         new OpenApiServer
                         {
-                            Url = "https://api.gamehost.legendaryspork9.co.uk"
+                            Url = "https://api-servername.legendaryspork9.co.uk"
                         }
                     ];
 
