@@ -27,6 +27,7 @@ namespace ServerBackupTool.Services
         private readonly SBTSection ServerBackupSection;
         private readonly ServerModel Server;
         internal readonly TimeSpan ExitDelay;
+        internal readonly Action ExitAction;
 
         public static ManualResetEvent WaitForServerClose = new(false);
 
@@ -93,6 +94,7 @@ namespace ServerBackupTool.Services
                 _LogService,
                 ServerBackupSection);
             ExitDelay = TimeSpan.FromSeconds(30);
+            ExitAction = () => Environment.Exit(0);
         }
 
         // Sets the class's global variables via dependency injection.
@@ -107,7 +109,8 @@ namespace ServerBackupTool.Services
             IJobService jobService,
             SBTSection serverBackupSection,
             ServerModel server,
-            TimeSpan? exitDelay = null)
+            TimeSpan? exitDelay = null,
+            Action? exitAction = null)
         {
             _Logger = logger;
             _Clock = clock;
@@ -121,6 +124,7 @@ namespace ServerBackupTool.Services
             ServerBackupSection = serverBackupSection;
             Server = server;
             ExitDelay = exitDelay ?? TimeSpan.FromSeconds(30);
+            ExitAction = exitAction ?? (() => Environment.Exit(0));
         }
 
         /// <summary>
@@ -339,6 +343,9 @@ namespace ServerBackupTool.Services
 
                         Thread.Sleep(ExitDelay);
                     }
+
+                    _TimerService.StopQueuedCommandCheckTimer();
+                    ExitAction();
                 }
 
                 else if (command.Command.ToLower() == "start server")

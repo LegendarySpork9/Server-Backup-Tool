@@ -44,7 +44,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 mockTimerService.Object,
                 mockJobService.Object,
                 serverBackupSection,
-                server);
+                server,
+                exitAction: () => { });
 
             CommandModel command = new()
             {
@@ -59,6 +60,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Exit Command Triggered")),
                 It.IsAny<bool>()),
+                Times.Once);
+            mockTimerService.Verify(t => t.StopQueuedCommandCheckTimer(),
                 Times.Once);
         }
 
@@ -590,7 +593,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 mockJobService.Object,
                 serverBackupSection,
                 server,
-                TimeSpan.Zero);
+                TimeSpan.Zero,
+                () => { });
 
             CommandModel command = new()
             {
@@ -609,6 +613,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Stop Command Sent to Server")),
                 It.IsAny<bool>()),
+                Times.Once);
+            mockTimerService.Verify(t => t.StopQueuedCommandCheckTimer(),
                 Times.Once);
         }
 

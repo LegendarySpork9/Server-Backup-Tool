@@ -11,6 +11,7 @@ namespace ServerBackupTool.Abstractions
         string SetTimers(TimerCollection timerDetails, TimeSpan[] timerDurations);
         void StartTimers();
         void StartQueuedCommandCheckTimer();
+        void StopQueuedCommandCheckTimer();
         void RestartHeartbeat();
         void WaitForClose();
     }
