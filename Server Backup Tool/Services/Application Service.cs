@@ -344,6 +344,7 @@ namespace ServerBackupTool.Services
                         Thread.Sleep(ExitDelay);
                     }
 
+                    await _CommandService.DeleteCommand(command.Id);
                     _TimerService.StopQueuedCommandCheckTimer();
                     ExitAction();
                 }

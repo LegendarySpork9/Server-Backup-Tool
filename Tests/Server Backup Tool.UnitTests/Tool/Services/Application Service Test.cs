@@ -61,6 +61,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 It.Is<string>(s => s.Contains("Exit Command Triggered")),
                 It.IsAny<bool>()),
                 Times.Once);
+            mockCommandService.Verify(c => c.DeleteCommand(1),
+                Times.Once);
             mockTimerService.Verify(t => t.StopQueuedCommandCheckTimer(),
                 Times.Once);
         }
@@ -613,6 +615,8 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 It.IsAny<string>(),
                 It.Is<string>(s => s.Contains("Stop Command Sent to Server")),
                 It.IsAny<bool>()),
+                Times.Once);
+            mockCommandService.Verify(c => c.DeleteCommand(6),
                 Times.Once);
             mockTimerService.Verify(t => t.StopQueuedCommandCheckTimer(),
                 Times.Once);

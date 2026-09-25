@@ -51,16 +51,31 @@ namespace ServerBackupTool.API.Functions
                 rsaParameters = (RsaPrivateCrtKeyParameters)keyObject;
             }
 
+            byte[] modulus = rsaParameters.Modulus.ToByteArrayUnsigned();
+            int halfLength = (modulus.Length + 1) / 2;
+
             RSA rsa = RSA.Create(new RSAParameters
             {
-                Modulus = rsaParameters.Modulus.ToByteArrayUnsigned(),
+                Modulus = modulus,
                 Exponent = rsaParameters.PublicExponent.ToByteArrayUnsigned(),
-                D = rsaParameters.Exponent.ToByteArrayUnsigned(),
-                P = rsaParameters.P.ToByteArrayUnsigned(),
-                Q = rsaParameters.Q.ToByteArrayUnsigned(),
-                DP = rsaParameters.DP.ToByteArrayUnsigned(),
-                DQ = rsaParameters.DQ.ToByteArrayUnsigned(),
-                InverseQ = rsaParameters.QInv.ToByteArrayUnsigned()
+                D = PadLeft(
+                    rsaParameters.Exponent.ToByteArrayUnsigned(),
+                    modulus.Length),
+                P = PadLeft(
+                    rsaParameters.P.ToByteArrayUnsigned(),
+                    halfLength),
+                Q = PadLeft(
+                    rsaParameters.Q.ToByteArrayUnsigned(),
+                    halfLength),
+                DP = PadLeft(
+                    rsaParameters.DP.ToByteArrayUnsigned(),
+                    halfLength),
+                DQ = PadLeft(
+                    rsaParameters.DQ.ToByteArrayUnsigned(),
+                    halfLength),
+                InverseQ = PadLeft(
+                    rsaParameters.QInv.ToByteArrayUnsigned(),
+                    halfLength)
             });
 
             X509Certificate2 certWithKey = cert.CopyWithPrivateKey(rsa);
@@ -72,6 +87,25 @@ namespace ServerBackupTool.API.Functions
             return X509CertificateLoader.LoadPkcs12(
                 pfxBytes,
                 "temp");
+        }
+
+        private static byte[] PadLeft(byte[] data, int length)
+        {
+            if (data.Length >= length)
+            {
+                return data;
+            }
+
+            byte[] padded = new byte[length];
+
+            Array.Copy(
+                data,
+                0,
+                padded,
+                length - data.Length,
+                data.Length);
+
+            return padded;
         }
     }
 }
