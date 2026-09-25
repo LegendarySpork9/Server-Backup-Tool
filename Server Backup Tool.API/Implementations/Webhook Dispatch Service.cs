@@ -6,9 +6,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
-namespace ServerBackupTool.API.Services
+namespace ServerBackupTool.API.Implementations
 {
-    public class WebhookDispatchService
+    public class WebhookDispatchService : IWebhookDispatchService
     {
         private readonly ILoggerService _Logger;
         private readonly HttpClient _HttpClient;
@@ -33,6 +33,7 @@ namespace ServerBackupTool.API.Services
         /// </summary>
         public async Task<(bool, Exception?)> Send(
             string url,
+            string webhookId,
             WebhookPayloadModel payload)
         {
             _Logger.LogMessage(
@@ -56,7 +57,7 @@ namespace ServerBackupTool.API.Services
                     {
                         if (attempt > 0)
                         {
-                            int delayMs = (int)(2000 * Math.Pow(2, attempt - 1));
+                            int delayMs = (int)(10000 * Math.Pow(2, attempt - 1));
 
                             _Logger.LogMessage(
                                 StandardValues.LoggerValues.Debug,
@@ -76,6 +77,9 @@ namespace ServerBackupTool.API.Services
                             request.Headers.Add(
                                 "X-Webhook-Secret",
                                 signature);
+                            request.Headers.Add(
+                                "X-Webhook-Id",
+                                webhookId);
 
                             using (HttpResponseMessage response = await _HttpClient.SendAsync(request))
                             {

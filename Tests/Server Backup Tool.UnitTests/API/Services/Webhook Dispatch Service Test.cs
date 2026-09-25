@@ -1,7 +1,7 @@
 // Copyright © - Unpublished - Toby Hunter
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Models;
-using ServerBackupTool.API.Services;
+using ServerBackupTool.API.Implementations;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
@@ -87,6 +87,23 @@ namespace ServerBackupTool.UnitTests.API.Services
         }
 
         /// <summary>
+        /// Creates a WebhookDispatchService wired to the given handler.
+        /// </summary>
+        private WebhookDispatchService CreateService(
+            HttpMessageHandler handler,
+            WebhookSettingsModel settings)
+        {
+            HttpClient httpClient = new(handler);
+            httpClient.Timeout = TimeSpan.FromSeconds(settings.TimeoutSeconds);
+
+            return new WebhookDispatchService(
+                _MockLogger.Object,
+                httpClient,
+                settings,
+                _JsonOptions);
+        }
+
+        /// <summary>
         /// Creates a test webhook payload.
         /// </summary>
         private static WebhookPayloadModel CreatePayload()
@@ -117,22 +134,19 @@ namespace ServerBackupTool.UnitTests.API.Services
             TestHandler handler = new();
             handler.EnqueueResponse(HttpStatusCode.OK);
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 0
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsTrue(success);
@@ -151,22 +165,19 @@ namespace ServerBackupTool.UnitTests.API.Services
             TestHandler handler = new();
             handler.EnqueueResponse(HttpStatusCode.InternalServerError);
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 0
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -182,22 +193,19 @@ namespace ServerBackupTool.UnitTests.API.Services
             handler.EnqueueResponse(HttpStatusCode.InternalServerError);
             handler.EnqueueResponse(HttpStatusCode.OK);
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 1
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsTrue(success);
@@ -217,22 +225,19 @@ namespace ServerBackupTool.UnitTests.API.Services
             handler.EnqueueResponse(HttpStatusCode.InternalServerError);
             handler.EnqueueResponse(HttpStatusCode.InternalServerError);
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 1
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -249,22 +254,19 @@ namespace ServerBackupTool.UnitTests.API.Services
         {
             ThrowingHandler handler = new();
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 0
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             (bool success, Exception? ex) = await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.IsFalse(success);
@@ -280,8 +282,6 @@ namespace ServerBackupTool.UnitTests.API.Services
             TestHandler handler = new();
             handler.EnqueueResponse(HttpStatusCode.OK);
 
-            HttpClient httpClient = new(handler);
-
             string secret = "test-secret-key";
 
             WebhookSettingsModel settings = new()
@@ -290,14 +290,13 @@ namespace ServerBackupTool.UnitTests.API.Services
                 MaxRetries = 0
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 CreatePayload());
 
             Assert.AreEqual(
@@ -339,24 +338,21 @@ namespace ServerBackupTool.UnitTests.API.Services
             TestHandler handler = new();
             handler.EnqueueResponse(HttpStatusCode.OK);
 
-            HttpClient httpClient = new(handler);
-
             WebhookSettingsModel settings = new()
             {
                 Secret = "test-secret",
                 MaxRetries = 0
             };
 
-            WebhookDispatchService service = new(
-                _MockLogger.Object,
-                httpClient,
-                settings,
-                _JsonOptions);
+            WebhookDispatchService service = CreateService(
+                handler,
+                settings);
 
             WebhookPayloadModel payload = CreatePayload();
 
             await service.Send(
                 "https://example.com/webhook",
+                "test-webhook-id",
                 payload);
 
             Assert.AreEqual(

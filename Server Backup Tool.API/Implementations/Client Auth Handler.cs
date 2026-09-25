@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Models.Responses;
+using ServerBackupTool.Common.Functions;
 using ServerBackupTool.Common.Values;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -100,8 +101,8 @@ namespace ServerBackupTool.API.Implementations
             string clientId = decodedCredentials[..separatorIndex];
             string clientSecret = decodedCredentials[(separatorIndex + 1)..];
 
-            string clientIdHash = HashValue(clientId);
-            string clientSecretHash = HashValue(clientSecret);
+            string clientIdHash = HashFunction.HashValue(clientId);
+            string clientSecretHash = HashFunction.HashValue(clientSecret);
 
             byte[] expectedIdBytes = Encoding.UTF8.GetBytes(AuthModel.ClientId);
             byte[] expectedSecretBytes = Encoding.UTF8.GetBytes(AuthModel.ClientSecret);
@@ -159,21 +160,5 @@ namespace ServerBackupTool.API.Implementations
             }));
         }
 
-        /// <summary>
-        /// Takes the given value and hashes it.
-        /// </summary>
-        private static string HashValue(string value)
-        {
-            byte[] hashBytes = SHA512.HashData(Encoding.UTF8.GetBytes(value));
-
-            StringBuilder hex = new(hashBytes.Length * 2);
-
-            foreach (byte b in hashBytes)
-            {
-                hex.Append(b.ToString("x2"));
-            }
-
-            return hex.ToString();
-        }
     }
 }

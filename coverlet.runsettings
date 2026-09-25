@@ -6,10 +6,19 @@
         <Configuration>
           <Format>cobertura</Format>
           <Exclude>
-            [Server Backup Tool]ServerBackupTool.Program,
-            [Server Backup Tool.API]ServerBackupTool.API.Program,
+            [ServerBackupTool]ServerBackupTool.Program,
+            [ServerBackupTool.API]ServerBackupTool.API.Program,
+            [ServerBackupToolInstaller]ServerBackupTool.Installer.Program,
+            [ServerBackupTool]ServerBackupTool.Implementations.LoggerServiceWrapper,
+            [ServerBackupTool]ServerBackupTool.Services.LoggerService,
+            [ServerBackupTool]ServerBackupTool.Functions.ConsoleFunction,
+            [ServerBackupTool]ServerBackupTool.Implementations.ConsoleCommandReader,
+            [ServerBackupTool.API]ServerBackupTool.API.Implementations.LoggerServiceWrapper,
+            [ServerBackupTool.API]ServerBackupTool.API.Services.LoggerService,
+            [ServerBackupToolInstaller]ServerBackupTool.Installer.Implementations.LoggerServiceWrapper,
             [*]*.Models.*,
             [*]*.Entities.*,
+            [*]*.Values.*,
             [Server Backup Tool.IntegrationTests]*.Helpers.*
           </Exclude>
           <ExcludeByAttribute>

@@ -7,15 +7,6 @@ namespace ServerBackupTool.API.Implementations
 {
     public class ExtendedFileSystemWrapper : FileSystem, IExtendedFileSystem
     {
-        // Directory Operations
-
-        /// <summary>
-        /// Deletes the given directory.
-        /// </summary>
-        public void DeleteDirectory(string path) => Directory.Delete(
-            path,
-            true);
-
         // File Operations
 
         /// <summary>

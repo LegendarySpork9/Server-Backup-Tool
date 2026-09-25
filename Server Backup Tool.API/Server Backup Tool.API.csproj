@@ -5,9 +5,26 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>ServerBackupTool.API</RootNamespace>
+    <AssemblyName>ServerBackupTool.API</AssemblyName>
+    <ApplicationIcon>wwwroot\Logo.ico</ApplicationIcon>
+    <Title>Server Backup Tool API</Title>
+    <Authors>Hunter Industries</Authors>
+    <Description>An API allowing for remote interaction with the Server Backup Tool.</Description>
+    <Copyright>Copyright ©  2026</Copyright>
+    <PackageIcon>Logo.ico</PackageIcon>
+    <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\Logo.ico">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BouncyCastle.Cryptography" Version="2.5.1" />
     <PackageReference Include="log4net" Version="3.3.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     <PackageReference Include="Microsoft.OpenApi" Version="2.11.0" />

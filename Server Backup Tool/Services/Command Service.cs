@@ -11,7 +11,7 @@ using ServerBackupTool.Models;
 
 namespace ServerBackupTool.Services
 {
-    public class CommandService
+    public class CommandService : ICommandService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedDatabase _Database;
