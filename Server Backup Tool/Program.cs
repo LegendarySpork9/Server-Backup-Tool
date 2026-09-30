@@ -40,7 +40,9 @@ namespace ServerBackupTool
                 ServerBackupSection.Notifications,
                 "Open");
 
-            ApplicationService _applicationService = new(ServerBackupSection);
+            ApplicationService _applicationService = new(
+                ServerBackupSection,
+                new ConsoleCommandReader());
 
             await _applicationService.RunApplication();
         }

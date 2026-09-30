@@ -6,9 +6,6 @@ namespace ServerBackupTool.API.Abstractions
     /// </summary>
     public interface IExtendedFileSystem : Common.Abstractions.IFileSystem
     {
-        // Directory Operations
-        void DeleteDirectory(string path);
-
         // File Operations
 
         long GetFileSize(string file);

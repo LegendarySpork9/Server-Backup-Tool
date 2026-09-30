@@ -4,10 +4,11 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>ServerBackupTool</RootNamespace>
+    <AssemblyName>ServerBackupTool</AssemblyName>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Title>Server Backup Tool</Title>
-    <Version>2.0.2</Version>
+    <Version>3.0.0</Version>
     <Authors>Hunter Industries</Authors>
     <Description>Controls the specified server, allowing for scheduled backups, email notifications and logging.</Description>
     <Copyright>Copyright ©  2025</Copyright>
@@ -16,6 +17,11 @@
     <RepositoryUrl>https://github.com/LegendarySpork9/Server-Backup-Tool</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="Server Backup Tool.IntegrationTests" />
+    <InternalsVisibleTo Include="Server Backup Tool.UnitTests" />
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="Content\Logo.ico" />

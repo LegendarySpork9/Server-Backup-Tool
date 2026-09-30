@@ -1,0 +1,207 @@
+﻿// Copyright © - 31/10/2024 - Toby Hunter
+using ServerBackupTool.Abstractions;
+using ServerBackupTool.Common.Abstractions;
+using ServerBackupTool.Common.Values;
+using ServerBackupTool.Converters;
+using ServerBackupTool.Models.Configuration;
+using ServerBackupTool.Services;
+
+namespace ServerBackupTool.Implementations
+{
+    public class JobService : IJobService
+    {
+        private readonly ILoggerService _Logger;
+        private readonly IExtendedFileSystem _FileSystem;
+        private readonly IClock _Clock;
+        private readonly LogService _LogService;
+        private readonly string ServerPath;
+        private readonly string Game;
+
+        // Sets the class's global variables.
+        public JobService(
+            ILoggerService _logger,
+            IExtendedFileSystem _fileSystem,
+            IClock _clock,
+            LogService _logService,
+            SBTSection serverBackupSection)
+        {
+            _Logger = _logger;
+            _FileSystem = _fileSystem;
+            _Clock = _clock;
+            _LogService = _logService;
+            ServerPath = serverBackupSection.ServerDetails.Location;
+            Game = serverBackupSection.ServerDetails.Game;
+        }
+
+        /// <summary>
+        /// Executes the given method.
+        /// </summary>
+        public async Task<string> RunJobs(string job)
+        {
+            string result = "Complete";
+
+            switch (job)
+            {
+                case "backup":
+                    result = BackupServer();
+                    break;
+                case "archive":
+                    result = await ArchiveLogs();
+                    break;
+                case "clean":
+                    result = RemoveOldFiles();
+                    break;
+                default:
+                    break;
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates the directory if it does not exist.
+        /// </summary>
+        private void CheckDirectory(string path)
+        {
+            if (!_FileSystem.DirectoryExists(path))
+            {
+                _FileSystem.CreateDirectory(path);
+            }
+        }
+
+        /// <summary>
+        /// Creates a ZIP file of the world data.
+        /// </summary>
+        private string BackupServer()
+        {
+            JobConverter _jobConverter = new(_Clock);
+
+            string result = "Complete";
+            (string source, string destination) = _jobConverter.GetBackPaths(
+                Game,
+                ServerPath);
+
+            CheckDirectory(@$"{ServerPath}\Backups");
+
+            try
+            {
+                _FileSystem.CreateZIPFromDirectory(
+                    source,
+                    destination);
+            }
+
+            catch (Exception ex)
+            {
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to create a backup of the game data.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
+                result = "Failed";
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Creates a ZIP of the log files.
+        /// </summary>
+        private async Task<string> ArchiveLogs()
+        {
+            string result = "Complete";
+            string[] files = _FileSystem.GetFiles(@".\Logs")
+                .ToArray();
+
+            CheckDirectory(@".\Archived Logs");
+
+            try
+            {
+                string zipPath = @$".\Archived Logs\Server {_Clock.UtcNow:dd-MM-yyyy}.zip";
+
+                _FileSystem.CreateZIPFile(zipPath);
+
+                foreach (string logFile in files)
+                {
+                    if (!logFile.Contains("Backup.log"))
+                    {
+                        _FileSystem.CreateZIPEntryFromFile(
+                            zipPath,
+                            logFile,
+                            Path.GetFileName(logFile));
+                        _FileSystem.DeleteFile(logFile);
+                    }
+                }
+
+                (bool success, Exception? lex) = await _LogService.ClearLogs("Server");
+
+                if (!success)
+                {
+                    result = "Failed";
+                }
+            }
+
+            catch (Exception ex)
+            {
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to archive the logs into a ZIP file.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
+                result = "Failed";
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Deletes logs older than a given time.
+        /// </summary>
+        private string RemoveOldFiles()
+        {
+            string result = "Complete";
+
+            CheckDirectory(@".\Archived Logs");
+
+            string[] archivedLogs = [.. _FileSystem.GetFiles(@".\Archived Logs")];
+
+            try
+            {
+                foreach (string archivedLog in archivedLogs)
+                {
+                    if (_FileSystem.GetCreationTime(archivedLog) < _Clock.UtcNow.AddDays(-10))
+                    {
+                        _FileSystem.DeleteFile(archivedLog);
+                    }
+                }
+
+                string[] backups = [.. _FileSystem.GetFiles(@$"{ServerPath}\Backups")];
+
+                foreach (string backup in backups)
+                {
+                    if (_FileSystem.GetCreationTime(backup) < _Clock.UtcNow.AddDays(-10))
+                    {
+                        _FileSystem.DeleteFile(backup);
+                    }
+                }
+            }
+
+            catch (Exception ex)
+            {
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "Failed to delete logs and/or data backups over 10 days old.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    ex.ToString());
+
+                result = "Failed";
+            }
+
+            return result;
+        }
+    }
+}
