@@ -12,5 +12,6 @@ namespace ServerBackupTool.Abstractions
         Task<(CommandModel?, Exception?)> GetCommand();
         Task<(bool, Exception?)> LogCommand(CommandRequestModel command);
         Task<(bool, Exception?)> DeleteCommand(int id);
+        Task<(bool, Exception?)> ClearCommands();
     }
 }

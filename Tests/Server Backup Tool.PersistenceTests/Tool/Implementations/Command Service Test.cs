@@ -7,9 +7,8 @@ using ServerBackupTool.Common.Implementations;
 using ServerBackupTool.Common.Models;
 using ServerBackupTool.Common.Models.Requests;
 using ServerBackupTool.Implementations;
-using ServerBackupTool.Services;
 
-namespace ServerBackupTool.PersistenceTests.Tool.Services
+namespace ServerBackupTool.PersistenceTests.Tool.Implementations
 {
     [TestClass]
     public class CommandServiceTest
@@ -268,6 +267,39 @@ namespace ServerBackupTool.PersistenceTests.Tool.Services
             (bool success, Exception? ex) = await _CommandService.DeleteCommand(999);
 
             Assert.IsFalse(success);
+            Assert.IsNull(ex);
+        }
+
+        /// <summary>
+        /// Checks that ClearCommands removes all commands from the queue.
+        /// </summary>
+        [TestMethod]
+        public async Task ClearCommands_RemovesAllCommands()
+        {
+            await SeedCommand(command: "first");
+            await SeedCommand(command: "second");
+            await SeedCommand(command: "third");
+
+            (bool success, Exception? ex) = await _CommandService.ClearCommands();
+
+            Assert.IsTrue(success);
+            Assert.IsNull(ex);
+
+            (Models.CommandModel? command, Exception? getEx) = await _CommandService.GetCommand();
+
+            Assert.IsNull(command);
+            Assert.IsNull(getEx);
+        }
+
+        /// <summary>
+        /// Checks that ClearCommands succeeds when the queue is already empty.
+        /// </summary>
+        [TestMethod]
+        public async Task ClearCommands_SucceedsWhenEmpty()
+        {
+            (bool success, Exception? ex) = await _CommandService.ClearCommands();
+
+            Assert.IsTrue(success);
             Assert.IsNull(ex);
         }
     }

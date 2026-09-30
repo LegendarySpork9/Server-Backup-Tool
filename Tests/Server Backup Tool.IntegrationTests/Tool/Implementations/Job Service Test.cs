@@ -7,7 +7,7 @@ using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
 using ServerBackupTool.Services;
 
-namespace ServerBackupTool.IntegrationTests.Tool.Services
+namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
     public class JobServiceTest

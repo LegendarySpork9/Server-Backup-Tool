@@ -7,11 +7,11 @@ using ServerBackupTool.Common.Models;
 using ServerBackupTool.Common.Models.Requests;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
-using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
+using ServerBackupTool.Services;
 using ServerBackupTool.Models.Configuration;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class ApplicationService : IApplicationService
     {
@@ -134,6 +134,8 @@ namespace ServerBackupTool.Services
         {
             TimeConverter _timeConverter = new(_Clock);
 
+            await _CommandService.ClearCommands();
+
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
                 $"Current Time: {_Clock.UtcNow}");
@@ -188,7 +190,9 @@ namespace ServerBackupTool.Services
         /// <summary>
         /// Executes the methods to take a backup of the server and log data.
         /// </summary>
-        public async Task RunBackup(ITimerService _timerService, CancellationToken cancellationToken = default)
+        public async Task RunBackup(
+            ITimerService _timerService,
+            CancellationToken cancellationToken = default)
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Info,
@@ -271,8 +275,6 @@ namespace ServerBackupTool.Services
                         _Logger.LogToolMessage(
                             StandardValues.LoggerValues.Info,
                             "Start Server Queued");
-
-                        break;
                     }
 
                     else if (command.ToLower() == "reset heartbeat")

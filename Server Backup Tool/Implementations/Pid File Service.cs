@@ -2,7 +2,7 @@
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Values;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class PidFileService : IPidFileService
     {

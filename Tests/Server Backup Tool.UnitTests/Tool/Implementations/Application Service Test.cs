@@ -5,9 +5,9 @@ using ServerBackupTool.Common.Entities;
 using ServerBackupTool.Common.Models.Requests;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Services;
+using ServerBackupTool.Implementations;
 
-namespace ServerBackupTool.UnitTests.Tool.Services
+namespace ServerBackupTool.UnitTests.Tool.Implementations
 {
     [TestClass]
     public class ApplicationServiceTest
@@ -640,8 +640,21 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             mockClock.Setup(c => c.UtcNow)
                 .Returns(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
 
+            CancellationTokenSource cts = new();
+            bool firstCall = true;
+
             mockCommandReader.Setup(r => r.ReadCommand())
-                .Returns("start server");
+                .Returns(() =>
+                {
+                    if (firstCall)
+                    {
+                        firstCall = false;
+                        return "start server";
+                    }
+
+                    cts.Cancel();
+                    return null;
+                });
 
             mockCommandService.Setup(c => c.LogCommand(
                 It.IsAny<CommandRequestModel>()))
@@ -666,7 +679,6 @@ namespace ServerBackupTool.UnitTests.Tool.Services
                 Game = "Minecraft"
             };
 
-            CancellationTokenSource cts = new();
             ApplicationService applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
@@ -902,6 +914,73 @@ namespace ServerBackupTool.UnitTests.Tool.Services
             mockCommandService.Verify(c => c.LogCommand(
                 It.IsAny<CommandRequestModel>()),
                 Times.Never);
+        }
+
+        /// <summary>
+        /// Checks whether RunApplication clears stale commands on startup.
+        /// </summary>
+        [TestMethod]
+        public async Task RunApplication_ClearsCommandsOnStartup()
+        {
+            Mock<ILoggerService> mockLogger = new();
+            Mock<IClock> mockClock = new();
+            Mock<ICommandReader> mockCommandReader = new();
+            Mock<ICommandService> mockCommandService = new();
+            Mock<IPidFileService> mockPidFileService = new();
+            Mock<IServerService> mockServerService = new();
+            Mock<ITimerService> mockTimerService = new();
+            Mock<IJobService> mockJobService = new();
+
+            mockClock.Setup(c => c.UtcNow)
+                .Returns(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
+
+            CancellationTokenSource cts = new();
+
+            mockCommandReader.Setup(r => r.ReadCommand())
+                .Returns(() =>
+                {
+                    cts.Cancel();
+                    return null;
+                });
+
+            mockCommandService.Setup(c => c.ClearCommands())
+                .ReturnsAsync((true, (Exception?)null));
+
+            mockTimerService.Setup(t => t.SetTimers(
+                It.IsAny<TimerCollection>(),
+                It.IsAny<TimeSpan[]>()))
+                .Returns("Completed");
+
+            mockServerService.Setup(s => s.StartServer())
+                .ReturnsAsync("Completed");
+
+            SBTSection serverBackupSection = new()
+            {
+                TimerDetails = new() { BackupTime = "04:00:00" }
+            };
+
+            ServerModel server = new(new())
+            {
+                Name = "Test Server",
+                Game = "Minecraft"
+            };
+
+            ApplicationService applicationService = new(
+                mockLogger.Object,
+                mockClock.Object,
+                mockCommandReader.Object,
+                mockCommandService.Object,
+                mockPidFileService.Object,
+                mockServerService.Object,
+                mockTimerService.Object,
+                mockJobService.Object,
+                serverBackupSection,
+                server);
+
+            await applicationService.RunApplication(cts.Token);
+
+            mockCommandService.Verify(c => c.ClearCommands(),
+                Times.Once);
         }
     }
 }

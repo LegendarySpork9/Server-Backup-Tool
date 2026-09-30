@@ -2,12 +2,11 @@
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
-using ServerBackupTool.Implementations;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
 using System.Diagnostics;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class ServerService : IServerService
     {
@@ -36,7 +35,10 @@ namespace ServerBackupTool.Services
         {
             string result = "Completed";
 
+            Server.ResetProcess();
             Server.ServerProcess.OutputDataReceived += ServerResponseData;
+            Server.ServerProcess.EnableRaisingEvents = true;
+            Server.ServerProcess.Exited += OnProcessExited;
 
             try
             {
@@ -139,12 +141,47 @@ namespace ServerBackupTool.Services
         /// </summary>
         private async Task StopServer()
         {
-            await Server.ServerProcess.StandardInput.WriteLineAsync();
-            await Server.ServerProcess.StandardInput.WriteLineAsync();
-            Server.ServerProcess.CancelOutputRead();
+            if (!Server.ServerRunning)
+            {
+                return;
+            }
+
+            Server.ServerRunning = false;
+
+            if (!Server.ServerProcess.HasExited)
+            {
+                await Server.ServerProcess.StandardInput.WriteLineAsync();
+                await Server.ServerProcess.StandardInput.WriteLineAsync();
+                Server.ServerProcess.CancelOutputRead();
+            }
+
+            Server.ServerProcess.Exited -= OnProcessExited;
             Server.ServerProcess.Close();
             Server.ServerProcess.OutputDataReceived -= ServerResponseData;
+
+            _PidFileService.Delete(Server.Name);
+        }
+
+        /// <summary>
+        /// Handles the server process exiting unexpectedly.
+        /// </summary>
+        private void OnProcessExited(
+            object? sender,
+            EventArgs e)
+        {
+            if (!Server.ServerRunning)
+            {
+                return;
+            }
+
             Server.ServerRunning = false;
+
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Info,
+                "Server process exited unexpectedly, cleaning up");
+
+            Server.ServerProcess.OutputDataReceived -= ServerResponseData;
+            Server.ServerProcess.Exited -= OnProcessExited;
 
             _PidFileService.Delete(Server.Name);
         }

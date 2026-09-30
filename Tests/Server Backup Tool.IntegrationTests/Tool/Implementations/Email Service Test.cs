@@ -2,14 +2,13 @@
 using ServerBackupTool.Abstractions;
 using ServerBackupTool.Implementations;
 using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Services;
 using System.Net;
 using System.Net.Mail;
 using System.Reflection;
 
 using ExtendedFS = ServerBackupTool.Implementations.ExtendedFileSystemWrapper;
 
-namespace ServerBackupTool.IntegrationTests.Tool.Services
+namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
     public class EmailServiceTest

@@ -5,7 +5,7 @@ using ServerBackupTool.Models.Configuration;
 using System.Net;
 using System.Net.Mail;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class EmailService : IEmailService
     {

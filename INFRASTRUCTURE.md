@@ -37,14 +37,14 @@ Server Backup Tool is a self-hosted console application for managing game server
 ```
 Server-Backup-Tool/
 ├── Server Backup Tool/                     # Console application (game server management)
-│   ├── Abstractions/                       # ILoggerService, IExtendedDatabase, IEmailSender, IExtendedFileSystem
+│   ├── Abstractions/                       # IApplicationService, IServerService, ICommandService, etc.
 │   ├── Converters/                         # ServerConverter, JobConverter, TimeConverter
 │   ├── Functions/                          # ConsoleFunction
-│   ├── Implementations/                    # LoggerServiceWrapper, ExtendedDatabaseWrapper, SMTPEmailSender, ExtendedFileSystemWrapper
+│   ├── Implementations/                    # ApplicationService, ServerService, CommandService, LoggerServiceWrapper, etc.
 │   ├── Models/
 │   │   └── Configuration/                  # App.config section models
 │   ├── Properties/                         # Publish profiles
-│   ├── Services/                           # ApplicationService, TimerService, ServerService, CommandService, LogService, etc.
+│   ├── Services/                           # LoggerService, LogService
 │   └── Content/                            # Static assets (Logo.ico)
 ├── Server Backup Tool.API/                 # REST API (log access + command queue)
 │   ├── Abstractions/                       # ILoggerService, IExtendedDatabase, IExtendedFileSystem (API-specific)
@@ -81,7 +81,7 @@ Server-Backup-Tool/
 │   │   ├── Common/Functions/               # ParameterFunctionTest, HashFunctionTest
 │   │   └── Tool/
 │   │       ├── Converters/                 # JobConverterTest, ServerConverterTest, TimeConverterTest
-│   │       └── Services/                   # TimerServiceTest
+│   │       └── Implementations/             # ApplicationServiceTest, TimerServiceTest
 │   ├── Server Backup Tool.IntegrationTests/ # Integration tests (HTTP + file system)
 │   │   ├── API/
 │   │   │   ├── Controllers/                # GetLogsTest, PostCommandsTest, WebhooksTest, GetLogArchivesTest, GetArchivedLogsTest
@@ -91,7 +91,7 @@ Server-Backup-Tool/
 │   │   ├── Tool/
 │   │   │   ├── Helpers/                    # ConfigurationHelper, DirectoryHelper
 │   │   │   ├── Mocks/                      # Mock data (Configs/, Server/)
-│   │   │   └── Services/                   # JobServiceTest, EmailServiceTest, PidFileServiceTest, ServerServiceTest
+│   │   │   └── Implementations/             # JobServiceTest, EmailServiceTest, PidFileServiceTest, ServerServiceTest
 │   │   └── Installer/
 │   │       ├── Services/                   # ConfigWriterTest, FileServiceTest, VersionServiceTest, ResourceServiceTest, RegistryServiceTest, TaskSchedulerServiceTest
 │   │       ├── Steps/                      # ComponentSelectionStepTest, TimerConfigStepTest
@@ -101,8 +101,8 @@ Server-Backup-Tool/
 │       │   ├── Implementations/            # ExtendedDatabaseWrapperTest
 │       │   └── Services/                   # LogServiceTest, CommandServiceTest, WebhookRegistrationServiceTest
 │       ├── Tool/
-│       │   ├── Implementations/            # ExtendedDatabaseWrapperTest
-│       │   └── Services/                   # CommandServiceTest, LogServiceTest
+│       │   ├── Implementations/            # ExtendedDatabaseWrapperTest, CommandServiceTest
+│       │   └── Services/                   # LogServiceTest
 │       └── Installer/
 │           └── Services/                   # DatabaseInitialiserTest
 └── .github/workflows/                      # CI/CD pipeline definitions
@@ -129,9 +129,14 @@ External dependencies are wrapped behind interfaces to support testability. Serv
 | `IExtendedFileSystem` | `ExtendedFileSystemWrapper` | File system and ZIP archive operations |
 | `IEmailSender` | `SMTPEmailSender` | SMTP email delivery |
 | `ICommandReader` | `ConsoleCommandReader` | Console input abstraction for testability |
+| `IPingProvider` | `PingProvider` | ICMP ping for heartbeat monitoring |
+| `IApplicationService` | `ApplicationService` | Top-level orchestrator for server lifecycle, backup workflow, command processing, and user input |
+| `IServerService` | `ServerService` | Game server process management, PID file lifecycle via `Process.Exited` event safety net |
+| `ITimerService` | `TimerService` | Manages heartbeat, backup, wait, queued command check, and custom timers |
+| `ICommandService` | `CommandService` | Command queue operations (get, log, delete, clear) via SQLite |
 | `IEmailService` | `EmailService` | Email trigger matching and dispatch |
 | `IJobService` | `JobService` | Backup, archive, and cleanup job execution |
-| `IPingProvider` | `PingProvider` | ICMP ping for heartbeat monitoring |
+| `IPidFileService` | `PidFileService` | Process ID file management for server instance tracking |
 
 **Common (Server Backup Tool.Common):**
 
@@ -171,15 +176,8 @@ All Steps and Modes accept `IAnsiConsole` as the first constructor parameter for
 
 | Service | Responsibility |
 |---|---|
-| `ApplicationService` | Top-level orchestrator for server lifecycle, backup workflow, command processing, and user input |
-| `TimerService` | Manages heartbeat, backup, wait, queued command check, and custom timers |
-| `ServerService` | Game server process management and output monitoring |
-| `JobService` | Backup creation, log archival, and old file cleanup |
-| `EmailService` | Email construction, trigger matching, and SMTP delivery |
 | `LoggerService` | Internal log4net adapter with dual loggers (tool and server) and database persistence |
-| `CommandService` | Command queue operations (get, log, delete) via SQLite |
 | `LogService` | Log message persistence and clearing via SQLite |
-| `PidFileService` | Process ID file management for server instance tracking |
 
 ### API Services
 
@@ -311,9 +309,11 @@ ConfigureMode captures a snapshot of both the App.config and API settings before
 
 1. Calculate timer durations from configured trigger times
 2. Set and start all timers (heartbeat, backup, queued command check, custom)
-3. Launch game server process with redirected I/O
-4. Write PID file to `%PROGRAMDATA%`
-5. Enter user input loop — commands are queued to the database and processed asynchronously via the queued command check timer
+3. Clear any stale commands from the database
+4. Launch game server process with redirected I/O (creates a fresh `Process` instance via `ResetProcess`, disposing the previous one)
+5. Subscribe to `Process.Exited` event as a safety net for PID cleanup if the process exits without producing the expected final message
+6. Write PID file to `%PROGRAMDATA%`
+7. Enter user input loop — commands are queued to the database and processed asynchronously via the queued command check timer
 
 #### Backup Workflow
 
@@ -331,7 +331,7 @@ ConfigureMode captures a snapshot of both the App.config and API settings before
 2. Queued command check timer picks up the exit command
 3. Stop command sent to the server (with 30-second wait if running)
 4. Process exit handler sends "Close" notification email, clears tool logs from database
-5. PID file deleted
+5. PID file deleted (guarded by `ServerRunning` flag to prevent double deletion from concurrent `StopServer` and `OnProcessExited` handlers)
 
 ### Timer System
 

@@ -9,7 +9,7 @@ using ServerBackupTool.Common.Models.Requests;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Models;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class CommandService : ICommandService
     {
@@ -245,6 +245,61 @@ where Id = @id";
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
                 $"CommandService.DeleteCommand returned {success}.");
+            return (
+                success,
+                ex);
+        }
+
+        /// <summary>
+        /// Clears all commands from database.
+        /// </summary>
+        public async Task<(bool, Exception?)> ClearCommands()
+        {
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Debug,
+                "CommandService.ClearCommands called.");
+
+            bool success = false;
+            Exception? ex = null;
+
+            try
+            {
+                string sql = "delete from Commands";
+
+                (int result, Exception? qex) = await _Database.Execute(
+                    sql,
+                    []);
+
+                if (qex != null)
+                {
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Warning,
+                        "An error occured when trying to run CommandService.ClearCommands.");
+                    _Logger.LogToolMessage(
+                        StandardValues.LoggerValues.Error,
+                        qex.ToString());
+
+                    ex = qex;
+                }
+
+                success = true;
+            }
+
+            catch (Exception cex)
+            {
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Warning,
+                    "An error occured when trying to run CommandService.ClearCommands.");
+                _Logger.LogToolMessage(
+                    StandardValues.LoggerValues.Error,
+                    cex.ToString());
+
+                ex = cex;
+            }
+
+            _Logger.LogToolMessage(
+                StandardValues.LoggerValues.Debug,
+                $"CommandService.ClearCommands returned {success}.");
             return (
                 success,
                 ex);

@@ -4,8 +4,9 @@ using ServerBackupTool.Common.Abstractions;
 using ServerBackupTool.Common.Values;
 using ServerBackupTool.Converters;
 using ServerBackupTool.Models.Configuration;
+using ServerBackupTool.Services;
 
-namespace ServerBackupTool.Services
+namespace ServerBackupTool.Implementations
 {
     public class JobService : IJobService
     {
@@ -41,10 +42,17 @@ namespace ServerBackupTool.Services
 
             switch (job)
             {
-                case "backup": result = BackupServer(); break;
-                case "archive": result = await ArchiveLogs(); break;
-                case "clean": result = RemoveOldFiles(); break;
-                default: break;
+                case "backup":
+                    result = BackupServer();
+                    break;
+                case "archive":
+                    result = await ArchiveLogs();
+                    break;
+                case "clean":
+                    result = RemoveOldFiles();
+                    break;
+                default:
+                    break;
             }
 
             return result;
@@ -158,8 +166,7 @@ namespace ServerBackupTool.Services
 
             CheckDirectory(@".\Archived Logs");
 
-            string[] archivedLogs = _FileSystem.GetFiles(@".\Archived Logs")
-                .ToArray();
+            string[] archivedLogs = [.. _FileSystem.GetFiles(@".\Archived Logs")];
 
             try
             {
@@ -171,8 +178,7 @@ namespace ServerBackupTool.Services
                     }
                 }
 
-                string[] backups = _FileSystem.GetFiles(@$"{ServerPath}\Backups")
-                    .ToArray();
+                string[] backups = [.. _FileSystem.GetFiles(@$"{ServerPath}\Backups")];
 
                 foreach (string backup in backups)
                 {

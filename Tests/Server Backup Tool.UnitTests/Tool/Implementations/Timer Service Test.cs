@@ -3,11 +3,11 @@ using ServerBackupTool.Abstractions;
 using ServerBackupTool.Common.Entities;
 using ServerBackupTool.Models;
 using ServerBackupTool.Models.Configuration;
-using ServerBackupTool.Services;
+using ServerBackupTool.Implementations;
 using System.Net.NetworkInformation;
 using System.Reflection;
 
-namespace ServerBackupTool.UnitTests.Tool.Services
+namespace ServerBackupTool.UnitTests.Tool.Implementations
 {
     [TestClass]
     public class TimerServiceTest
