@@ -6,7 +6,18 @@ namespace ServerBackupTool.Models
     /// </summary>
     public static class SystemTimerModel
     {
-        public static readonly string[] Names = { "Heartbeat", "Wait", "Backup" };
-        public static readonly int[] Durations = { 5000, 30000, 1 };
+        public static readonly string[] Names =
+        [
+            "Heartbeat",
+            "Wait",
+            "Backup",
+            "QueuedCommandCheck"
+        ];
+        public static readonly int[] Durations =
+        [
+            5000,
+            30000,
+            1
+        ];
     }
 }

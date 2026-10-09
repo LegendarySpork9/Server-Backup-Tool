@@ -4,7 +4,7 @@ using ServerBackupTool.Common.Values;
 
 namespace ServerBackupTool.Implementations
 {
-    public class PidFileService : IPidFileService
+    public class PidFileServiceWrapper : IPidFileService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
@@ -15,7 +15,7 @@ namespace ServerBackupTool.Implementations
             "Server Backup Tool");
 
         // Sets the class's global variables.
-        public PidFileService(
+        public PidFileServiceWrapper(
             ILoggerService logger,
             IExtendedFileSystem fileSystem)
         {

@@ -7,7 +7,7 @@ using System.Net.Mail;
 
 namespace ServerBackupTool.Implementations
 {
-    public class EmailService : IEmailService
+    public class EmailServiceWrapper : IEmailService
     {
         private readonly ILoggerService _Logger;
         private readonly IEmailSender _EmailSender;
@@ -15,7 +15,7 @@ namespace ServerBackupTool.Implementations
         private readonly bool ServerRunning = false;
 
         // Sets the class's global variables.
-        public EmailService(
+        public EmailServiceWrapper(
             ILoggerService _logger,
             IEmailSender _emailSender,
             IExtendedFileSystem _fileSystem,

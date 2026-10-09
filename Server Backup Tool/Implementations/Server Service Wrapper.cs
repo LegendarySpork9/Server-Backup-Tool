@@ -8,7 +8,7 @@ using System.Diagnostics;
 
 namespace ServerBackupTool.Implementations
 {
-    public class ServerService : IServerService
+    public class ServerServiceWrapper : IServerService
     {
         private readonly ILoggerService _Logger;
         private readonly IPidFileService _PidFileService;
@@ -16,7 +16,7 @@ namespace ServerBackupTool.Implementations
         private readonly ServerModel Server;
 
         // Sets the class's global variables.
-        public ServerService(
+        public ServerServiceWrapper(
             ILoggerService _logger,
             IPidFileService pidFileService,
             SBTSection serverBackupSection,
@@ -96,7 +96,7 @@ namespace ServerBackupTool.Implementations
             object sender,
             DataReceivedEventArgs e)
         {
-            EmailService _emailService = new(
+            EmailServiceWrapper _emailService = new(
                 _Logger,
                 new SMTPEmailSender(),
                 new ExtendedFileSystemWrapper(),

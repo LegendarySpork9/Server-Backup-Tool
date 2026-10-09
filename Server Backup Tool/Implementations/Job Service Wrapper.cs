@@ -8,7 +8,7 @@ using ServerBackupTool.Services;
 
 namespace ServerBackupTool.Implementations
 {
-    public class JobService : IJobService
+    public class JobServiceWrapper : IJobService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedFileSystem _FileSystem;
@@ -18,7 +18,7 @@ namespace ServerBackupTool.Implementations
         private readonly string Game;
 
         // Sets the class's global variables.
-        public JobService(
+        public JobServiceWrapper(
             ILoggerService _logger,
             IExtendedFileSystem _fileSystem,
             IClock _clock,

@@ -9,7 +9,7 @@ using Timer = System.Timers.Timer;
 
 namespace ServerBackupTool.Implementations
 {
-    public class TimerService : ITimerService
+    public class TimerServiceWrapper : ITimerService
     {
         private readonly ILoggerService _Logger;
         private readonly IApplicationService _ApplicationService;
@@ -23,7 +23,7 @@ namespace ServerBackupTool.Implementations
         private bool DoProcessQueuedCommands = false;
 
         // Sets the class's global variables.
-        public TimerService(
+        public TimerServiceWrapper(
             ILoggerService _logger,
             IApplicationService _applicationService,
             IServerService _serverService,
@@ -60,12 +60,11 @@ namespace ServerBackupTool.Implementations
             TimeSpan[] timerDurations)
         {
             string result = "Completed";
-            int timerNumber = 0;
             Timers.Clear();
 
             try
             {
-                for (int x = 0; x < SystemTimerModel.Names.Length; x++)
+                for (int x = 0; x < SystemTimerModel.Names.Length - 1; x++)
                 {
                     if (SystemTimerModel.Names[x] == "Heartbeat" && !DoHeartbeat)
                     {
@@ -77,16 +76,15 @@ namespace ServerBackupTool.Implementations
                         Interval = SystemTimerModel.Durations[x]
                     };
 
-                    int currentTimerNumber = timerNumber;
+                    string currentTimerName = SystemTimerModel.Names[x];
                     timerData.Elapsed += async (sender, e) => await TimerElapsed(
                         sender,
                         e,
-                        currentTimerNumber);
-                    timerNumber++;
+                        currentTimerName);
 
                     Timers.Add(new TimerModel
                     {
-                        TimerName = SystemTimerModel.Names[x],
+                        TimerName = currentTimerName,
                         TimerData = timerData
                     });
                 }
@@ -104,27 +102,35 @@ namespace ServerBackupTool.Implementations
 
                 Timers.Add(new()
                 {
-                    TimerName = "QueuedCommandCheck",
+                    TimerName = SystemTimerModel.Names[^1],
                     TimerData = queuedCommandsCheckData
                 });
 
                 for (int x = 0; x < timerDetails.Count; x++)
                 {
+                    string currentTimerName = timerDetails[x].Name;
+
+                    if (Timers.Any(t => t.TimerName == currentTimerName))
+                    {
+                        _Logger.LogToolMessage(
+                            StandardValues.LoggerValues.Warning,
+                            $"Duplicate timer name '{currentTimerName}'. Skipping.");
+
+                        continue;
+                    }
+
                     Timer timerData = new()
                     {
                         Interval = timerDurations[x + 1].TotalMilliseconds,
                     };
-
-                    int currentTimerNumber = timerNumber;
                     timerData.Elapsed += async (sender, e) => await TimerElapsed(
                         sender,
                         e,
-                        currentTimerNumber);
-                    timerNumber++;
+                        currentTimerName);
 
                     Timers.Add(new TimerModel
                     {
-                        TimerName = timerDetails[x].Name,
+                        TimerName = currentTimerName,
                         ElapsedMessage = timerDetails[x].Message,
                         TimerData = timerData
                     });
@@ -207,21 +213,19 @@ namespace ServerBackupTool.Implementations
         private async Task TimerElapsed(
             object? sender,
             ElapsedEventArgs e,
-            int timerNumber)
+            string timerName)
         {
-            switch (timerNumber)
+            switch (timerName)
             {
-                case 0:
+                case "Heartbeat":
                     await Heartbeat();
                     break;
-                case 1:
-                    await SystemTimers(1);
-                    break;
-                case 2:
-                    await SystemTimers(2);
+                case "Wait":
+                case "Backup":
+                    await SystemTimers(timerName);
                     break;
                 default:
-                    await ServerWarning(timerNumber);
+                    await ServerWarning(timerName);
                     break;
             }
         }
@@ -229,9 +233,9 @@ namespace ServerBackupTool.Implementations
         /// <summary>
         /// Runs code related to built in timers.
         /// </summary>
-        internal async Task SystemTimers(int timerIndex)
+        internal async Task SystemTimers(string timerName)
         {
-            TimerModel timer = Timers[timerIndex];
+            TimerModel timer = Timers.First(t => t.TimerName == timerName);
             timer.TimerData.Stop();
 
             _Logger.LogToolMessage(
@@ -249,16 +253,16 @@ namespace ServerBackupTool.Implementations
 
             else
             {
-                ApplicationService.WaitForServerClose.Set();
+                ApplicationServiceWrapper.WaitForServerClose.Set();
             }
         }
 
         /// <summary>
         /// Runs code related to the server timers.
         /// </summary>
-        internal async Task ServerWarning(int timerIndex)
+        internal async Task ServerWarning(string timerName)
         {
-            TimerModel timer = Timers[timerIndex];
+            TimerModel timer = Timers.First(t => t.TimerName == timerName);
             timer.TimerData.Stop();
 
             _Logger.LogToolMessage(

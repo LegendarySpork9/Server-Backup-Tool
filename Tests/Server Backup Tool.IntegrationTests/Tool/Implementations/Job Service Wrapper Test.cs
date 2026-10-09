@@ -10,7 +10,7 @@ using ServerBackupTool.Services;
 namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
-    public class JobServiceTest
+    public class JobServiceWrapperTest
     {
         private string TempBaseDir = null!;
         private string OriginalDir = null!;
@@ -144,7 +144,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -201,7 +201,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -279,7 +279,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             _MockClock.Setup(c => c.UtcNow).Returns(DateTime.UtcNow);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -340,7 +340,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             _MockClock.Setup(c => c.UtcNow).Returns(DateTime.UtcNow);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -369,7 +369,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -403,7 +403,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 mockFileSystem.Object,
                 _MockClock.Object,
@@ -454,7 +454,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 _FileSystem,
                 _MockClock.Object,
@@ -490,7 +490,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 mockFileSystem.Object,
                 _MockClock.Object,
@@ -543,7 +543,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 
             SBTSection section = CreateSection(serverLocation);
 
-            JobService jobService = new(
+            JobServiceWrapper jobService = new(
                 _MockLogger.Object,
                 mockFileSystem.Object,
                 _MockClock.Object,

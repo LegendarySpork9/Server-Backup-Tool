@@ -9,6 +9,14 @@ namespace ServerBackupTool.Installer.Steps
 {
     public class TimerConfigStep
     {
+        private static readonly HashSet<string> ReservedTimerNames =
+        [
+            "Heartbeat",
+            "Wait",
+            "Backup",
+            "QueuedCommandCheck"
+        ];
+
         private readonly IAnsiConsole _Console;
         private readonly ILoggerService _Logger;
         private readonly InstallOptionsModel _Options;
@@ -44,7 +52,20 @@ namespace ServerBackupTool.Installer.Steps
                 ShowDefaultValue = false
             }))
             {
-                string name = _Console.Prompt(new TextPrompt<string>("Enter the timer name:"));
+                string name = _Console.Prompt(new TextPrompt<string>("Enter the timer name:").Validate(input =>
+                {
+                    if (ReservedTimerNames.Contains(input))
+                    {
+                        return ValidationResult.Error($"'{input}' is a reserved timer name.");
+                    }
+
+                    if (customTimers.Any(t => t.Name == input))
+                    {
+                        return ValidationResult.Error($"A timer named '{input}' already exists.");
+                    }
+
+                    return ValidationResult.Success();
+                }));
                 string time = _Console.Prompt(new TextPrompt<string>("Enter the timer time (HH:mm:ss):").Validate(input => TimeSpan.TryParse(
                     input,
                     out _) ? ValidationResult.Success() : ValidationResult.Error("Please enter a valid time in HH:mm:ss format.")));

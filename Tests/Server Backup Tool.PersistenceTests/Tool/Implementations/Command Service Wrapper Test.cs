@@ -11,10 +11,10 @@ using ServerBackupTool.Implementations;
 namespace ServerBackupTool.PersistenceTests.Tool.Implementations
 {
     [TestClass]
-    public class CommandServiceTest
+    public class CommandServiceWrapperTest
     {
         private SqliteConnection _KeepAlive = null!;
-        private CommandService _CommandService = null!;
+        private CommandServiceWrapper _CommandService = null!;
         private Mock<IClock> _MockClock = null!;
         private string ServerName = null!;
 
@@ -62,7 +62,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Implementations
             _MockClock.Setup(c => c.UtcNow)
                 .Returns(new DateTime(2025, 6, 15, 12, 0, 0, DateTimeKind.Utc));
 
-            _CommandService = new CommandService(
+            _CommandService = new CommandServiceWrapper(
                 mockLogger.Object,
                 database,
                 _MockClock.Object,
@@ -220,7 +220,7 @@ namespace ServerBackupTool.PersistenceTests.Tool.Implementations
 
                 Mock<ILoggerService> failMockLogger = new();
 
-                CommandService failService = new(
+                CommandServiceWrapper failService = new(
                     failMockLogger.Object,
                     failDatabase,
                     _MockClock.Object,

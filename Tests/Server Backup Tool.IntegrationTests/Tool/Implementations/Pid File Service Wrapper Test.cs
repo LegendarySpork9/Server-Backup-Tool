@@ -5,11 +5,11 @@ using ServerBackupTool.Implementations;
 namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
-    public class PidFileServiceTest
+    public class PidFileServiceWrapperTest
     {
         private Mock<ILoggerService> _MockLogger = null!;
         private IExtendedFileSystem _FileSystem = null!;
-        private PidFileService _PidService = null!;
+        private PidFileServiceWrapper _PidService = null!;
         private string ServerName = null!;
 
         private static readonly string PidDirectory = Path.Combine(
@@ -25,7 +25,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
         {
             _MockLogger = new Mock<ILoggerService>();
             _FileSystem = new ExtendedFileSystemWrapper();
-            _PidService = new PidFileService(
+            _PidService = new PidFileServiceWrapper(
                 _MockLogger.Object,
                 _FileSystem);
 
@@ -171,7 +171,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                     It.IsAny<string>()))
                 .ThrowsAsync(new IOException("Disk full"));
 
-            PidFileService pidService = new(
+            PidFileServiceWrapper pidService = new(
                 _MockLogger.Object,
                 mockFileSystem.Object);
 
@@ -206,7 +206,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             mockFileSystem.Setup(fs => fs.DeleteFile(It.IsAny<string>()))
                 .Throws(new UnauthorizedAccessException("Access denied"));
 
-            PidFileService pidService = new(
+            PidFileServiceWrapper pidService = new(
                 _MockLogger.Object,
                 mockFileSystem.Object);
 

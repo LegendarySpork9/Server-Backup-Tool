@@ -11,7 +11,7 @@ using ExtendedFS = ServerBackupTool.Implementations.ExtendedFileSystemWrapper;
 namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
-    public class EmailServiceTest
+    public class EmailServiceWrapperTest
     {
         /// <summary>
         /// Adds an EmailElement to a NotificationElement's Emails collection via reflection.
@@ -54,7 +54,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             SMTPEmailSender smtpEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 smtpEmailSender,
                 fileSystem);
@@ -118,7 +118,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -191,7 +191,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -250,7 +250,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -335,7 +335,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                 Mock<IEmailSender> mockEmailSender = new();
                 ExtendedFS fileSystem = new();
 
-                EmailService emailService = new(
+                EmailServiceWrapper emailService = new(
                     mockLogger.Object,
                     mockEmailSender.Object,
                     fileSystem);
@@ -418,7 +418,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -469,7 +469,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -545,7 +545,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -620,7 +620,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);
@@ -694,7 +694,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<IEmailSender> mockEmailSender = new();
             ExtendedFS fileSystem = new();
 
-            EmailService emailService = new(
+            EmailServiceWrapper emailService = new(
                 mockLogger.Object,
                 mockEmailSender.Object,
                 fileSystem);

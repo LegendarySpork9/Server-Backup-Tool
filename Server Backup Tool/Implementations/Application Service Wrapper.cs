@@ -13,7 +13,7 @@ using ServerBackupTool.Models.Configuration;
 
 namespace ServerBackupTool.Implementations
 {
-    public class ApplicationService : IApplicationService
+    public class ApplicationServiceWrapper : IApplicationService
     {
         private readonly ILoggerService _Logger;
         private readonly IClock _Clock;
@@ -32,7 +32,7 @@ namespace ServerBackupTool.Implementations
         public static ManualResetEvent WaitForServerClose = new(false);
 
         // Sets the class's global variables.
-        public ApplicationService(
+        public ApplicationServiceWrapper(
             SBTSection serverBackupSection,
             ICommandReader commandReader)
         {
@@ -61,33 +61,33 @@ namespace ServerBackupTool.Implementations
                 options
                 );
             _Logger.SetLogService(_LogService);
-            _CommandService = new CommandService(
+            _CommandService = new CommandServiceWrapper(
                 _Logger,
                 _database,
                 _Clock,
                 options);
-            _PidFileService = new PidFileService(
+            _PidFileService = new PidFileServiceWrapper(
                 _Logger,
                 new ExtendedFileSystemWrapper());
             _PidFileService.Delete(Server.Name);
-            _ServerService = new ServerService(
+            _ServerService = new ServerServiceWrapper(
                 _Logger,
                 _PidFileService,
                 ServerBackupSection,
                 Server);
-            _TimerService = new TimerService(
+            _TimerService = new TimerServiceWrapper(
                 _Logger,
                 this,
                 _ServerService,
                 _CommandService,
-                new EmailService(
+                new EmailServiceWrapper(
                     _Logger,
                     new SMTPEmailSender(),
                     new ExtendedFileSystemWrapper(),
                     true),
                 new PingProvider(),
                 ServerBackupSection);
-            _JobService = new JobService(
+            _JobService = new JobServiceWrapper(
                 _Logger,
                 new ExtendedFileSystemWrapper(),
                 _Clock,
@@ -98,7 +98,7 @@ namespace ServerBackupTool.Implementations
         }
 
         // Sets the class's global variables via dependency injection.
-        internal ApplicationService(
+        internal ApplicationServiceWrapper(
             ILoggerService logger,
             IClock clock,
             ICommandReader commandReader,

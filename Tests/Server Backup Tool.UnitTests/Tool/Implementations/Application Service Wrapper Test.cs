@@ -10,7 +10,7 @@ using ServerBackupTool.Implementations;
 namespace ServerBackupTool.UnitTests.Tool.Implementations
 {
     [TestClass]
-    public class ApplicationServiceTest
+    public class ApplicationServiceWrapperTest
     {
         /// <summary>
         /// Checks whether ProcessCommand logs the exit app command.
@@ -34,7 +34,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -89,7 +89,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -142,7 +142,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 ServerRunning = false
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -189,7 +189,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -259,7 +259,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -337,7 +337,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -350,7 +350,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 server);
 
             // Signal WaitForServerClose immediately so RunBackup does not block.
-            ApplicationService.WaitForServerClose.Set();
+            ApplicationServiceWrapper.WaitForServerClose.Set();
 
             await applicationService.RunBackup(mockTimerService.Object, cts.Token);
 
@@ -407,7 +407,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -482,7 +482,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -531,7 +531,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 ServerRunning = true
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -584,7 +584,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 ServerRunning = true
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -679,7 +679,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -754,7 +754,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -830,7 +830,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             };
 
             CancellationTokenSource cts = new();
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -897,7 +897,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,
@@ -965,7 +965,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ApplicationService applicationService = new(
+            ApplicationServiceWrapper applicationService = new(
                 mockLogger.Object,
                 mockClock.Object,
                 mockCommandReader.Object,

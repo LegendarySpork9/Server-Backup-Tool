@@ -10,7 +10,7 @@ using System.Reflection;
 namespace ServerBackupTool.UnitTests.Tool.Implementations
 {
     [TestClass]
-    public class TimerServiceTest
+    public class TimerServiceWrapperTest
     {
         /// <summary>
         /// Checks whether the SetTimers method creates the timers without the heartbeat timer.
@@ -55,7 +55,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 Message = "Server will shutdown for a backup in an hour."
             } ]);
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -146,7 +146,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
 
             serverBackupSection.Notifications = notifications;
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -217,7 +217,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
 
             serverBackupSection.Notifications = notifications;
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -289,7 +289,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 It.IsAny<int>()))
                 .ReturnsAsync(failedReply);
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -364,7 +364,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 It.IsAny<int>()))
                 .ReturnsAsync(successReply);
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -421,7 +421,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             _mockCommandService.Setup(c => c.DeleteCommand(1))
                 .ReturnsAsync((true, (Exception?)null));
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -470,7 +470,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             _mockCommandService.Setup(c => c.GetCommand())
                 .ReturnsAsync(((CommandModel?)null, (Exception?)null));
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -541,7 +541,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             Mock<IEmailService> _mockEmailService = new();
             Mock<IPingProvider> _mockPingProvider = new();
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -581,7 +581,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
 
             _timerService.StartTimers();
 
-            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerService)
+            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerServiceWrapper)
                 .GetField(
                     "Timers",
                     BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -652,7 +652,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             Mock<IEmailService> _mockEmailService = new();
             Mock<IPingProvider> _mockPingProvider = new();
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -670,7 +670,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 new(),
                 timerDurations);
 
-            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerService)
+            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerServiceWrapper)
                 .GetField(
                     "Timers",
                     BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -737,7 +737,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             Mock<IEmailService> _mockEmailService = new();
             Mock<IPingProvider> _mockPingProvider = new();
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -757,7 +757,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
 
             _timerService.WaitForClose();
 
-            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerService)
+            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerServiceWrapper)
                 .GetField(
                     "Timers",
                     BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -817,7 +817,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             Mock<IEmailService> _mockEmailService = new();
             Mock<IPingProvider> _mockPingProvider = new();
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -855,15 +855,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 timers,
                 timerDurations);
 
-            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerService)
-                .GetField(
-                    "Timers",
-                    BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(_timerService)!;
-
-            int warningIndex = timerList.FindIndex(t => t.TimerName == "Warning One");
-
-            await _timerService.ServerWarning(warningIndex);
+            await _timerService.ServerWarning("Warning One");
 
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.IsAny<string>(),
@@ -894,7 +886,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             Mock<IEmailService> _mockEmailService = new();
             Mock<IPingProvider> _mockPingProvider = new();
 
-            TimerService _timerService = new(
+            TimerServiceWrapper _timerService = new(
                 _mockLogger.Object,
                 _mockApplicationService.Object,
                 _mockServerService.Object,
@@ -912,15 +904,7 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
                 new(),
                 timerDurations);
 
-            List<TimerModel> timerList = (List<TimerModel>)typeof(TimerService)
-                .GetField(
-                    "Timers",
-                    BindingFlags.Instance | BindingFlags.NonPublic)!
-                .GetValue(_timerService)!;
-
-            int backupIndex = timerList.FindIndex(t => t.TimerName == "Backup");
-
-            await _timerService.SystemTimers(backupIndex);
+            await _timerService.SystemTimers("Backup");
 
             _mockLogger.Verify(l => l.LogToolMessage(
                 It.IsAny<string>(),
@@ -930,6 +914,169 @@ namespace ServerBackupTool.UnitTests.Tool.Implementations
             _mockApplicationService.Verify(a => a.RunBackup(
                 _timerService,
                 It.IsAny<CancellationToken>()),
+                Times.Once);
+        }
+
+        /// <summary>
+        /// Checks whether ServerWarning dispatches to the correct user timer when QueuedCommandCheck is also present.
+        /// </summary>
+        [TestMethod]
+        public async Task ServerWarning_DispatchesCorrectTimer_WhenQueuedCommandCheckPresent()
+        {
+            SBTSection serverBackupSection = new()
+            {
+                DatabaseDetails = new() { PollingInterval = 1000 }
+            };
+
+            NotificationElement notifications = new()
+            {
+                Enabled = true
+            };
+
+            MethodInfo baseAdd = notifications.Emails.GetType().BaseType!
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    [typeof(System.Configuration.ConfigurationElement)],
+                    null)!;
+
+            baseAdd.Invoke(
+                notifications.Emails,
+                [ new EmailElement()
+            {
+                Trigger = "Heartbeat",
+                SystemEmail = true
+            } ]);
+
+            serverBackupSection.Notifications = notifications;
+
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IApplicationService> _mockApplicationService = new();
+            Mock<IServerService> _mockServerService = new();
+            Mock<ICommandService> _mockCommandService = new();
+            Mock<IEmailService> _mockEmailService = new();
+            Mock<IPingProvider> _mockPingProvider = new();
+
+            TimerServiceWrapper _timerService = new(
+                _mockLogger.Object,
+                _mockApplicationService.Object,
+                _mockServerService.Object,
+                _mockCommandService.Object,
+                _mockEmailService.Object,
+                _mockPingProvider.Object,
+                serverBackupSection);
+
+            TimerCollection timers = new();
+
+            baseAdd = timers.GetType().BaseType!
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    [typeof(System.Configuration.ConfigurationElement)],
+                    null)!;
+
+            baseAdd.Invoke(
+                timers,
+                [ new TimerElement()
+            {
+                Name = "Warning One",
+                Time = "01:00:00",
+                Message = "Server will shutdown for a backup in an hour."
+            } ]);
+
+            TimeSpan[] timerDurations =
+            [
+                new TimeSpan(2, 0, 0),
+                new TimeSpan(1, 0, 0)
+            ];
+
+            _timerService.SetTimers(
+                timers,
+                timerDurations);
+
+            await _timerService.ServerWarning("Warning One");
+
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("Warning One Triggered")),
+                It.IsAny<bool>()),
+                Times.Once);
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("QueuedCommandCheck")),
+                It.IsAny<bool>()),
+                Times.Never);
+            _mockServerService.Verify(s => s.SendCommand(
+                "Server will shutdown for a backup in an hour.",
+                true),
+                Times.Once);
+        }
+
+        /// <summary>
+        /// Checks whether SetTimers skips a user timer whose name collides with a system timer.
+        /// </summary>
+        [TestMethod]
+        public void SetTimers_SkipsTimer_WhenNameMatchesSystemTimer()
+        {
+            SBTSection serverBackupSection = new()
+            {
+                DatabaseDetails = new() { PollingInterval = 1000 }
+            };
+
+            Mock<ILoggerService> _mockLogger = new();
+            Mock<IApplicationService> _mockApplicationService = new();
+            Mock<IServerService> _mockServerService = new();
+            Mock<ICommandService> _mockCommandService = new();
+            Mock<IEmailService> _mockEmailService = new();
+            Mock<IPingProvider> _mockPingProvider = new();
+
+            TimerServiceWrapper _timerService = new(
+                _mockLogger.Object,
+                _mockApplicationService.Object,
+                _mockServerService.Object,
+                _mockCommandService.Object,
+                _mockEmailService.Object,
+                _mockPingProvider.Object,
+                serverBackupSection);
+
+            TimerCollection timers = new();
+
+            MethodInfo baseAdd = timers.GetType().BaseType!
+                .GetMethod(
+                    "BaseAdd",
+                    BindingFlags.Instance | BindingFlags.NonPublic,
+                    null,
+                    [typeof(System.Configuration.ConfigurationElement)],
+                    null)!;
+
+            baseAdd.Invoke(
+                timers,
+                [ new TimerElement()
+            {
+                Name = "Backup",
+                Time = "01:00:00",
+                Message = "Collides with system timer."
+            } ]);
+
+            TimeSpan[] timerDurations =
+            [
+                new TimeSpan(2, 0, 0),
+                new TimeSpan(1, 0, 0)
+            ];
+
+            string result = _timerService.SetTimers(
+                timers,
+                timerDurations);
+
+            Assert.AreEqual(
+                "Completed",
+                result);
+            _mockLogger.Verify(l => l.LogToolMessage(
+                It.IsAny<string>(),
+                It.Is<string>(s => s.Contains("Duplicate timer name")),
+                It.IsAny<bool>()),
                 Times.Once);
         }
 

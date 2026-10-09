@@ -11,7 +11,7 @@ using ServerBackupTool.Models;
 
 namespace ServerBackupTool.Implementations
 {
-    public class CommandService : ICommandService
+    public class CommandServiceWrapper : ICommandService
     {
         private readonly ILoggerService _Logger;
         private readonly IExtendedDatabase _Database;
@@ -19,7 +19,7 @@ namespace ServerBackupTool.Implementations
         private readonly DatabaseOptionsModel Options;
 
         // Sets the class's global variables
-        public CommandService(
+        public CommandServiceWrapper(
             ILoggerService _logger,
             IExtendedDatabase _database,
             IClock _clock,
@@ -38,7 +38,7 @@ namespace ServerBackupTool.Implementations
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.GetCommand called.");
+                $"CommandServiceWrapper.GetCommand called.");
 
             CommandModel? command = null;
             Exception? ex = null;
@@ -75,7 +75,7 @@ limit 1";
                 {
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Warning,
-                        "An error occured when trying to run CommandService.GetCommand.");
+                        "An error occured when trying to run CommandServiceWrapper.GetCommand.");
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Error,
                         qex.ToString());
@@ -93,7 +93,7 @@ limit 1";
             {
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
-                    "An error occured when trying to run CommandService.GetCommand.");
+                    "An error occured when trying to run CommandServiceWrapper.GetCommand.");
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     cex.ToString());
@@ -105,7 +105,7 @@ limit 1";
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.GetCommand returned {commands} command(s).");
+                $"CommandServiceWrapper.GetCommand returned {commands} command(s).");
             return (
                 command,
                 ex);
@@ -118,7 +118,7 @@ limit 1";
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.LogCommand called with the parameters {ParameterFunction.FormatParameters(command)}.");
+                $"CommandServiceWrapper.LogCommand called with the parameters {ParameterFunction.FormatParameters(command)}.");
 
             bool success = false;
             Exception? ex = null;
@@ -153,7 +153,7 @@ values (
                 {
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Warning,
-                        "An error occured when trying to run CommandService.LogCommand.");
+                        "An error occured when trying to run CommandServiceWrapper.LogCommand.");
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Error,
                         qex.ToString());
@@ -171,7 +171,7 @@ values (
             {
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
-                    "An error occured when trying to run CommandService.LogCommand.");
+                    "An error occured when trying to run CommandServiceWrapper.LogCommand.");
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     cex.ToString());
@@ -181,7 +181,7 @@ values (
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.LogCommand returned {success}.");
+                $"CommandServiceWrapper.LogCommand returned {success}.");
             return (
                 success,
                 ex);
@@ -194,7 +194,7 @@ values (
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.DeleteCommand called with the parameter {id}.");
+                $"CommandServiceWrapper.DeleteCommand called with the parameter {id}.");
 
             bool success = false;
             Exception? ex = null;
@@ -216,7 +216,7 @@ where Id = @id";
                 {
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Warning,
-                        "An error occured when trying to run CommandService.DeleteCommand.");
+                        "An error occured when trying to run CommandServiceWrapper.DeleteCommand.");
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Error,
                         qex.ToString());
@@ -234,7 +234,7 @@ where Id = @id";
             {
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
-                    "An error occured when trying to run CommandService.DeleteCommand.");
+                    "An error occured when trying to run CommandServiceWrapper.DeleteCommand.");
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     cex.ToString());
@@ -244,7 +244,7 @@ where Id = @id";
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.DeleteCommand returned {success}.");
+                $"CommandServiceWrapper.DeleteCommand returned {success}.");
             return (
                 success,
                 ex);
@@ -257,7 +257,7 @@ where Id = @id";
         {
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                "CommandService.ClearCommands called.");
+                "CommandServiceWrapper.ClearCommands called.");
 
             bool success = false;
             Exception? ex = null;
@@ -274,7 +274,7 @@ where Id = @id";
                 {
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Warning,
-                        "An error occured when trying to run CommandService.ClearCommands.");
+                        "An error occured when trying to run CommandServiceWrapper.ClearCommands.");
                     _Logger.LogToolMessage(
                         StandardValues.LoggerValues.Error,
                         qex.ToString());
@@ -289,7 +289,7 @@ where Id = @id";
             {
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Warning,
-                    "An error occured when trying to run CommandService.ClearCommands.");
+                    "An error occured when trying to run CommandServiceWrapper.ClearCommands.");
                 _Logger.LogToolMessage(
                     StandardValues.LoggerValues.Error,
                     cex.ToString());
@@ -299,7 +299,7 @@ where Id = @id";
 
             _Logger.LogToolMessage(
                 StandardValues.LoggerValues.Debug,
-                $"CommandService.ClearCommands returned {success}.");
+                $"CommandServiceWrapper.ClearCommands returned {success}.");
             return (
                 success,
                 ex);

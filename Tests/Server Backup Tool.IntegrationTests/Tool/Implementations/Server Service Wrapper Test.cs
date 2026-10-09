@@ -7,7 +7,7 @@ using ServerBackupTool.Models;
 namespace ServerBackupTool.IntegrationTests.Tool.Implementations
 {
     [TestClass]
-    public class ServerServiceTest
+    public class ServerServiceWrapperTest
     {
         private static readonly string PidDirectory = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData),
@@ -23,7 +23,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<ILoggerService> mockLogger = new();
             ExtendedFileSystemWrapper fileSystem = new();
 
-            PidFileService pidFileService = new(
+            PidFileServiceWrapper pidFileService = new(
                 mockLogger.Object,
                 fileSystem);
 
@@ -42,7 +42,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ServerService serverService = new(
+            ServerServiceWrapper serverService = new(
                 mockLogger.Object,
                 pidFileService,
                 new(),
@@ -88,7 +88,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
             Mock<ILoggerService> mockLogger = new();
             ExtendedFileSystemWrapper fileSystem = new();
 
-            PidFileService pidFileService = new(
+            PidFileServiceWrapper pidFileService = new(
                 mockLogger.Object,
                 fileSystem);
 
@@ -107,7 +107,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ServerService serverService = new(
+            ServerServiceWrapper serverService = new(
                 mockLogger.Object,
                 pidFileService,
                 new(),
@@ -183,7 +183,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ServerService serverService = new(
+            ServerServiceWrapper serverService = new(
                 mockLogger.Object,
                 mockPidFileService.Object,
                 new(),
@@ -227,7 +227,7 @@ namespace ServerBackupTool.IntegrationTests.Tool.Implementations
                 Game = "Minecraft"
             };
 
-            ServerService serverService = new(
+            ServerServiceWrapper serverService = new(
                 mockLogger.Object,
                 mockPidFileService.Object,
                 new(),
