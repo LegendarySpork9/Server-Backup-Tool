@@ -1,0 +1,3 @@
+@echo off
+echo Server starting...
+exit

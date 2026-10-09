@@ -290,7 +290,7 @@ namespace ServerBackupTool.PersistenceTests.API.Services
             using CancellationTokenSource cts = new();
 
             await service.StartAsync(cts.Token);
-            await Task.Delay(200);
+            await Task.Delay(500);
 
             cts.Cancel();
 
