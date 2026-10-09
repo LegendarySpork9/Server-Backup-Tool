@@ -18,7 +18,7 @@ namespace ServerBackupTool
         /// </summary>
         static async Task Main()
         {
-            EmailService _emailService = new(
+            EmailServiceWrapper _emailService = new(
                 new LoggerServiceWrapper(),
                 new SMTPEmailSender(),
                 new ExtendedFileSystemWrapper());
@@ -40,7 +40,9 @@ namespace ServerBackupTool
                 ServerBackupSection.Notifications,
                 "Open");
 
-            ApplicationService _applicationService = new(ServerBackupSection);
+            ApplicationServiceWrapper _applicationService = new(
+                ServerBackupSection,
+                new ConsoleCommandReader());
 
             await _applicationService.RunApplication();
         }
@@ -52,11 +54,11 @@ namespace ServerBackupTool
             object? sender,
             EventArgs e)
         {
-            EmailService _emailService = new(
+            EmailServiceWrapper _emailService = new(
                 new LoggerServiceWrapper(),
                 new SMTPEmailSender(),
                 new ExtendedFileSystemWrapper());
-            PidFileService _pidFileService = new(
+            PidFileServiceWrapper _pidFileService = new(
                 new LoggerServiceWrapper(),
                 new ExtendedFileSystemWrapper());
 

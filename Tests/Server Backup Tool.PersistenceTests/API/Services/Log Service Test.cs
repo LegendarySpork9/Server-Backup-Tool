@@ -15,6 +15,8 @@ namespace ServerBackupTool.PersistenceTests.API.Services
     {
         private SqliteConnection _KeepAlive = null!;
         private LogService _LogService = null!;
+        private Mock<ILoggerService> _MockLogger = null!;
+        private Mock<IExtendedFileSystem> _MockFileSystem = null!;
         private string ServerName = null!;
 
         private const string CreateTableSql = @"
@@ -56,17 +58,17 @@ namespace ServerBackupTool.PersistenceTests.API.Services
 
             ExtendedDatabaseWrapper database = new(dbOptions);
 
-            Mock<ILoggerService> mockLogger = new();
-            mockLogger.Setup(l => l.RequestId).Returns(Guid.NewGuid());
+            _MockLogger = new();
+            _MockLogger.Setup(l => l.RequestId).Returns(Guid.NewGuid());
 
-            Mock<IExtendedFileSystem> mockFileSystem = new();
+            _MockFileSystem = new();
 
             ArchiveSettingsModel archive = new() { ArchiveDirectory = "." };
 
             _LogService = new LogService(
-                mockLogger.Object,
+                _MockLogger.Object,
                 database,
-                mockFileSystem.Object,
+                _MockFileSystem.Object,
                 dbOptions,
                 archive);
         }
@@ -330,6 +332,109 @@ namespace ServerBackupTool.PersistenceTests.API.Services
                     firstPageIds.Contains(log.Id),
                     $"Log Id {log.Id} appeared on both pages.");
             }
+        }
+
+        /// <summary>
+        /// Checks that GetLogArchives returns null when no archive files exist.
+        /// </summary>
+        [TestMethod]
+        public void GetLogArchives_ReturnsNull_WhenNoFilesExist()
+        {
+            _MockFileSystem
+                .Setup(fs => fs.GetFiles(It.IsAny<string>()))
+                .Returns([]);
+
+            (List<ArchivedLogModel>? archives, Exception? ex) = _LogService.GetLogArchives();
+
+            Assert.IsNull(archives);
+            Assert.IsNull(ex);
+        }
+
+        /// <summary>
+        /// Checks that GetLogArchives returns archive entries when files exist.
+        /// </summary>
+        [TestMethod]
+        public void GetLogArchives_ReturnsArchives_WhenFilesExist()
+        {
+            _MockFileSystem
+                .Setup(fs => fs.GetFiles(It.IsAny<string>()))
+                .Returns(new[] { @"C:\Archives\log1.zip", @"C:\Archives\log2.zip" });
+            _MockFileSystem
+                .Setup(fs => fs.GetCreationTime(It.IsAny<string>()))
+                .Returns(new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            _MockFileSystem
+                .Setup(fs => fs.GetFileSize(It.IsAny<string>()))
+                .Returns(1024L);
+
+            (List<ArchivedLogModel>? archives, Exception? ex) = _LogService.GetLogArchives();
+
+            Assert.IsNotNull(archives);
+            Assert.AreEqual(
+                2,
+                archives.Count);
+            Assert.AreEqual(
+                "log1.zip",
+                archives[0].FileName);
+            Assert.AreEqual(
+                1024L,
+                archives[0].SizeBytes);
+            Assert.IsNull(ex);
+        }
+
+        /// <summary>
+        /// Checks that GetLogArchives returns an exception when the file system throws.
+        /// </summary>
+        [TestMethod]
+        public void GetLogArchives_ReturnsException_WhenFileSystemThrows()
+        {
+            _MockFileSystem
+                .Setup(fs => fs.GetFiles(It.IsAny<string>()))
+                .Throws(new IOException("Disk error"));
+
+            (List<ArchivedLogModel>? archives, Exception? ex) = _LogService.GetLogArchives();
+
+            Assert.IsNull(archives);
+            Assert.IsNotNull(ex);
+            Assert.IsInstanceOfType<IOException>(ex);
+        }
+
+        /// <summary>
+        /// Checks that GetArchivedLogs returns null when the archive file does not exist.
+        /// </summary>
+        [TestMethod]
+        public async Task GetArchivedLogs_ReturnsNull_WhenFileDoesNotExist()
+        {
+            _MockFileSystem
+                .Setup(fs => fs.FileExists(It.IsAny<string>()))
+                .Returns(false);
+
+            (List<FileLogModel>? logs, Exception? ex) = await _LogService.GetArchivedLogs("nonexistent.zip");
+
+            Assert.IsNull(logs);
+            Assert.IsNull(ex);
+        }
+
+        /// <summary>
+        /// Checks that GetArchivedLogs returns an exception when extraction throws.
+        /// </summary>
+        [TestMethod]
+        public async Task GetArchivedLogs_ReturnsException_WhenExtractionThrows()
+        {
+            _MockFileSystem
+                .Setup(fs => fs.FileExists(It.IsAny<string>()))
+                .Returns(true);
+            _MockFileSystem
+                .Setup(fs => fs.ExtractZIPToDirectory(It.IsAny<string>(), It.IsAny<string>()))
+                .Throws(new IOException("Corrupt ZIP"));
+            _MockFileSystem
+                .Setup(fs => fs.DirectoryExists(It.IsAny<string>()))
+                .Returns(false);
+
+            (List<FileLogModel>? logs, Exception? ex) = await _LogService.GetArchivedLogs("corrupt.zip");
+
+            Assert.IsNull(logs);
+            Assert.IsNotNull(ex);
+            Assert.IsInstanceOfType<IOException>(ex);
         }
     }
 }
