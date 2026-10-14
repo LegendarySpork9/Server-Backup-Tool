@@ -12,21 +12,33 @@ namespace ServerBackupTool.Models
         public required string Name { get; set; }
         public required string Game { get; set; }
         public bool ServerRunning { get; set; } = false;
-        public Process ServerProcess { get; }
+        public Process ServerProcess { get; private set; }
+        private readonly ProcessStartInfo _ProcessStartInfo;
 
         public ServerModel(ServerDetailsElement serverDetails)
         {
-            ProcessStartInfo psi = new()
+            _ProcessStartInfo = new()
             {
                 RedirectStandardInput = true,
                 RedirectStandardOutput = true,
                 UseShellExecute = false,
                 CreateNoWindow = false,
                 WorkingDirectory = serverDetails.Location,
-                FileName = Path.Combine(serverDetails.Location, serverDetails.StartFile)
+                FileName = Path.Combine(
+                    serverDetails.Location,
+                    serverDetails.StartFile)
             };
 
-            ServerProcess = new() { StartInfo = psi };
+            ServerProcess = new() { StartInfo = _ProcessStartInfo };
+        }
+
+        /// <summary>
+        /// Creates a fresh Process instance so that StartTime and Id are not cached from a previous run.
+        /// </summary>
+        public void ResetProcess()
+        {
+            ServerProcess.Dispose();
+            ServerProcess = new() { StartInfo = _ProcessStartInfo };
         }
     }
 }

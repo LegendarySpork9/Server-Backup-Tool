@@ -293,7 +293,9 @@ limit @limit";
 
             if (!string.IsNullOrWhiteSpace(extractPath) && _FileSystem.DirectoryExists(extractPath))
             {
-                _FileSystem.DeleteDirectory(extractPath);
+                _FileSystem.DeleteDirectory(
+                    extractPath,
+                    true);
             }
 
             _Logger.LogMessage(
