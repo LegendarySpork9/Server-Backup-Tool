@@ -58,6 +58,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Confirm installation
             console.Input.PushTextWithEnter("y");
 
             InstallOptionsModel options = CreatePopulatedOptions();
@@ -77,6 +79,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Cancel installation
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = CreatePopulatedOptions();
@@ -97,6 +101,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Confirm installation
             console.Input.PushTextWithEnter("y");
 
             InstallOptionsModel options = CreatePopulatedOptions();

@@ -29,6 +29,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Enable email? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();
@@ -51,30 +53,39 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             TestConsole console = new();
             console.Interactive();
 
+            // Enable email? Yes
             console.Input.PushTextWithEnter("y");
-            // SMTP host.
+            // SMTP host
             console.Input.PushTextWithEnter("smtp.test.com");
-            // SMTP auth username.
+            // SMTP auth username
             console.Input.PushTextWithEnter("test@test.com");
-            // SMTP password.
+            // SMTP password
             console.Input.PushTextWithEnter("password123");
-            // SMTP port (default).
+            // SMTP port (default)
             console.Input.PushKey(ConsoleKey.Enter);
-            // Enable SSL.
+            // Enable SSL
             console.Input.PushTextWithEnter("y");
-            // From email (default = username).
+            // From email (default = username)
             console.Input.PushKey(ConsoleKey.Enter);
-            // From name (default).
+            // From name (default)
             console.Input.PushKey(ConsoleKey.Enter);
-            // Add template.
+            // Add template? Yes
             console.Input.PushTextWithEnter("y");
+            // Trigger type (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Subject
             console.Input.PushTextWithEnter("Server Started");
+            // Content
             console.Input.PushTextWithEnter("<p>Server is online</p>");
+            // Recipient email
             console.Input.PushTextWithEnter("admin@test.com");
+            // Recipient name
             console.Input.PushTextWithEnter("Admin");
+            // Add another recipient? No
             console.Input.PushTextWithEnter("n");
+            // Add inline image? No
             console.Input.PushTextWithEnter("n");
+            // Add another template? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();

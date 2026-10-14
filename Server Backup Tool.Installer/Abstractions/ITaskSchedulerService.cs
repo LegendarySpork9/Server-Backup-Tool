@@ -6,7 +6,7 @@ namespace ServerBackupTool.Installer.Abstractions
     /// </summary>
     public interface ITaskSchedulerService
     {
-        (bool, Exception?) CreateScheduledTask(string taskName, string executablePath);
+        (bool, Exception?) CreateScheduledTask(string taskName, string executablePath, string? password = null);
         (bool, Exception?) RemoveScheduledTask(string taskName);
         bool TaskExists(string taskName);
     }

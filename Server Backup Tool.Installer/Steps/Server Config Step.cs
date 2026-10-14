@@ -47,6 +47,10 @@ namespace ServerBackupTool.Installer.Steps
                 string apiTaskName = _Console.Prompt(new TextPrompt<string>("Enter a name for the scheduled task for the API:").DefaultValue($"Server Backup Tool API - {serverName}"));
 
                 _Options.ApiTaskName = apiTaskName;
+
+                _Console.MarkupLine("[grey]If left blank, the API scheduled task will use S4U logon (no network access). Provide a password to enable network share access (e.g. for certificates on a remote share).[/]");
+                string taskPassword = _Console.Prompt(new TextPrompt<string>("Enter the password for the current user:").Secret().AllowEmpty());
+                _Options.TaskPassword = string.IsNullOrEmpty(taskPassword) ? null : taskPassword;
             }
 
             string game = _Console.Prompt(new SelectionPrompt<string>()

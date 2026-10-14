@@ -17,5 +17,6 @@ namespace ServerBackupTool.Installer.Models
         public TimerConfigModel TimerConfig { get; set; } = new();
         public EmailConfigModel? EmailConfig { get; set; }
         public ApiConfigModel? ApiConfig { get; set; }
+        public string? TaskPassword { get; set; }
     }
 }

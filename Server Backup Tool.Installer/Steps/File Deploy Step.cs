@@ -122,7 +122,8 @@ namespace ServerBackupTool.Installer.Steps
                             _Options.ApiTaskName,
                             Path.Combine(
                                 _Options.ApiInstallPath,
-                                "ServerBackupTool.API.exe"));
+                                "ServerBackupTool.API.exe"),
+                            _Options.TaskPassword);
                     }
 
                     ProgressTask registryTask = context.AddTask("Writing registry entry");
@@ -326,7 +327,8 @@ namespace ServerBackupTool.Installer.Steps
         private void RegisterScheduledTask(
             ProgressTask task,
             string taskName,
-            string executablePath)
+            string executablePath,
+            string? password = null)
         {
             _Logger.LogMessage(
                 StandardValues.LoggerValues.Info,
@@ -334,7 +336,8 @@ namespace ServerBackupTool.Installer.Steps
 
             (bool created, Exception? exception) = _TaskSchedulerService.CreateScheduledTask(
                 taskName,
-                executablePath);
+                executablePath,
+                password);
 
             if (!created)
             {

@@ -34,13 +34,22 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
 
             TestConsole console = new();
             console.Interactive();
+
+            // Server name
             console.Input.PushTextWithEnter("TestServer");
+            // Tool task name (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Game selection (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Server directory
             console.Input.PushTextWithEnter("C:\\GameServer");
+            // Start file
             console.Input.PushTextWithEnter("start.bat");
+            // IP address
             console.Input.PushTextWithEnter("192.168.1.1");
+            // Database path (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Polling interval (default)
             console.Input.PushKey(ConsoleKey.Enter);
 
             InstallOptionsModel options = new()
@@ -93,11 +102,14 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
 
             TestConsole console = new();
             console.Interactive();
+
             // Server name
             console.Input.PushTextWithEnter("TestServer");
             // Tool task name (default)
             console.Input.PushKey(ConsoleKey.Enter);
             // API task name (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Task password (blank for S4U)
             console.Input.PushKey(ConsoleKey.Enter);
             // Game selection (Minecraft is the only/first option)
             console.Input.PushKey(ConsoleKey.Enter);

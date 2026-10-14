@@ -57,12 +57,19 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             TestConsole console = new();
             console.Interactive();
 
+            // Bind address (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // HTTP port (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Enable HTTPS? No
             console.Input.PushTextWithEnter("n");
+            // API database path (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Archive directory (default)
             console.Input.PushKey(ConsoleKey.Enter);
+            // Webhook secret
             console.Input.PushTextWithEnter("mysecret");
+            // Press Enter to continue after credentials display
             console.Input.PushKey(ConsoleKey.Enter);
 
             InstallOptionsModel options = new()

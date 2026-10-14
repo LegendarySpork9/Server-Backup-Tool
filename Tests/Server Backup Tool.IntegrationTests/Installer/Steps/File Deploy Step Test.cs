@@ -102,7 +102,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 .Setup(r => r.ResourceExists(It.IsAny<string>()))
                 .Returns(false);
             _MockTaskScheduler
-                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
                 .Returns((true, (Exception?)null));
             _MockRegistry
                 .Setup(r => r.WriteUninstallEntry(
@@ -162,7 +162,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             _MockTaskScheduler.Verify(
                 t => t.CreateScheduledTask(
                     It.IsAny<string>(),
-                    It.IsAny<string>()),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>()),
                 Times.Once());
 
             _MockRegistry.Verify(
@@ -198,7 +199,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 .Setup(r => r.FindResource(It.IsAny<string>()))
                 .Returns((string?)null);
             _MockTaskScheduler
-                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
                 .Returns((true, (Exception?)null));
             _MockRegistry
                 .Setup(r => r.WriteUninstallEntry(
@@ -281,7 +282,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 .Setup(r => r.FindResource(It.IsAny<string>()))
                 .Returns((string?)null);
             _MockTaskScheduler
-                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
                 .Returns((true, (Exception?)null));
             _MockRegistry
                 .Setup(r => r.WriteUninstallEntry(
@@ -356,7 +357,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 .Setup(r => r.FindResource(It.IsAny<string>()))
                 .Returns((string?)null);
             _MockTaskScheduler
-                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
                 .Returns((false, (Exception?)new UnauthorizedAccessException("Access denied")));
 
             InstallOptionsModel options = new()
@@ -422,7 +423,7 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
                 .Setup(r => r.ResourceExists(It.IsAny<string>()))
                 .Returns(false);
             _MockTaskScheduler
-                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>()))
+                .Setup(t => t.CreateScheduledTask(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string?>()))
                 .Returns((true, (Exception?)null));
             _MockRegistry
                 .Setup(r => r.WriteUninstallEntry(
@@ -494,13 +495,15 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             _MockTaskScheduler.Verify(
                 t => t.CreateScheduledTask(
                     It.IsAny<string>(),
-                    It.IsAny<string>()),
+                    It.IsAny<string>(),
+                    It.IsAny<string?>()),
                 Times.Exactly(2));
 
             _MockTaskScheduler.Verify(
                 t => t.CreateScheduledTask(
                     "Server Backup Tool API - TestServer",
-                    It.Is<string>(s => s.Contains("ServerBackupTool.API.exe"))),
+                    It.Is<string>(s => s.Contains("ServerBackupTool.API.exe")),
+                    It.IsAny<string?>()),
                 Times.Once());
 
             string apiSettingsPath = Path.Combine(

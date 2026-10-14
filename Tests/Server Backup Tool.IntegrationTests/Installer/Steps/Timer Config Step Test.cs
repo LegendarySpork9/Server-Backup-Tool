@@ -28,7 +28,10 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Backup time
             console.Input.PushTextWithEnter("03:00:00");
+            // Add custom timer? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();
@@ -55,11 +58,18 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Backup time
             console.Input.PushTextWithEnter("03:00:00");
+            // Add custom timer? Yes
             console.Input.PushTextWithEnter("y");
+            // Timer name
             console.Input.PushTextWithEnter("Restart Warning");
+            // Timer time
             console.Input.PushTextWithEnter("02:55:00");
+            // Timer message
             console.Input.PushTextWithEnter("Server restarting in 5 minutes");
+            // Add another custom timer? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();
@@ -94,16 +104,28 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Backup time
             console.Input.PushTextWithEnter("03:00:00");
+            // Add custom timer? Yes
             console.Input.PushTextWithEnter("y");
+            // First timer name
             console.Input.PushTextWithEnter("Warning One");
+            // First timer time
             console.Input.PushTextWithEnter("02:00:00");
+            // First timer message
             console.Input.PushTextWithEnter("Two hours left");
+            // Add another custom timer? Yes
             console.Input.PushTextWithEnter("y");
+            // Duplicate timer name (rejected)
             console.Input.PushTextWithEnter("Warning One");
+            // Corrected timer name
             console.Input.PushTextWithEnter("Warning Two");
+            // Second timer time
             console.Input.PushTextWithEnter("01:00:00");
+            // Second timer message
             console.Input.PushTextWithEnter("One hour left");
+            // Add another custom timer? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();
@@ -133,12 +155,20 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Backup time
             console.Input.PushTextWithEnter("03:00:00");
+            // Add custom timer? Yes
             console.Input.PushTextWithEnter("y");
+            // Reserved timer name (rejected)
             console.Input.PushTextWithEnter("Backup");
+            // Corrected timer name
             console.Input.PushTextWithEnter("Backup Warning");
+            // Timer time
             console.Input.PushTextWithEnter("02:00:00");
+            // Timer message
             console.Input.PushTextWithEnter("Backup starting soon");
+            // Add another custom timer? No
             console.Input.PushTextWithEnter("n");
 
             InstallOptionsModel options = new();

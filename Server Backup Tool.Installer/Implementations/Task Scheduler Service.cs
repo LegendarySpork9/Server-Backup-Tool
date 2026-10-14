@@ -23,7 +23,8 @@ namespace ServerBackupTool.Installer.Implementations
         /// </summary>
         public (bool, Exception?) CreateScheduledTask(
             string taskName,
-            string executablePath)
+            string executablePath,
+            string? password = null)
         {
             bool created = false;
             Exception? exception = null;
@@ -52,7 +53,9 @@ namespace ServerBackupTool.Installer.Implementations
                         null,
                         workingDirectory));
 
-                    definition.Principal.LogonType = TaskLogonType.S4U;
+                    TaskLogonType logonType = password != null ? TaskLogonType.Password : TaskLogonType.S4U;
+
+                    definition.Principal.LogonType = logonType;
                     definition.Principal.RunLevel = TaskRunLevel.LUA;
 
                     definition.Settings.RestartCount = InstallerValues.ScheduledTask.MaxRestartAttempts;
@@ -69,8 +72,8 @@ namespace ServerBackupTool.Installer.Implementations
                         definition,
                         TaskCreation.CreateOrUpdate,
                         System.Security.Principal.WindowsIdentity.GetCurrent().Name,
-                        null,
-                        TaskLogonType.S4U);
+                        password,
+                        logonType);
 
                     _Logger.LogMessage(
                         StandardValues.LoggerValues.Info,

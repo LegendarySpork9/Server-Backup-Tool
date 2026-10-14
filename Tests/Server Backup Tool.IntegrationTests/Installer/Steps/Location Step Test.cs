@@ -34,6 +34,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
 
             TestConsole console = new();
             console.Interactive();
+
+            // Install path (default)
             console.Input.PushKey(ConsoleKey.Enter);
 
             InstallOptionsModel options = new();

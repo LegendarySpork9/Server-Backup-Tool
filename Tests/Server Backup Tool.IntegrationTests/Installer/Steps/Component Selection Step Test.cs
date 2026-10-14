@@ -28,6 +28,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
         {
             TestConsole console = new();
             console.Interactive();
+
+            // Component selection (default)
             console.Input.PushKey(ConsoleKey.Enter);
 
             InstallOptionsModel options = new();
