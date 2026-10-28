@@ -50,7 +50,7 @@ namespace ServerBackupTool.Implementations
                     MailAddress fromAddress = new(
                         notifications.FromAddress.Email,
                         notifications.FromAddress.Name);
-                    MailMessage message = new()
+                    using MailMessage message = new()
                     {
                         From = fromAddress,
                         Subject = email.Subject.Value,
@@ -70,7 +70,7 @@ namespace ServerBackupTool.Implementations
                     {
                         foreach (ImageElement imageElement in email.Images)
                         {
-                            Attachment image = new(imageElement.Path)
+                            using Attachment image = new(imageElement.Path)
                             {
                                 ContentId = imageElement.Key
                             };

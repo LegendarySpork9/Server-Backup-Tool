@@ -17,14 +17,14 @@ namespace ServerBackupTool.Implementations
             bool enableSsl,
             NetworkCredential credentials)
         {
-            SmtpClient smtp = new()
+            using SmtpClient smtp = new()
             {
                 Host = host,
                 Port = port,
                 EnableSsl = enableSsl,
                 DeliveryMethod = SmtpDeliveryMethod.Network,
                 UseDefaultCredentials = false,
-                Credentials = credentials
+                Credentials = credentials,
             };
 
             await smtp.SendMailAsync(message);

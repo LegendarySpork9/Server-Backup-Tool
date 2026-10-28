@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ServerBackupTool.API.Abstractions;
 using ServerBackupTool.API.Entities;
+using ServerBackupTool.API.Models;
 using ServerBackupTool.API.Models.Requests;
 using ServerBackupTool.API.Models.Responses;
 using System.ComponentModel.DataAnnotations;
@@ -16,14 +17,17 @@ namespace ServerBackupTool.API.Controllers
     {
         private readonly ILoggerService _Logger;
         private readonly IWebhookRegistrationService _WebhookService;
+        private readonly WebhookSettingsModel _WebhookSettings;
 
         // Set's the class's global variables.
         public WebhooksController(
             ILoggerService _logger,
-            IWebhookRegistrationService webhookService)
+            IWebhookRegistrationService webhookService,
+            WebhookSettingsModel webhookSettings)
         {
             _Logger = _logger;
             _WebhookService = webhookService;
+            _WebhookSettings = webhookSettings;
         }
 
         /// <summary>
@@ -67,14 +71,25 @@ namespace ServerBackupTool.API.Controllers
             if (!Uri.TryCreate(
                 registration.Url,
                 UriKind.Absolute,
-                out Uri? uri) ||
-                (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
+                out Uri? uri) || uri.Scheme != Uri.UriSchemeHttps)
             {
                 return StatusCode(
                     400,
                     new FailureModel()
                     {
-                        Error = "The provided URL is not a valid HTTP or HTTPS URL."
+                        Error = "The provided URL is not a valid HTTPS URL."
+                    });
+            }
+
+            if (_WebhookSettings.AllowedDomains.Length > 0 && !_WebhookSettings.AllowedDomains.Any(d => uri.Host.Equals(
+                d,
+                StringComparison.OrdinalIgnoreCase)))
+            {
+                return StatusCode(
+                    400,
+                    new FailureModel()
+                    {
+                        Error = $"The domain \"{uri.Host}\" is not in the list of allowed webhook domains."
                     });
             }
 

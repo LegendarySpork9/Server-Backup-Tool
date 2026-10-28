@@ -212,6 +212,11 @@ All Steps and Modes accept `IAnsiConsole` as the first constructor parameter for
 | `CommandsController` | `/commands` | POST | Queue commands for the tool or server |
 | `WebhooksController` | `/webhooks` | POST, DELETE | Register and unregister webhook endpoints |
 
+### API Security
+
+- **Webhook URL validation:** Only HTTPS URLs are accepted. If `AllowedDomains` is configured in `Webhook` settings, the URL's hostname must match one of the allowed domains.
+- **Archived log path validation:** The file parameter is validated to ensure it ends with `.zip`, contains no directory separators (`/` or `\`), and contains no `..` sequences to prevent path traversal.
+
 ### API Filters
 
 | Filter | Type | Purpose |
@@ -492,7 +497,10 @@ Both the console app and the API use **SQLite** for structured data persistence 
   "Webhook": {
     "Secret": "<HMAC-SHA256 secret key>",
     "TimeoutSeconds": 10,
-    "MaxRetries": 4
+    "MaxRetries": 4,
+    "AllowedDomains": [
+      "<Webhook Domain>"
+    ]
   }
 }
 ```

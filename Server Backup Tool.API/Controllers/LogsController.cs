@@ -199,7 +199,7 @@ namespace ServerBackupTool.API.Controllers
                 Options,
                 Archive);
 
-            if (!file.Contains(".zip", StringComparison.InvariantCultureIgnoreCase))
+            if (!file.EndsWith(".zip", StringComparison.InvariantCultureIgnoreCase))
             {
                 return StatusCode(
                     400,
@@ -209,7 +209,7 @@ namespace ServerBackupTool.API.Controllers
                     });
             }
 
-            if (file.Contains(Path.DirectorySeparatorChar))
+            if (file.Contains(Path.DirectorySeparatorChar) || file.Contains(Path.AltDirectorySeparatorChar) || file.Contains(".."))
             {
                 return StatusCode(
                     400,

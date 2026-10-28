@@ -9,5 +9,6 @@ namespace ServerBackupTool.API.Models
         public required string Secret { get; set; }
         public int TimeoutSeconds { get; set; } = 10;
         public int MaxRetries { get; set; } = 4;
+        public string[] AllowedDomains { get; set; } = [];
     }
 }
