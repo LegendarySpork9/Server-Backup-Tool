@@ -22,8 +22,14 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
         public const string TestClientSecret = "test-secret";
 
         private readonly string DbName = $"TestDb_{Guid.NewGuid():N}";
+        private readonly string[] _AllowedDomains;
         private SqliteConnection? _KeepAliveConnection;
         private string? _ArchiveDirectory;
+
+        public CustomWebApplicationFactory(string[]? allowedDomains = null)
+        {
+            _AllowedDomains = allowedDomains ?? [];
+        }
 
         public string DatabaseConnectionString => $"Data Source={DbName};Mode=Memory;Cache=Shared";
 
@@ -146,11 +152,19 @@ namespace ServerBackupTool.IntegrationTests.API.Fixtures
 
                 services.AddSingleton<IExtendedDatabase, ExtendedDatabaseWrapper>();
 
+                ServiceDescriptor? webhookDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(WebhookSettingsModel));
+
+                if (webhookDescriptor != null)
+                {
+                    services.Remove(webhookDescriptor);
+                }
+
                 services.AddSingleton(new WebhookSettingsModel
                 {
                     Secret = "test-webhook-secret",
                     TimeoutSeconds = 5,
-                    MaxRetries = 1
+                    MaxRetries = 1,
+                    AllowedDomains = _AllowedDomains
                 });
 
                 ServiceDescriptor? pollingDescriptor = services.SingleOrDefault(

@@ -1795,6 +1795,9 @@ namespace ServerBackupTool.IntegrationTests.Installer.Modes
             // Max retries (accept default).
             console.Input.PushTextWithEnter("3");
 
+            // Reconfigure allowed domains? No.
+            console.Input.PushTextWithEnter("n");
+
             // Exit Without Saving (index 6).
             NavigateMainMenu(
                 console,

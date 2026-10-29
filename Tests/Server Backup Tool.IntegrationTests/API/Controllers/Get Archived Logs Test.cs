@@ -161,6 +161,26 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
         }
 
         /// <summary>
+        /// Checks that a file containing .zip but not ending with it returns a 400 response.
+        /// </summary>
+        [TestMethod]
+        public async Task ZipNotAtEnd_Returns400()
+        {
+            HttpRequestMessage request = new(
+                HttpMethod.Get,
+                "/logs/archived/file.zip.exe");
+            request.Headers.Authorization = AuthHelper.CreateBasicAuth(
+                CustomWebApplicationFactory.TestClientId,
+                CustomWebApplicationFactory.TestClientSecret);
+
+            HttpResponseMessage response = await _Client.SendAsync(request);
+
+            Assert.AreEqual(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+        }
+
+        /// <summary>
         /// Checks that a non-existent archive returns a 204 response.
         /// </summary>
         [TestMethod]

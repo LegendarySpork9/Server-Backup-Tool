@@ -185,6 +185,17 @@ namespace ServerBackupTool.Installer.Steps
                 string webhookSecret = Convert.ToHexString(webhookHashBytes)
                     .ToLowerInvariant();
 
+                List<string> allowedDomains = [];
+
+                while (_Console.Prompt(new ConfirmationPrompt("Add an allowed webhook domain?")
+                {
+                    ShowDefaultValue = false
+                }))
+                {
+                    string domain = _Console.Prompt(new TextPrompt<string>("Enter the domain (e.g. example.com):"));
+                    allowedDomains.Add(domain);
+                }
+
                 string clientId = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
                 string clientSecret = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
                 string clientIdHash = HashFunction.HashValue(clientId);
@@ -225,7 +236,8 @@ namespace ServerBackupTool.Installer.Steps
                     ClientSecret = clientSecret,
                     ClientIdHash = clientIdHash,
                     ClientSecretHash = clientSecretHash,
-                    WebhookSecret = webhookSecret
+                    WebhookSecret = webhookSecret,
+                    AllowedDomains = allowedDomains
                 };
 
                 _Logger.LogMessage(

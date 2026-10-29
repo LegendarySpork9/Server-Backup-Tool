@@ -374,6 +374,10 @@ namespace ServerBackupTool.IntegrationTests.Installer.Services
                 4,
                 webhook.GetProperty("MaxRetries")
                     .GetInt32());
+            Assert.AreEqual(
+                0,
+                webhook.GetProperty("AllowedDomains")
+                    .GetArrayLength());
         }
 
         /// <summary>

@@ -974,11 +974,59 @@ namespace ServerBackupTool.Installer.Modes
             int timeout = _Console.Prompt(new TextPrompt<int>("Timeout (seconds):").DefaultValue(currentTimeout));
             int retries = _Console.Prompt(new TextPrompt<int>("Max retries:").DefaultValue(currentRetries));
 
+            List<string> allowedDomains = [];
+
+            if (webhookElement.TryGetProperty(
+                "AllowedDomains",
+                out JsonElement domainsElement))
+            {
+                foreach (JsonElement domain in domainsElement.EnumerateArray())
+                {
+                    string? value = domain.GetString();
+
+                    if (!string.IsNullOrEmpty(value))
+                    {
+                        allowedDomains.Add(value);
+                    }
+                }
+            }
+
+            if (allowedDomains.Count > 0)
+            {
+                _Console.MarkupLine($"[blue]Current allowed domains:[/] {string.Join(
+                    ", ",
+                    allowedDomains)}");
+            }
+
+            else
+            {
+                _Console.MarkupLine("[blue]Current allowed domains:[/] None — all domains allowed");
+            }
+
+            if (_Console.Prompt(new ConfirmationPrompt("Reconfigure allowed domains?")
+            {
+                DefaultValue = false,
+                ShowDefaultValue = false
+            }))
+            {
+                allowedDomains.Clear();
+
+                while (_Console.Prompt(new ConfirmationPrompt("Add an allowed webhook domain?")
+                {
+                    ShowDefaultValue = false
+                }))
+                {
+                    string domain = _Console.Prompt(new TextPrompt<string>("Enter the domain (e.g. example.com):"));
+                    allowedDomains.Add(domain);
+                }
+            }
+
             settings["Webhook"] = new
             {
                 Secret = secret,
                 TimeoutSeconds = timeout,
-                MaxRetries = retries
+                MaxRetries = retries,
+                AllowedDomains = allowedDomains
             };
 
             _Logger.LogMessage(

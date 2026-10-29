@@ -23,5 +23,6 @@ namespace ServerBackupTool.Installer.Models.Related
         public string ClientIdHash { get; set; } = string.Empty;
         public string ClientSecretHash { get; set; } = string.Empty;
         public string WebhookSecret { get; set; } = string.Empty;
+        public List<string> AllowedDomains { get; set; } = [];
     }
 }

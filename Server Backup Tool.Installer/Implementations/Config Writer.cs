@@ -161,7 +161,8 @@ namespace ServerBackupTool.Installer.Implementations
             {
                 Secret = apiConfig.WebhookSecret,
                 TimeoutSeconds = InstallerValues.Defaults.WebhookTimeoutSeconds,
-                MaxRetries = InstallerValues.Defaults.WebhookMaxRetries
+                MaxRetries = InstallerValues.Defaults.WebhookMaxRetries,
+                AllowedDomains = apiConfig.AllowedDomains
             };
 
             string json = JsonSerializer.Serialize(

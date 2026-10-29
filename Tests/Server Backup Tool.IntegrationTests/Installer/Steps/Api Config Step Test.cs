@@ -69,6 +69,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushKey(ConsoleKey.Enter);
             // Webhook secret
             console.Input.PushTextWithEnter("mysecret");
+            // Add allowed webhook domain? No
+            console.Input.PushTextWithEnter("n");
             // Press Enter to continue after credentials display
             console.Input.PushKey(ConsoleKey.Enter);
 
@@ -139,6 +141,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushKey(ConsoleKey.Enter);
             // Webhook secret
             console.Input.PushTextWithEnter("webhooksecret");
+            // Add allowed webhook domain? No
+            console.Input.PushTextWithEnter("n");
             // Press Enter to continue after credentials display
             console.Input.PushKey(ConsoleKey.Enter);
 
@@ -209,6 +213,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushKey(ConsoleKey.Enter);
             // Webhook secret
             console.Input.PushTextWithEnter("webhooksecret");
+            // Add allowed webhook domain? No
+            console.Input.PushTextWithEnter("n");
             // Press Enter to continue after credentials display
             console.Input.PushKey(ConsoleKey.Enter);
 
@@ -283,6 +289,8 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             console.Input.PushKey(ConsoleKey.Enter);
             // Webhook secret.
             console.Input.PushTextWithEnter("webhooksecret");
+            // Add allowed webhook domain? No.
+            console.Input.PushTextWithEnter("n");
             // Press Enter to continue after credentials display.
             console.Input.PushKey(ConsoleKey.Enter);
 
@@ -319,6 +327,70 @@ namespace ServerBackupTool.IntegrationTests.Installer.Steps
             Assert.AreEqual(
                 "keypass123",
                 options.ApiConfig.CertificatePassword);
+        }
+        /// <summary>
+        /// Checks that Execute collects allowed webhook domains when the user provides them.
+        /// </summary>
+        [TestMethod]
+        public void Execute_CollectsAllowedDomains_WhenUserProvidesThem()
+        {
+            TestConsole console = new();
+            console.Interactive();
+
+            // Bind address (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // HTTP port (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Enable HTTPS? No
+            console.Input.PushTextWithEnter("n");
+            // API database path (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Archive directory (default)
+            console.Input.PushKey(ConsoleKey.Enter);
+            // Webhook secret
+            console.Input.PushTextWithEnter("mysecret");
+            // Add allowed webhook domain? Yes
+            console.Input.PushTextWithEnter("y");
+            // Domain
+            console.Input.PushTextWithEnter("example.com");
+            // Add another? Yes
+            console.Input.PushTextWithEnter("y");
+            // Domain
+            console.Input.PushTextWithEnter("hooks.internal.net");
+            // Add another? No
+            console.Input.PushTextWithEnter("n");
+            // Press Enter to continue after credentials display
+            console.Input.PushKey(ConsoleKey.Enter);
+
+            InstallOptionsModel options = new()
+            {
+                Components = ["Server Backup Tool", "Server Backup Tool API"],
+                InstallPath = @"C:\Test"
+            };
+
+            options.ServerConfig = new ServerConfigModel
+            {
+                DatabasePath = "test.db"
+            };
+
+            ApiConfigStep step = new(
+                console,
+                _MockLogger.Object,
+                _MockFileSystem.Object,
+                options);
+
+            step.Execute();
+
+            Assert.IsNotNull(options.ApiConfig);
+            Assert.AreEqual(
+                2,
+                options.ApiConfig.AllowedDomains.Count);
+            Assert.AreEqual(
+                "example.com",
+                options.ApiConfig.AllowedDomains[0]);
+            Assert.AreEqual(
+                "hooks.internal.net",
+                options.ApiConfig.AllowedDomains[1]);
         }
     }
 }
