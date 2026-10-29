@@ -15,6 +15,13 @@ namespace ServerBackupTool.Models.Configuration
             set { this["name"] = value; }
         }
 
+        [ConfigurationProperty("username", IsRequired = false, DefaultValue = "")]
+        public string Username
+        {
+            get { return (string)this["username"]; }
+            set { this["username"] = value; }
+        }
+
         [ConfigurationProperty("password", IsRequired = true)]
         public string Password
         {

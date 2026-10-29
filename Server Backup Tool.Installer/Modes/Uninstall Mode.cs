@@ -1,0 +1,329 @@
+// Copyright © - Unpublished - Toby Hunter
+using ServerBackupTool.Common.Values;
+using ServerBackupTool.Installer.Abstractions;
+using ServerBackupTool.Installer.Models;
+using ServerBackupTool.Installer.Values;
+using Spectre.Console;
+using System.Xml.Linq;
+
+namespace ServerBackupTool.Installer.Modes
+{
+    public class UninstallMode
+    {
+        private readonly IAnsiConsole _Console;
+        private readonly ILoggerService _Logger;
+        private readonly IFileService _FileService;
+        private readonly IExtendedFileSystem _FileSystem;
+        private readonly ITaskSchedulerService _TaskSchedulerService;
+        private readonly IRegistryService _RegistryService;
+        private readonly IVersionService _VersionService;
+
+        // Sets the class's global variables.
+        public UninstallMode(
+            IAnsiConsole console,
+            ILoggerService logger,
+            IFileService fileService,
+            IExtendedFileSystem fileSystem,
+            ITaskSchedulerService taskSchedulerService,
+            IRegistryService registryService,
+            IVersionService versionService)
+        {
+            _Console = console;
+            _Logger = logger;
+            _FileService = fileService;
+            _FileSystem = fileSystem;
+            _TaskSchedulerService = taskSchedulerService;
+            _RegistryService = registryService;
+            _VersionService = versionService;
+        }
+
+        /// <summary>
+        /// Runs the uninstall process.
+        /// </summary>
+        public void Execute()
+        {
+            _Logger.LogMessage(
+                StandardValues.LoggerValues.Info,
+                "Starting uninstall mode.");
+
+            VersionInfoModel? installed = SelectInstallation();
+
+            if (installed == null)
+            {
+                _Console.MarkupLine("[red]No existing installation found.[/]");
+
+                _Logger.LogMessage(
+                    StandardValues.LoggerValues.Error,
+                    "No existing installation found.");
+            }
+
+            else
+            {
+                _Console.MarkupLine($"Installation found at: [blue]{Markup.Escape(installed.InstallPath)}[/]");
+                _Console.MarkupLine($"Tool version: [blue]{Markup.Escape(installed.ToolVersion)}[/]");
+
+                if (!string.IsNullOrEmpty(installed.ApiInstallPath))
+                {
+                    _Console.MarkupLine($"API location:  [blue]{Markup.Escape(installed.ApiInstallPath)}[/]");
+                    _Console.MarkupLine($"API version:   [blue]{Markup.Escape(!string.IsNullOrEmpty(installed.ApiVersion) ? installed.ApiVersion : "Unknown")}[/]");
+                }
+
+                _Console.WriteLine();
+
+                if (!_Console.Prompt(new ConfirmationPrompt("[red]Are you sure you want to uninstall the Server Backup Tool?[/]")
+                {
+                    DefaultValue = false,
+                    ShowDefaultValue = false
+                }))
+                {
+                    _Console.MarkupLine("[yellow]Uninstall cancelled.[/]");
+
+                    _Logger.LogMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Uninstall cancelled by user.");
+                }
+
+                else
+                {
+                    bool apiInstalled = !string.IsNullOrEmpty(installed.ApiInstallPath) && _FileSystem.DirectoryExists(installed.ApiInstallPath);
+
+                    string uninstallTarget = "Everything";
+
+                    if (apiInstalled)
+                    {
+                        uninstallTarget = _Console.Prompt(new SelectionPrompt<string>()
+                            .Title("What would you like to uninstall?")
+                            .AddChoices(
+                                "Everything (Tool and API)",
+                                "API only"));
+                    }
+
+                    if (uninstallTarget.StartsWith("API only"))
+                    {
+                        UninstallApiOnly(installed);
+                    }
+
+                    else
+                    {
+                        UninstallEverything(installed);
+                    }
+
+                    _Console.MarkupLine("[green]Uninstall completed.[/]");
+
+                    _Logger.LogMessage(
+                        StandardValues.LoggerValues.Info,
+                        "Uninstall mode completed.");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Uninstalls only the API component, preserving the tool.
+        /// </summary>
+        private void UninstallApiOnly(VersionInfoModel installed)
+        {
+            if (!string.IsNullOrEmpty(installed.ApiTaskName) && _TaskSchedulerService.TaskExists(installed.ApiTaskName))
+            {
+                _Console.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
+
+                (bool apiTaskRemoved, Exception? apiTaskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ApiTaskName);
+
+                if (!apiTaskRemoved)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(installed.ApiInstallPath) && _FileSystem.DirectoryExists(installed.ApiInstallPath))
+            {
+                _Console.MarkupLine("Removing API files...");
+
+                (bool apiDirDeleted, Exception? apiDirEx) = _FileService.DeleteDirectory(installed.ApiInstallPath);
+
+                if (!apiDirDeleted)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+
+            _Console.MarkupLine("Updating registry entry...");
+
+            _RegistryService.WriteUninstallEntry(
+                installed.ServerName,
+                installed.InstallPath,
+                string.Empty,
+                installed.ToolVersion,
+                string.Empty,
+                installed.ToolTaskName,
+                string.Empty);
+
+            _Logger.LogMessage(
+                StandardValues.LoggerValues.Info,
+                "API uninstalled. Tool preserved.");
+        }
+
+        /// <summary>
+        /// Uninstalls everything including the tool and API.
+        /// </summary>
+        private void UninstallEverything(VersionInfoModel installed)
+        {
+            if (!string.IsNullOrEmpty(installed.ToolTaskName) && _TaskSchedulerService.TaskExists(installed.ToolTaskName))
+            {
+                _Console.MarkupLine($"Removing scheduled task '{Markup.Escape(installed.ToolTaskName)}'...");
+
+                (bool taskRemoved, Exception? taskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ToolTaskName);
+
+                if (!taskRemoved)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove scheduled task: {Markup.Escape(taskEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(installed.ApiTaskName) && _TaskSchedulerService.TaskExists(installed.ApiTaskName))
+            {
+                _Console.MarkupLine($"Removing API scheduled task '{Markup.Escape(installed.ApiTaskName)}'...");
+
+                (bool apiTaskRemoved, Exception? apiTaskEx) = _TaskSchedulerService.RemoveScheduledTask(installed.ApiTaskName);
+
+                if (!apiTaskRemoved)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API scheduled task: {Markup.Escape(apiTaskEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+
+            bool keepDatabase = _Console.Prompt(new ConfirmationPrompt("Keep the database file?")
+            {
+                DefaultValue = true,
+                ShowDefaultValue = false
+            });
+            bool keepLogs = _Console.Prompt(new ConfirmationPrompt("Keep log files?")
+            {
+                DefaultValue = true,
+                ShowDefaultValue = false
+            });
+
+            _Console.MarkupLine("Removing registry entry...");
+
+            _RegistryService.RemoveUninstallEntry(installed.ServerName);
+
+            if (!keepDatabase)
+            {
+                string dbPath = Functions.ConfigurationFunction.GetDatabasePath(
+                    installed.InstallPath,
+                    _FileSystem,
+                    _Logger);
+
+                if (_FileSystem.FileExists(dbPath))
+                {
+                    try
+                    {
+                        _FileSystem.DeleteFile(dbPath);
+
+                        _Logger.LogMessage(
+                            StandardValues.LoggerValues.Info,
+                            $"Database file deleted: {dbPath}");
+                    }
+
+                    catch (Exception ex)
+                    {
+                        _Console.MarkupLine($"[yellow]Warning: Failed to delete database: {Markup.Escape(ex.Message)}[/]");
+                    }
+                }
+
+                string dbDirectory = Path.GetDirectoryName(dbPath) ?? string.Empty;
+
+                if (!string.IsNullOrEmpty(dbDirectory) && _FileSystem.DirectoryExists(dbDirectory) && !dbDirectory.Equals(
+                    installed.InstallPath,
+                    StringComparison.OrdinalIgnoreCase))
+                {
+                    _FileService.DeleteDirectory(dbDirectory);
+                }
+            }
+
+            if (!keepLogs)
+            {
+                string logsPath = Path.Combine(
+                    installed.InstallPath,
+                    "Logs");
+                string archivePath = Path.Combine(
+                    installed.InstallPath,
+                    InstallerValues.Defaults.ArchiveDirectory);
+
+                if (_FileSystem.DirectoryExists(logsPath))
+                {
+                    _FileService.DeleteDirectory(logsPath);
+                }
+
+                if (_FileSystem.DirectoryExists(archivePath))
+                {
+                    _FileService.DeleteDirectory(archivePath);
+                }
+
+                _Logger.LogMessage(
+                    StandardValues.LoggerValues.Info,
+                    "Log files deleted.");
+
+                _Console.MarkupLine("Removing application files...");
+
+                (bool installDirDeleted, Exception? installDirEx) = _FileService.DeleteDirectory(installed.InstallPath);
+
+                if (!installDirDeleted)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove install directory: {Markup.Escape(installDirEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(installed.ApiInstallPath) && _FileSystem.DirectoryExists(installed.ApiInstallPath))
+            {
+                _Console.MarkupLine("Removing API files...");
+
+                (bool apiDirDeleted, Exception? apiDirEx) = _FileService.DeleteDirectory(installed.ApiInstallPath);
+
+                if (!apiDirDeleted)
+                {
+                    _Console.MarkupLine($"[yellow]Warning: Failed to remove API directory: {Markup.Escape(apiDirEx?.Message ?? "Unknown error")}[/]");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Enumerates all installations and prompts the user to select one if multiple exist.
+        /// </summary>
+        private VersionInfoModel? SelectInstallation()
+        {
+            List<VersionInfoModel> installations = _VersionService.GetAllInstallations();
+            VersionInfoModel? selected = null;
+
+            if (installations.Count == 1)
+            {
+                selected = installations[0];
+
+                _Logger.LogMessage(
+                    StandardValues.LoggerValues.Info,
+                    $"Auto-selected single installation: {selected.ServerName}.");
+            }
+
+            else if (installations.Count > 1)
+            {
+                string choice = _Console.Prompt(new SelectionPrompt<string>()
+                    .Title("Multiple installations found. Which installation would you like to uninstall?")
+                    .AddChoices(installations.Select(i => $"{i.ServerName} (v{i.ToolVersion} at {i.InstallPath})")));
+
+                int selectedIndex = installations.FindIndex(i => choice.StartsWith(
+                    $"{i.ServerName} (v{i.ToolVersion}",
+                    StringComparison.Ordinal));
+
+                if (selectedIndex >= 0)
+                {
+                    selected = installations[selectedIndex];
+                }
+
+                _Logger.LogMessage(
+                    StandardValues.LoggerValues.Info,
+                    $"User selected installation: {selected?.ServerName}.");
+            }
+
+            return selected;
+        }
+    }
+}

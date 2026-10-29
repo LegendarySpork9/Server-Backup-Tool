@@ -248,7 +248,7 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
             Assert.IsTrue(
                 doc.RootElement.GetProperty("error")
                     .GetString()!
-                    .Contains("not a valid HTTP"));
+                    .Contains("not a valid HTTPS URL"));
         }
 
         /// <summary>
@@ -312,6 +312,133 @@ namespace ServerBackupTool.IntegrationTests.API.Controllers
             Assert.AreEqual(
                 HttpStatusCode.NotFound,
                 response.StatusCode);
+        }
+
+        /// <summary>
+        /// Checks that an HTTP (non-HTTPS) URL returns a 400 response.
+        /// </summary>
+        [TestMethod]
+        public async Task HttpUrl_Returns400()
+        {
+            HttpRequestMessage request = new(
+                HttpMethod.Post,
+                "/webhooks");
+            request.Headers.Authorization = AuthHelper.CreateBasicAuth(
+                CustomWebApplicationFactory.TestClientId,
+                CustomWebApplicationFactory.TestClientSecret);
+            request.Content = new StringContent(
+                "{\"url\":\"http://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                Encoding.UTF8,
+                "application/json");
+
+            HttpResponseMessage response = await _Client.SendAsync(request);
+
+            Assert.AreEqual(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+
+            string body = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(body);
+
+            Assert.IsTrue(
+                doc.RootElement.GetProperty("error")
+                    .GetString()!
+                    .Contains("not a valid HTTPS URL"));
+        }
+    }
+
+    [TestClass]
+    public class WebhooksDomainRestrictionTest
+    {
+        private static CustomWebApplicationFactory _Factory = null!;
+        private static HttpClient _Client = null!;
+
+        /// <summary>
+        /// Initialises the test class with a factory that restricts webhook domains.
+        /// </summary>
+        [ClassInitialize]
+        public static void ClassInit(TestContext context)
+        {
+            _Factory = new CustomWebApplicationFactory(["example.com"]);
+            _Client = _Factory.CreateClient(new WebApplicationFactoryClientOptions
+            {
+                AllowAutoRedirect = false
+            });
+        }
+
+        /// <summary>
+        /// Cleans up the test class.
+        /// </summary>
+        [ClassCleanup]
+        public static void ClassCleanup()
+        {
+            _Client.Dispose();
+            _Factory.Dispose();
+        }
+
+        /// <summary>
+        /// Initialises the test.
+        /// </summary>
+        [TestInitialize]
+        public void TestInit()
+        {
+            TestDataSeeder.ClearWebhooks(_Factory.DatabaseConnectionString);
+        }
+
+        /// <summary>
+        /// Checks that a webhook with an allowed domain returns a 201 response.
+        /// </summary>
+        [TestMethod]
+        public async Task AllowedDomain_Returns201()
+        {
+            HttpRequestMessage request = new(
+                HttpMethod.Post,
+                "/webhooks");
+            request.Headers.Authorization = AuthHelper.CreateBasicAuth(
+                CustomWebApplicationFactory.TestClientId,
+                CustomWebApplicationFactory.TestClientSecret);
+            request.Content = new StringContent(
+                "{\"url\":\"https://example.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                Encoding.UTF8,
+                "application/json");
+
+            HttpResponseMessage response = await _Client.SendAsync(request);
+
+            Assert.AreEqual(
+                HttpStatusCode.Created,
+                response.StatusCode);
+        }
+
+        /// <summary>
+        /// Checks that a webhook with a disallowed domain returns a 400 response.
+        /// </summary>
+        [TestMethod]
+        public async Task DisallowedDomain_Returns400()
+        {
+            HttpRequestMessage request = new(
+                HttpMethod.Post,
+                "/webhooks");
+            request.Headers.Authorization = AuthHelper.CreateBasicAuth(
+                CustomWebApplicationFactory.TestClientId,
+                CustomWebApplicationFactory.TestClientSecret);
+            request.Content = new StringContent(
+                "{\"url\":\"https://evil.com/webhook\",\"serverName\":\"TestServer\",\"logType\":\"All\",\"logLevel\":\"All\",\"afterId\":0}",
+                Encoding.UTF8,
+                "application/json");
+
+            HttpResponseMessage response = await _Client.SendAsync(request);
+
+            Assert.AreEqual(
+                HttpStatusCode.BadRequest,
+                response.StatusCode);
+
+            string body = await response.Content.ReadAsStringAsync();
+            using JsonDocument doc = JsonDocument.Parse(body);
+
+            Assert.IsTrue(
+                doc.RootElement.GetProperty("error")
+                    .GetString()!
+                    .Contains("not in the list of allowed"));
         }
     }
 }
